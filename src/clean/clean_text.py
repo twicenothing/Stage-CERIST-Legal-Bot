@@ -1,5 +1,5 @@
-import re
 import os
+import re
 
 # --- CONFIGURATION ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -7,36 +7,48 @@ INPUT_DIR = os.path.join(BASE_DIR, "data", "txt")
 OUTPUT_DIR = os.path.join(BASE_DIR, "data", "cleaned")
 
 def remove_arabic(text):
-    """Supprime les caractères arabes."""
+    """Removes Arabic characters."""
     arabic_pattern = r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]+'
     return re.sub(arabic_pattern, '', text)
 
+def is_sommaire_page(text_chunk):
+    """
+    Returns True if the page is a Table of Contents (Sommaire).
+    """
+    # 1. Inspect only the top 20 lines
+    lines = [line.strip().upper() for line in text_chunk.split('\n') if line.strip()]
+    top_lines = lines[:20] 
+
+    for line in top_lines:
+        clean_line = line.replace(" ", "")
+        # Matches: "SOMMAIRE", "SOMMAIRE (SUITE)"
+        if "SOMMAIRE" in clean_line:
+            if len(clean_line) < 20 or "SUITE" in clean_line:
+                return True
+                
+    # 2. Backup: Dot Density Check
+    dot_pattern = r"\.{4,}\s*\d+\s*$"
+    matches = re.findall(dot_pattern, text_chunk, re.MULTILINE)
+    if len(matches) >= 3:
+        return True
+
+    return False
+
 def is_header_noise(line):
-    """
-    Détecte les en-têtes à supprimer avec des Regex génériques.
-    """
+    """Detects standard page headers/footers/dates to remove."""
     line = line.strip()
-    
-    # 1. Liste des mois français pour la date Grégorienne
-    mois_gregoriens = r"(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)"
+    if not line: return True
+
+    mois = r"(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)"
     
     noise_patterns = [
-        # Titre du journal (classique)
-        r"JOURNAL OFFICIEL DE LA REPUBLIQUE",
-        r"Imprimerie Officielle",
-        
-        # DATE HÉGIRIENNE (Générique)
-        # Ex: "12 Chaâbane 1446" ou "1 Rabie Ethani 1445"
-        # Logique: Un chiffre + du texte (le mois) + une année 14xx
-        r"^\d{1,2}\s+[a-zA-Z\s\u00C0-\u017F]+\s+14\d{2}$",
-
-        # DATE GRÉGORIENNE (Générique)
-        # Ex: "11 février 2025"
-        # Logique: Un chiffre + un des 12 mois + une année 20xx
-        rf"^\d{{1,2}}\s+{mois_gregoriens}\s+20\d{{2}}$",
-        
-        # Numéro de page seul (ex: "5" ou "33")
-        r"^\d+$"
+        r"^JOURNAL OFFICIEL",
+        r"^DE LA REPUBLIQUE",
+        r"^ALGERIENNE DEMOCRATIQUE",
+        r"^\d{1,2}\s+[a-zA-Z\s]+\s+14\d{2}$", # Hijri Date
+        rf"^\d{{1,2}}\s+{mois}\s+20\d{{2}}$",   # Gregorian Date
+        r"^\d+$", # Standalone page number
+        r"^\d+.*Dinar.*" # Price
     ]
     
     for p in noise_patterns:
@@ -45,79 +57,88 @@ def is_header_noise(line):
             
     return False
 
+def clean_page_text(raw_text):
+    """Clean a single page: remove noise lines and Arabic."""
+    lines = raw_text.split('\n')
+    clean_lines = []
+    
+    for line in lines:
+        line = remove_arabic(line)
+        if is_header_noise(line): continue
+        
+        clean_l = line.strip()
+        if not clean_l: continue
+            
+        clean_lines.append(clean_l)
+        
+    return "\n".join(clean_lines)
+
 def process_file(filename):
     input_path = os.path.join(INPUT_DIR, filename)
     output_path = os.path.join(OUTPUT_DIR, filename)
+    
+    with open(input_path, "r", encoding="utf-8") as f:
+        full_content = f.read()
 
-    with open(input_path, 'r', encoding='utf-8') as f:
-        raw_content = f.read()
-
-    # 1. Découpage par page (grâce aux marqueurs de l'étape précédente)
-    page_chunks = raw_content.split('==== PAGE')
-
-    cleaned_content = []
-
-    # On ignore la page 1 (index 0=vide, index 1=Page 1)
-    if len(page_chunks) < 2:
-        print(f"   ⚠️  Fichier {filename} trop court.")
-        return
-
-    # On commence à la page 2 (index 2)
-    for chunk in page_chunks[2:]: 
+    # Split by markers: ==== PAGE 1 ====
+    page_splits = re.split(r"(==== PAGE \d+ ====)", full_content)
+    
+    final_content = []
+    current_page_marker = ""
+    
+    for part in page_splits:
+        part = part.strip()
+        if not part: continue
+        
+        # Capture the marker
+        if part.startswith("==== PAGE"):
+            current_page_marker = part
+            continue
+            
+        # Process the Text Content
+        text_chunk = part
+        
+        # Get Page Number
         try:
-            # On récupère le numéro de page pour référence
-            # chunk ressemble à : " 2 ====\nTexte..."
-            header_part, text_part = chunk.split('====', 1)
-            page_num = header_part.strip()
+            page_num = current_page_marker.split()[2]
+        except:
+            page_num = "?"
+
+        # --- RULE 1: DROP PAGE 1 (Cover Page) ---
+        if page_num == "1":
+            # print(f"   🗑️  Dropped Page 1 (Cover)")
+            continue
+
+        # --- RULE 2: DROP SOMMAIRE ---
+        if is_sommaire_page(text_chunk):
+            # print(f"   🗑️  [Page {page_num}] Dropped Sommaire")
+            continue
             
-            # On insère un marqueur propre
-            cleaned_content.append(f"\n\n[[PAGE_REF:{page_num}]]\n")
-            
-        except ValueError:
-            text_part = chunk
+        # --- RULE 3: CLEAN CONTENT ---
+        cleaned_text = clean_page_text(text_chunk)
+        
+        if cleaned_text:
+            final_content.append(f"[[PAGE_REF:{page_num}]]")
+            final_content.append(cleaned_text)
+            final_content.append("\n" + ("-" * 20) + "\n")
 
-        # 2. Nettoyage ligne par ligne
-        lines = text_part.split('\n')
-        clean_lines = []
-
-        for line in lines:
-            line = line.strip()
-            if not line: continue
-
-            # Suppression Arabe
-            line = remove_arabic(line)
-            if not line.strip(): continue
-
-            # Suppression En-têtes (Noise)
-            if is_header_noise(line):
-                continue
-
-            clean_lines.append(line)
-
-        # 3. Recollage (Stitching) pour gérer les colonnes
-        page_text = " ".join(clean_lines)
-        cleaned_content.append(page_text)
-
-    # Sauvegarde
-    final_text = "".join(cleaned_content)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(final_text)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(final_content))
 
 def main():
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-
-    files = [f for f in os.listdir(INPUT_DIR) if f.endswith('.txt')]
+    if not os.path.exists(OUTPUT_DIR): os.makedirs(OUTPUT_DIR)
+    
+    files = [f for f in os.listdir(INPUT_DIR) if f.endswith(".txt")]
     
     if not files:
-        print("❌ Aucun fichier .txt trouvé.")
+        print("❌ No text files found.")
         return
 
-    print(f"🧹 Nettoyage de {len(files)} fichiers...")
+    print(f"🧹 Cleaning {len(files)} files (Dropping Pg1 & Sommaires)...")
     
-    for file in files:
-        process_file(file)
-        print(f"   ✅ Nettoyé : {file}")
+    for f in files:
+        process_file(f)
+        print(f"   ✅ Cleaned: {f}")
 
 if __name__ == "__main__":
     main()
