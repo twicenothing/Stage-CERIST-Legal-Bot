@@ -775,16 +775,20 @@ tableau suivant :
 --------------------
 
 [[PAGE_REF:11]]
-Classement
 Etablissement
 public
 Postes
 supérieurs
+Classement
 Catégorie Section
 Niveau
 hiérarchique
 Bonification
 indiciaire
+Conditions d’accès aux postes
+Mode
+de
+nomination
 Ecole
 supérieure
 de la sécurité
@@ -819,35 +823,6 @@ N’
 N’
 N-1
 N-1
-Conditions d’accès aux postes
-Mode
-de
-nomination
-Décret
-Arrêté
-conjoint
-entre le
-ministre
-chargé de
-la sécurité
-sociale et le
-ministre
-chargé
-de l'ensei-
-gnement
-supérieur
-ou arrêté du
-ministre
-Arrêté du
-ministre
-Arrêté du
-ministre
-Arrêté du
-ministre
-Décision
-du
-directeur
-de l'école
 Professeur d’enseignement supérieur ou à défaut
 maître de conférences classe A.
 Enseignant-chercheur titulaire ayant le grade le
@@ -891,26 +866,49 @@ de service effectif en cette qualité.
 Animateur universitaire de niveau 2 ou de
 niveau 1 justifiant de cinq (5) années de service
 effectif en cette qualité.
+Décret
+Arrêté
+conjoint
+entre le
+ministre
+chargé de
+la sécurité
+sociale et le
+ministre
+chargé
+de l'ensei-
+gnement
+supérieur
+ou arrêté du
+ministre
+Arrêté du
+ministre
+Arrêté du
+ministre
+Arrêté du
+ministre
+Décision
+du
+directeur
+de l'école
 
 --------------------
 
 [[PAGE_REF:12]]
-Classement
 Etablissement
 public
 Postes
 supérieurs
+Classement
 Catégorie Section
 Niveau
 hiérarchique
 Bonification
 indiciaire
-N-1
-N-1
-N-1
-A
-A
-A
+Conditions d’accès aux postes
+Mode
+de
+nomination
 Ecole
 supérieure
 de la sécurité
@@ -933,22 +931,12 @@ communication
 et
 d’enseignement
 à distance
-Conditions d’accès aux postes
-Mode
-de
-nomination
-Décision
-du
-directeur
-de l'école
-Décision
-du
-directeur
-de l'école
-Décision
-du
-directeur
-de l'école
+A
+A
+A
+N-1
+N-1
+N-1
 Administrateur principal, au moins, ou grade
 équivalent justifiant de cinq (5) années
 d'ancienneté en qualité de fonctionnaire.
@@ -1005,26 +993,22 @@ attaché des laboratoires universitaires (option
 électronique ou informatique) justifiant de
 cinq (5) années de service effectif en cette
 qualité.
+Décision
+du
+directeur
+de l'école
+Décision
+du
+directeur
+de l'école
+Décision
+du
+directeur
+de l'école
 
 --------------------
 
 [[PAGE_REF:13]]
-Classement
-Etablissement
-public
-Postes
-supérieurs
-Catégorie Section
-Niveau
-hiérarchique
-Bonification
-indiciaire
-N-1
-N-1
-N-2
-A
-A
-A
 Ecole
 supérieure
 de la sécurité
@@ -1047,20 +1031,12 @@ formation et
 des activités
 culturelles et
 sportives
-Conditions d’accès aux postes
-Mode
-de
-nomination
-Décision
-du
-directeur
-de l'école
-Arrêté du
-ministre
-Décision
-du
-directeur
-de l'école
+A
+A
+A
+N-1
+N-1
+N-2
 Ingénieur
 principal
 de
@@ -1125,24 +1101,34 @@ de service effectif en cette qualité.
 Animateur universitaire de niveau 2 ou de
 niveau 1 justifiant de quatre (4) années de
 service effectif en cette qualité.
-
---------------------
-
-[[PAGE_REF:14]]
-Classement
+Décision
+du
+directeur
+de l'école
+Arrêté du
+ministre
+Décision
+du
+directeur
+de l'école
 Etablissement
 public
 Postes
 supérieurs
+Classement
 Catégorie Section
 Niveau
 hiérarchique
 Bonification
 indiciaire
-N-2
-N-2
-A
-A
+Conditions d’accès aux postes
+Mode
+de
+nomination
+
+--------------------
+
+[[PAGE_REF:14]]
 Ecole
 supérieure
 de la sécurité
@@ -1160,18 +1146,10 @@ service
 auprès du
 directeur
 adjoint
-Conditions d’accès aux postes
-Mode
-de
-nomination
-Décision
-du
-directeur
-de l'école
-Décision
-du
-directeur
-de l'école
+A
+A
+N-2
+N-2
 Administrateur principal, au moins, ou grade
 équivalent justifiant de trois (3) années
 d'ancienneté en qualité de fonctionnaire.
@@ -1237,20 +1215,32 @@ qualité.
 Traducteur-interprète spécialisé ou traducteur
 interprète justifiant de quatre (4) années de
 service effectif en cette qualité.
-
---------------------
-
-[[PAGE_REF:15]]
-Classement
+Décision
+du
+directeur
+de l'école
+Décision
+du
+directeur
+de l'école
 Etablissement
 public
 Postes
 supérieurs
+Classement
 Catégorie Section
 Niveau
 hiérarchique
 Bonification
 indiciaire
+Conditions d’accès aux postes
+Mode
+de
+nomination
+
+--------------------
+
+[[PAGE_REF:15]]
 Ecole
 supérieure
 de la sécurité
@@ -1281,10 +1271,6 @@ N-2
 N-2
 N-2
 N-2
-Conditions d’accès aux postes
-Mode
-de
-nomination
 Conservateur des bibliothèques universitaires,
 au moins, justifiant de trois (3) années
 d'ancienneté en qualité de fonctionnaire.
@@ -1355,20 +1341,24 @@ Décision
 du
 directeur
 de l'école
-
---------------------
-
-[[PAGE_REF:16]]
-Classement
 Etablissement
 public
 Postes
 supérieurs
+Classement
 Catégorie Section
 Niveau
 hiérarchique
 Bonification
 indiciaire
+Conditions d’accès aux postes
+Mode
+de
+nomination
+
+--------------------
+
+[[PAGE_REF:16]]
 Ecole
 supérieure
 de la sécurité
@@ -1393,10 +1383,6 @@ A
 N-2
 N-2
 N-2
-Conditions d’accès aux postes
-Mode
-de
-nomination
 Ingénieur d’Etat des laboratoires universitaires
 ou attaché des laboratoires universitaires
 justifiant de quatre (4) années de service
@@ -1460,6 +1446,20 @@ Décision
 du
 directeur
 de l'école
+Etablissement
+public
+Postes
+supérieurs
+Classement
+Catégorie Section
+Niveau
+hiérarchique
+Bonification
+indiciaire
+Conditions d’accès aux postes
+Mode
+de
+nomination
 
 --------------------
 
@@ -1468,22 +1468,10 @@ Art. 4. — En application des dispositions des articles 3 et 10 du décret pré
 correspondant au 29 septembre 2007 susvisé, la bonification indiciaire des postes supérieurs de « directeur d'unité de recherche,
 directeur de laboratoire de recherche, directeur de division de recherche, chef ou responsable d'équipe de recherche » et les
 conditions d'accès à ces postes, sont fixées conformément au tableau suivant :
-Art. 5. — Les fonctionnaires ayant vocation à occuper les postes supérieurs, doivent appartenir à des grades dont les missions
-sont en rapport avec les attributions des structures concernées.
-Art 6. — Les dispositions de l’arrêté interministériel du 16 Chaâbane 1437 correspondant au 23 mai 2016 fixant la
-classification de l’école supérieure de la sécurité sociale et les conditions d’accès aux postes supérieurs en relevant, sont
-abrogées.
-Art. 7. — Le présent arrêté sera publié au  Journal officiel  de la République algérienne démocratique et populaire.
-Fait à Alger, le 21 Joumada Ethania 1446 correspondant au 23 décembre 2024.
-Classification
-Etablissement
-public
-Postes
-supérieurs
-Niveau
-hiérarchique
-Bonification
-indiciaire
+Ecole
+supérieure
+de la sécurité
+sociale
 Directeur
 d'unité de
 recherche
@@ -1497,19 +1485,27 @@ Chef ou
 Responsable
 d’équipe de
 recherche
-Ecole
-supérieure
-de la sécurité
-sociale
-Le ministre des finances
-Laziz FAID
-Le ministre du travail, de l’emploi et de
-la sécurité sociale
-Fayçal BENTALEB
+Etablissement
+public
+Postes
+supérieurs
+Classification
+Niveau
+hiérarchique
+Bonification
+indiciaire
 Conditions d’accès
 Mode
 de
 nomination
+Maître de conférences classe « B », au moins, justifiant
+de deux (2) années d'ancienneté en qualité de
+fonctionnaire.
+Maître de conférences classe « B », au moins.
+Maître de conférences classe « B », au moins.
+Maître assistant classe « B », au moins, titulaire,
+justifiant de trois (3) années d'ancienneté en qualité de
+fonctionnaire.
 Arrêté du
 ministre
 Arrêté du
@@ -1519,21 +1515,25 @@ ministre
 Décision du
 directeur de
 l'école
-Maître de conférences classe « B », au moins, justifiant
-de deux (2) années d'ancienneté en qualité de
-fonctionnaire.
-Maître de conférences classe « B », au moins.
-Maître de conférences classe « B », au moins.
-Maître assistant classe « B », au moins, titulaire,
-justifiant de trois (3) années d'ancienneté en qualité de
-fonctionnaire.
-Le ministre de l’enseignement supérieur
-et de la recherche scientifique
-Kamel BADDARI
+Art. 5. — Les fonctionnaires ayant vocation à occuper les postes supérieurs, doivent appartenir à des grades dont les missions
+sont en rapport avec les attributions des structures concernées.
+Art 6. — Les dispositions de l’arrêté interministériel du 16 Chaâbane 1437 correspondant au 23 mai 2016 fixant la
+classification de l’école supérieure de la sécurité sociale et les conditions d’accès aux postes supérieurs en relevant, sont
+abrogées.
+Art. 7. — Le présent arrêté sera publié au Journal officiel de la République algérienne démocratique et populaire.
+Fait à Alger, le 21 Joumada Ethania 1446 correspondant au 23 décembre 2024.
+Le ministre du travail, de l’emploi et de
+la sécurité sociale
+Fayçal BENTALEB
+Le ministre des finances
+Laziz FAID
 Pour le Premier ministre et par délégation,
 le chargé de la gestion de la direction générale de la
 fonction publique et de la réforme administrative
 Abdelouahab LAOUICI
+Le ministre de l’enseignement supérieur
+et de la recherche scientifique
+Kamel BADDARI
 
 --------------------
 

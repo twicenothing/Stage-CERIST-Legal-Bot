@@ -267,6 +267,32 @@ DECRETS
 
 [[PAGE_REF:6]]
 12 Chaâbane 1446
+— la délégation communale « Moudjahid décédé Hammoud
+Ahmed » ;
+— la délégation communale « Moudjahid décédé Aggoune
+Abderrahmane » ;
+— la délégation communale « Massinissa » ;
+— la délégation communale « Ain Nahas » ;
+— la délégation communale « Moudjahid décédé Basli
+Ramdan » ;
+— la délégation communale « 11 décembre 1960 » ;
+— la délégation communale « Moudjahid décédé Mekideche
+Abdelkrim » ;
+— la délégation communale « Moudjahid décédé Aissani
+Messaoud ».
+Art. 3. — La délimitation des délégations communales,
+prévues à l’article 2 ci-dessus, est fixée en annexe du présent
+décret.
+Art. 4. — Des plans graphiques précisant les limites de chaque
+délégation communale, sont annexés à l’original du présent
+décret.
+Art. 5. — Les antennes communales implantées sur le
+territoire de la commune d’El Khroub, sont supprimées.
+Art. 6. — Le présent décret sera publié au Journal officiel
+de la République algérienne démocratique et populaire.
+Fait à Alger, le 11 Chaâbane 1446 correspondant au
+10 février 2025.
+Mohamed Ennadir LARBAOUI.
 Vu le décret n° 84-365 du 1er décembre 1984, modifié et
 complété, fixant la composition, la consistance et les limites
 territoriales des communes ;
@@ -294,40 +320,14 @@ la commune d’El Khroub-wilaya de Constantine.
 Art. 2. — Le territoire de la commune d’El Khroub est
 organisé dans sa totalité en huit (8) délégations communales,
 dénommées comme suit :
+————————
+ANNEXE
+DELIMITATION DES DELEGATIONS COMMUNALES DE LA COMMUNE D’EL KHROUB
 Délégations communales
 Délimination
 Moudjahid
 décédé Hammoud
 Ahmed
-— la délégation communale « Moudjahid décédé Hammoud
-Ahmed » ;
-— la délégation communale « Moudjahid décédé Aggoune
-Abderrahmane » ;
-— la délégation communale « Massinissa » ;
-— la délégation communale « Ain Nahas » ;
-— la délégation communale « Moudjahid décédé Basli
-Ramdan » ;
-— la délégation communale « 11 décembre 1960 » ;
-— la délégation communale « Moudjahid décédé Mekideche
-Abdelkrim » ;
-— la délégation communale « Moudjahid décédé Aissani
-Messaoud ».
-Art. 3. — La délimitation des délégations communales,
-prévues à l’article 2 ci-dessus, est fixée en annexe du présent
-décret.
-Art. 4. — Des plans graphiques précisant les limites de chaque
-délégation communale, sont annexés à l’original du présent
-décret.
-Art. 5. — Les antennes communales implantées sur le
-territoire de la commune d’El Khroub, sont supprimées.
-Art. 6. — Le présent décret sera publié au  Journal officiel
-de la République algérienne démocratique et populaire.
-Fait à Alger, le 11 Chaâbane 1446 correspondant au
-10 février 2025.
-Mohamed Ennadir LARBAOUI.
-————————
-ANNEXE
-DELIMITATION DES DELEGATIONS COMMUNALES DE LA COMMUNE D’EL KHROUB
 Comprend : la cité 20 août 1955, El Khroub centre, la cité Chahid Bradai El Hocine, la cité
 8 mai 1945, la cité Chahid Mostefa Benboulaid, la cité Chahid Kerimi Ammar, la cité Chahid
 Bouhali Laid, la cité Chahid Belaribi Mohammed, la cité Chahid Chihani Bachir, la cité Chahid
@@ -335,18 +335,18 @@ Ouchtati Merah, la cité El Hanaa, la cité Moudjahid décédé Nebti Said, la c
 Ammar, la cité des frères Chouhada Spiga, la cité des frères Chouhada Boucherit, la cité  Chahid
 Guerziz Mebarek, la cité Chahid Benlahreche Tayeb, la cité Chahid Benlahreche Messaoud et
 l’agglomération secondaire de Oued Hmimim, et délimitée comme suit :
-Au Nord :  les limites territoriales de la commune de Constantine.
-A l’Est :  à partir de l’intersection des limites territoriales de la commune de Constantine
+Au Nord : les limites territoriales de la commune de Constantine.
+A l’Est : à partir de l’intersection des limites territoriales de la commune de Constantine
 avec la route nationale n° 3, puis tout au long de cette dernière jusqu’à la jonction de cette
 dernière avec le boulevard Chahid  Hocine Nezali.
-Au Sud :  à partir de la jonction de la route nationale n° 3 avec le boulevard Chahid Hocine
+Au Sud : à partir de la jonction de la route nationale n° 3 avec le boulevard Chahid Hocine
 Nezali, puis tout au long de ce dernier jusqu’à sa jonction avec la rue 1er novembre 1954, puis
 tout au long de cette rue jusqu’à sa jonction avec le boulevard Moudjahid décédé Mohammed
 Mehdi, puis tout au long de ce boulevard jusqu’à sa jonction avec la rue Chahid Chibane Tayeb
 en passant par cette rue jusqu’à sa jonction avec le chemin de fer, puis tout au long de ce dernier
 jusqu’à son intersection avec le chemin de wilaya n° 101 en passant par ce dernier jusqu’à son
 intersection avec la route nationale n° 79.
-A l’Ouest :  à partir de l’intersection du chemin de wilaya n° 101 avec la route nationale
+A l’Ouest : à partir de l’intersection du chemin de wilaya n° 101 avec la route nationale
 n° 79, puis tout au long de cette dernière jusqu’à son intersection avec les limites territoriales
 de la commune de Constantine.
 
@@ -827,12 +827,10 @@ Laziz FAID.
 12 Chaâbane 1446
 Annexe I
 Dénomination et identification de l'entité :
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 BILAN OU SITUATION FINANCIERE AU ....................................
+Unité : ............. DA.
 ACTIF
 Postes
-Notes
 ACTIFS COURANTS
 Trésorerie
 Fonds bancaires et fonds de caisse
@@ -853,7 +851,7 @@ Immobilisations en cours
 Immobilisations financières
 TOTAL ACTIFS NON COURANTS .............. (II)
 TOTAL GENERAL ACTIF (I) + (II)
-Unité : ............. DA.
+Notes
 Exercice N
 Exercice
 N-1
@@ -863,6 +861,8 @@ Amort /Pertes
 valeurs
 Montant
 net
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 
@@ -870,6 +870,7 @@ net
 12 Chaâbane 1446
 Dénomination et identification de l'entité :
 BILAN OU SITUATION FINANCIERE AU ..................................
+Unité : ............. DA.
 PASSIF
 Postes
 PASSIFS COURANTS
@@ -902,7 +903,6 @@ Report à nouveau
 Solde des opérations de l'exercice
 TOTAL - SITUATION NETTE  .............. (III)
 TOTAL GENERAL PASSIF (I) + (II) + (III)
-Unité : ............. DA.
 Notes
 Exercice N
 Exercice N-1
@@ -914,8 +914,7 @@ Exercice N-1
 Annexe II
 Dénomination et identification de l'entité :
 ETAT DE LA PERFORMANCE FINANCIERE OU COMPTE DE RESULTATS AU ...............................
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
+Unité : ............. DA.
 Postes
 PRODUITS
 Produits des opérations sans contrepartie directe
@@ -954,10 +953,11 @@ NETTES .........................................................................
 TOTAL DES PRODUITS  DE L'EXERCICE ............................ (I)+(f) = (V)
 TOTAL DES CHARGES DE L'EXERCICE ........................ (II) + (g)  = (VI)
 SOLDE DES OPERATIONS DE L'EXERCICE ..... VII=( III + IV)= (V-VI)
-Unité : ............. DA.
 Notes
 Exercice N
 Exercice N-1
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 
@@ -966,8 +966,7 @@ Exercice N-1
 Annexe III
 Dénomination et identification de l'entité :
 TABLEAU DES FLUX DE TRESORERIE AU ..................................
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
+Unité : ............. DA.
 Postes
 FLUX DE TRESORERIE LIES A L’ACTIVITE OPERATIONNELLE
 Encaissements ....... (A)
@@ -1004,10 +1003,11 @@ Flux de trésorerie liés aux opérations de financement ................. III =
 VARIATION DE TRESORERIE ................................................. IV = I+II+III
 TRESORERIE EN DEBUT DE PERIODE ................................................. V
 TRESORERIE EN FIN DE PERIODE ....................................... VI = IV + V
-Unité : ............. DA.
 Notes
 Exercice N
 Exercice N-1
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 
@@ -1152,13 +1152,11 @@ Laziz FAID.
 
 [[PAGE_REF:19]]
 12 Chaâbane 1446
+Annexe n° Ⅰ
+Direction générale du trésor et de la comptabilité
 Code et intitulé du poste comptable : ......................                                                                                    Exercice : .............
 LIVRE JOURNAL
 Journée du : ………….
-Annexe n° Ⅰ
-Direction générale du trésor et de la comptabilité
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 N° opération Référence de la pièce
 Code*
 N° du Compte** Intitulé du compte
@@ -1167,6 +1165,7 @@ Débits
 Montant
 Crédits
 Total
+Unité de mesure :  …..… DA
 Date et heure d’édition
 numéro donné aux fournisseurs et aux clients.
 numéro du compte en débit sera aligné à gauche et en crédit à droite.
@@ -1174,7 +1173,8 @@ fait ressortir toutes les informations jugées utiles par le comptable public.
 *
 **
 ***
-Unité de mesure :  …..… DA
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 Observation***
 Page n° ..................
 
@@ -1182,20 +1182,10 @@ Page n° ..................
 
 [[PAGE_REF:20]]
 12 Chaâbane 1446
-Code et intitulé du poste comptable : ......................                                                                                      Exercice : .............
-LIVRE AUXILIAIRE
-N° opération*
-Référence de la pièce justificative
-Date de l’écriture
-comptable
-Débit
-Crédit
-Date et heure d’édition
-Page n° : .........
 Annexe n° ⅠI
 Direction générale du trésor et de la comptabilité
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
+Code et intitulé du poste comptable : ......................                                                                                      Exercice : .............
+LIVRE AUXILIAIRE
 N° du compte .......................... et intitulé du compte ..........................
 Code : .....................................................
 Du ..../ ..../ ....     au ..../ ..../ ....
@@ -1203,80 +1193,90 @@ Balance d’entrée : .....................................
 Débits de l’exercice : ................................
 Crédits de l’exercice : ...............................
 Solde de l’exercice au ..../ ..../ ..................
+N° opération*
+Référence de la pièce justificative
+Date de l’écriture
+comptable
+Débit
+Crédit
+Montant
+Unité de mesure :  …..… DA
+Date et heure d’édition
+Page n° : .........
+* Numéro chronologique pour chaque écriture comptable.
 Total mouvement sans balance d’entrée
 Total avec balance d’entrée
 Solde de l’exercice avec balance d’entrée
-* Numéro chronologique pour chaque écriture comptable.
-Unité de mesure :  …..… DA
-Montant
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 
 [[PAGE_REF:21]]
 12 Chaâbane 1446
+Annexe n° ⅠII
+Direction générale du trésor et de la comptabilité
 Code et intitulé du poste comptable : ......................                                                                                      Exercice : .............
 GRAND LIVRE
+Date du ..../ ..../ ....
 Intitulé du compte / sous-compte
 N° du compte / sous-
 compte
 Débits
 Crédits
+Soldes
+Unité de mesure :  …..… DA
 Date et heure d’édition
 Page n° : .........
-Annexe n° ⅠII
-Direction générale du trésor et de la comptabilité
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 Total compte
 Total général
-Date du ..../ ..../ ....
-Unité de mesure :  …..… DA
-Soldes
 Masses
 Débits
 Crédits
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 
 [[PAGE_REF:22]]
 12 Chaâbane 1446
-Code et intitulé du poste comptable : ......................                                                                                      Exercice : .............
-BALANCE GENERALE DES COMPTES
-Date et heure d’édition
-Page n° : .........
 Annexe n° ⅠV
 Direction générale du trésor et de la comptabilité
-ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
-ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
+Code et intitulé du poste comptable : ......................                                                                                      Exercice : .............
+BALANCE GENERALE DES COMPTES
 Du ..../ ..../ ....     au ..../ ..../ ....
-Balance d’entrée
-(1)
 Intitulé du compte /
 sous-compte
 N° du compte /
 sous-compte
+Soldes
+Unité de mesure :  …..… DA
+Date et heure d’édition
+Page n° : .........
 S/Total
-Total *
-Total classe **
 Total général
+Total général
+(1) + (2)
+Débits
+Crédits
 Total du compte comptable à deux ou à trois chiffres.
 Total de la classe du compte comptable.
 *
 **
-Unité de mesure :  …..… DA
-Total général
-(1) + (2)
+Balance d’entrée
+(1)
 Opérations de l’exercice
 (2)
-Soldes
 Débits
 Crédits
 Débits
 Crédits
 Débits
 Crédits
-Débits
-Crédits
+Total *
+Total classe **
+ﺍﳉﻤﻬﻮﺭﻳﺔ ﺍﳉﺰﺍﺋﺮﻳﺔ ﺍﻟﺪﻳﻤﻘﺮﺍﻃﻴﺔ ﺍﻟﺸﻌﺒﻴﺔ
+ﻭﺯﺍﺭﺓ ﺍﳌﺎﻟﻴﺔ
 
 --------------------
 

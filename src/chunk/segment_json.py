@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Improved segmentation script for Journal Officiel documents.
-Extracts Décrets and Arrêtés with their associated articles.
+Robust Segmentation Script for Journal Officiel.
+Fixes: Missing documents due to strict title matching, missing articles due to punctuation checks.
 """
 
 import re
@@ -10,323 +10,257 @@ import os
 
 # --- CONFIGURATION ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-INPUT_DIR = os.path.join(BASE_DIR, "data", "txt")
+INPUT_DIR = os.path.join(BASE_DIR, "data", "cleaned") # Read from cleaned!
 OUTPUT_DIR = os.path.join(BASE_DIR, "data", "json")
-
 
 class DocumentSegmenter:
     """Segments Journal Officiel documents into structured chunks."""
     
     def __init__(self):
-        self.current_page = 1
+        self.current_page = "1"
     
-    def extract_page_number(self, text_before_position):
-        """Extract the most recent page number from text."""
-        page_matches = re.findall(r'==== PAGE (\d+) ====', text_before_position)
-        if page_matches:
-            return int(page_matches[-1])
-        return self.current_page
+    def extract_page_number(self, text_chunk, current_val):
+        """
+        Scans for [[PAGE_REF:X]] tags in the text chunk.
+        Returns the last found page number, or the current one if none found.
+        """
+        matches = re.findall(r"\[\[PAGE_REF:(\d+)\]\]", text_chunk)
+        if matches:
+            return matches[-1]
+        return current_val
     
     def clean_text(self, text):
-        """Clean up text by removing excessive whitespace."""
-        # Replace multiple spaces with single space
-        text = re.sub(r' +', ' ', text)
-        # Replace multiple newlines with double newline
+        """Clean up text: remove page tags, fix spacing."""
+        # Remove the page tags we added in cleaning (we only use them for logic, not content)
+        text = re.sub(r"\[\[PAGE_REF:\d+\]\]", "", text)
+        
+        # Collapse multiple spaces
+        text = re.sub(r'[ \t]+', ' ', text)
+        # Collapse excessive newlines (keep max 2)
         text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
         return text.strip()
     
     def find_all_documents(self, full_text):
         """
-        Find all Décrets and Arrêtés in the text.
-        
-        Returns a list of tuples: (doc_type, start_pos, title_end_pos, separator_pos)
+        Robust Document Discovery:
+        1. Find all '————' separators.
+        2. Look BACKWARDS from each separator to find the 'Start Keyword' (Décret, Arrêté...).
         """
         documents = []
         
-        # More specific pattern: Look for document headers that end with the separator
-        # The title is usually one or more lines, ending with ————
+        # 1. Find all separators (The Anchor)
+        # We use 'match' objects to get exact positions
+        sep_iter = re.finditer(r'————+', full_text)
         
-        # First, find all separator positions
-        separators = [(m.start(), m.end()) for m in re.finditer(r'————+', full_text)]
-        
-        for sep_start, sep_end in separators:
-            # Look backward from separator to find the document title
-            # Title starts with Décret or Arrêté and can span multiple lines
-            text_before_sep = full_text[max(0, sep_start-2000):sep_start]
+        for sep_match in sep_iter:
+            sep_start = sep_match.start()
+            sep_end = sep_match.end()
             
-            # Match the title (last occurrence of Décret/Arrêté before the separator)
-            title_patterns = [
-                r'(Décret\s+présidentiel\s+n°[^\n]+(?:\n[^\n]+)*)',
-                r'(Décret\s+exécutif\s+n°[^\n]+(?:\n[^\n]+)*)',
-                r'(Décret\s+législatif\s+n°[^\n]+(?:\n[^\n]+)*)',
-                r'(Arrêté\s+interministériel\s+du[^\n]+(?:\n[^\n]+)*)',
-                r'(Arrêté\s+du[^\n]+(?:\n[^\n]+)*)',
-            ]
+            # 2. Define a "Lookback Window" (e.g., 1500 chars before separator)
+            # This covers even long titles.
+            window_start = max(0, sep_start - 1500)
+            window_text = full_text[window_start:sep_start]
             
-            title_match = None
-            doc_type = None
+            # 3. Find the LAST "Start Keyword" in this window
+            # This is the title corresponding to this separator.
+            # We add 'Loi', 'Ordonnance', 'Décision' to catch everything.
+            keywords_pattern = r'(?:\n|^)\s*(Décret|Arrêté|Loi|Ordonnance|Décision)\b'
             
-            for pattern in title_patterns:
-                matches = list(re.finditer(pattern, text_before_sep, re.IGNORECASE))
-                if matches:
-                    title_match = matches[-1]  # Get the last (closest to separator)
-                    title_text = title_match.group(1).strip()
-                    
-                    # Determine type
-                    if re.match(r'Décret', title_text, re.IGNORECASE):
-                        doc_type = 'Décret'
-                    elif re.match(r'Arrêté', title_text, re.IGNORECASE):
-                        doc_type = 'Arrêté'
-                    break
+            # We want the LAST match in the window (closest to the separator)
+            matches = list(re.finditer(keywords_pattern, window_text, re.IGNORECASE))
             
-            if title_match and doc_type:
-                # Calculate absolute positions
-                abs_title_start = max(0, sep_start-2000) + title_match.start()
-                abs_title_end = max(0, sep_start-2000) + title_match.end()
+            if matches:
+                last_match = matches[-1]
                 
-                # Clean the title - only take the first few lines (the actual title)
-                # Stop at first "Vu" or other preamble markers
-                raw_title = title_match.group(1).strip()
-                title_lines = raw_title.split('\n')
+                # Calculate absolute position of the Title Start in full_text
+                title_start_abs = window_start + last_match.start()
                 
-                clean_title_lines = []
-                for line in title_lines:
-                    line = line.strip()
-                    # Stop if we hit preamble markers
-                    if any(marker in line for marker in ['Vu ', 'Le Président', 'Le Premier', 'Sur le rapport']):
-                        break
-                    if line:
-                        clean_title_lines.append(line)
+                # Extract the raw title (from Start Keyword to Separator)
+                raw_title = full_text[title_start_abs:sep_start].strip()
                 
-                clean_title = ' '.join(clean_title_lines).strip()
+                # Determine Type
+                doc_type_word = last_match.group(1).capitalize() # e.g. "Décret"
+                
+                # Refine Type (e.g. "Décret exécutif")
+                full_type_match = re.match(r'(Décret\s+\w+|Arrêté\s+\w+|Loi|Ordonnance|Décision)', raw_title, re.IGNORECASE)
+                doc_type = full_type_match.group(1) if full_type_match else doc_type_word
                 
                 documents.append({
                     'type': doc_type,
-                    'start': abs_title_start,
-                    'title_end': abs_title_end,
-                    'separator_pos': sep_end,
-                    'title': clean_title
+                    'start_pos': title_start_abs,
+                    'body_start_pos': sep_end, # Body starts AFTER the separator
+                    'raw_title': raw_title
                 })
         
-        # Sort by position
-        documents.sort(key=lambda x: x['start'])
+        # Sort by position (just in case)
+        documents.sort(key=lambda x: x['start_pos'])
         
-        # Remove duplicates (same separator found multiple times)
-        unique_docs = []
-        last_sep = -1
-        for doc in documents:
-            if doc['separator_pos'] != last_sep:
-                unique_docs.append(doc)
-                last_sep = doc['separator_pos']
-        
-        return unique_docs
-    
-    def extract_document_body(self, full_text, doc_info, next_doc_start=None):
+        # Filter: Remove duplicates or contained matches (unlikely with this logic but good practice)
+        return documents
+
+    def split_preamble_and_articles(self, body_text):
         """
-        Extract the body of a document (from after separator to next document or EOF).
+        Separates the Context (Vu...) from the Rules (Articles).
         """
-        body_start = doc_info['separator_pos']
-        body_end = next_doc_start if next_doc_start else len(full_text)
-        
-        body_text = full_text[body_start:body_end]
-        return body_text
-    
-    def split_preamble_and_articles(self, body_text, doc_type):
-        """
-        Split the body into preamble (Vu...) and articles section.
-        
-        The articles section starts after:
-        - "Décrète :" for Décrets
-        - "Arrête :" or "Arrêtent :" for Arrêtés
-        """
-        # Look for the trigger word
-        if doc_type == 'Décret':
-            trigger_pattern = r'Décrète\s*:'
-        else:  # Arrêté
-            trigger_pattern = r'Arrête(?:nt)?\s*:'
-        
-        trigger_match = re.search(trigger_pattern, body_text, re.IGNORECASE)
+        # 1. Look for the standard "Transition Trigger"
+        # "Décrète :", "Arrête :", "Ordonne :"
+        trigger_match = re.search(r'(Décrète\s*:|Arrête\s*:|Arrêtent\s*:|Ordonne\s*:|Décide\s*:)', body_text, re.IGNORECASE)
         
         if trigger_match:
-            preamble = body_text[:trigger_match.start()].strip()
-            articles_section = body_text[trigger_match.end():].strip()
-        else:
-            # Fallback: look for first Article
-            first_article = re.search(r'Article\s+(?:1er|\d+)', body_text, re.IGNORECASE)
-            if first_article:
-                preamble = body_text[:first_article.start()].strip()
-                articles_section = body_text[first_article.start():].strip()
-            else:
-                # No clear structure, treat all as preamble
-                preamble = body_text
-                articles_section = ""
+            preamble = body_text[:trigger_match.start()]
+            articles_block = body_text[trigger_match.end():]
+            return preamble, articles_block
+            
+        # 2. Fallback: If no trigger, look for "Article 1"
+        # We use a loose regex here just to find the split point
+        first_art = re.search(r'(?:\n|^)\s*(Article\s+1er|Art\.?\s*1\b)', body_text, re.IGNORECASE)
         
-        return preamble, articles_section
-    
-    def extract_articles(self, articles_text):
+        if first_art:
+            preamble = body_text[:first_art.start()]
+            articles_block = body_text[first_art.start():]
+            return preamble, articles_block
+            
+        # 3. Last Resort: No split found -> It's all content (or all preamble)
+        # Usually implies a short decision or formatting error.
+        return body_text, ""
+
+    def extract_articles(self, text):
         """
-        Extract individual articles from the articles section.
-        
-        Returns a list of dicts: {'header': 'Article 1er', 'content': '...'}
+        Robust Article Extraction.
+        Splits text by headers like 'Article 1er', 'Art. 2', 'Art 3'.
         """
-        articles = []
+        chunks = []
         
-        # Pattern to match ACTUAL article headers (must have period and dash)
-        # Matches: "Article 1er. —" or "Art. 2. —" (the period and dash are crucial!)
-        # This avoids matching inline references like "l'article 26" or "de l'article 177"
-        article_pattern = r'((?:Article|Art\.?)\s+(?:1er|\d+(?:er)?)\.?\s*[.—–-])'
+        # THE FIX: A more permissive regex for headers.
+        # 1. Must be at start of line/string: (?:\n|^)\s*
+        # 2. Keywords: Article or Art
+        # 3. Number: 1er or digits
+        # 4. Optional separator: dot, dash, space
+        # We capture the whole header in group 1 to keep it.
+        header_pattern = r'(?:^|\n)\s*((?:Article|Art\.?)\s+(?:1er|\d+(?:er)?)\b(?:[\.\-—–\s]*))'
         
-        # Split by article headers but keep the headers
-        parts = re.split(f'({article_pattern})', articles_text, flags=re.IGNORECASE)
+        # re.split includes the capture group (the header) in the result list
+        parts = re.split(header_pattern, text, flags=re.IGNORECASE)
         
-        # parts[0] is usually empty or garbage before first article
-        # parts[1] = "Article 1er. —", parts[2] = content, parts[3] = "Art. 2. —", parts[4] = content...
+        # parts[0] is text before the first article (usually empty or garbage)
+        # parts[1] = Header (e.g. "Art. 1."), parts[2] = Body, parts[3] = Header...
         
-        i = 1
-        while i < len(parts):
-            if i + 1 >= len(parts):
-                break
-                
-            raw_header = parts[i].strip()
-            content = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        # If no articles found, return whole text as one chunk? 
+        # No, better to return nothing and let the caller handle the "Global Context".
+        if len(parts) < 3:
+            return []
             
-            # Extract clean article number from header
-            # "Article 1er. —" -> "Article 1er"
-            # "Art. 2. —" -> "Art. 2"
-            header_clean = re.sub(r'[.—\-–\s]+$', '', raw_header).strip()
+        for i in range(1, len(parts), 2):
+            header = parts[i].strip()
+            content = parts[i+1].strip()
             
-            # Clean up the content
-            # Remove signature blocks and end markers
-            for end_marker in [
-                'Fait à Alger',
-                'Fait à ',
-                'Le Président de la République',
-                'Le Premier ministre',
-                'Abdelmadjid TEBBOUNE',
-                'Mohamed Ennadir LARBAOUI',
-                'Arrêtent :',  # Stop if we hit another document
-                'Décrète :',
-            ]:
-                if end_marker in content:
-                    content = content.split(end_marker)[0].strip()
+            # Cleanup Header (remove trailing punctuation for clean display)
+            clean_header = re.sub(r'[\.\-—–\s]+$', '', header).strip()
             
-            # Remove trailing separators and punctuation
-            content = content.rstrip(' .—–-')
+            # Cleanup Content (remove signature garbage at the end of the last article)
+            for stop_word in ['Fait à Alger', 'Fait à', 'Le Président', 'Le Premier ministre']:
+                if stop_word in content:
+                    content = content.split(stop_word)[0].strip()
             
-            # Skip empty or very short articles (probably extraction errors)
-            if content and len(content) > 20:  # At least some meaningful content
-                articles.append({
-                    'header': header_clean,
+            if content:
+                chunks.append({
+                    'header': clean_header,
                     'content': content
                 })
-            
-            i += 2
-        
-        return articles
-    
+                
+        return chunks
+
     def segment_file(self, filename):
-        """Segment a single text file into structured JSON chunks."""
-        
         input_path = os.path.join(INPUT_DIR, filename)
         output_path = os.path.join(OUTPUT_DIR, filename.replace(".txt", ".json"))
         
-        print(f"\n📄 Processing: {filename}")
-        
-        # Read the full text
         with open(input_path, "r", encoding="utf-8") as f:
             full_text = f.read()
-        
-        # Find all documents
-        documents = self.find_all_documents(full_text)
-        
-        if not documents:
-            print(f"   ⚠️  No Décrets or Arrêtés found in {filename}")
-            return
-        
-        print(f"   Found {len(documents)} documents")
-        
-        all_chunks = []
-        
-        # Process each document
-        for idx, doc_info in enumerate(documents):
-            # Get the next document's start position (or None if this is the last)
-            next_start = documents[idx + 1]['start'] if idx + 1 < len(documents) else None
-            
-            # Extract document body
-            body_text = self.extract_document_body(full_text, doc_info, next_start)
-            
-            # Get page number
-            text_before = full_text[:doc_info['start']]
-            page_num = self.extract_page_number(text_before)
-            
-            # Clean title
-            title = self.clean_text(doc_info['title'])
-            
-            # Split into preamble and articles
-            preamble, articles_section = self.split_preamble_and_articles(
-                body_text, doc_info['type']
-            )
-            
-            # Extract individual articles
-            articles = self.extract_articles(articles_section)
-            
-            # Create chunks for each article
-            for article in articles:
-                chunk = {
-                    'source_file': filename,
-                    'document_type': doc_info['type'],
-                    'document_title': title,
-                    'page_number': page_num,
-                    'article_header': article['header'],
-                    'article_content': self.clean_text(article['content']),
-                    'full_context': f"{title}\n\n{article['header']}\n{article['content']}"
-                }
-                all_chunks.append(chunk)
-        
-        # Save to JSON
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-        
-        print(f"   ✅ Extracted {len(all_chunks)} article chunks from {len(documents)} documents")
-        
-        # Show summary
-        decrets = sum(1 for d in documents if d['type'] == 'Décret')
-        arretes = sum(1 for d in documents if d['type'] == 'Arrêté')
-        print(f"      - Décrets: {decrets}")
-        print(f"      - Arrêtés: {arretes}")
 
+        # 1. Find Documents
+        docs = self.find_all_documents(full_text)
+        if not docs:
+            print(f"   ⚠️  No documents found in {filename} (Check '————' separators)")
+            return
+
+        final_chunks = []
+        
+        # Global page tracker for the file
+        current_page = "1"
+        
+        # Process Documents
+        for i, doc in enumerate(docs):
+            # Determine end of this document (start of next one or EOF)
+            doc_end = docs[i+1]['start_pos'] if i + 1 < len(docs) else len(full_text)
+            
+            # Extract raw body
+            raw_body = full_text[doc['body_start_pos'] : doc_end]
+            
+            # --- PAGE TRACKING ---
+            # Get the page number that applies to the START of this document
+            # by looking at the text before it.
+            text_before = full_text[:doc['start_pos']]
+            start_page = self.extract_page_number(text_before, current_page)
+            current_page = start_page # Update tracker
+            
+            # Clean Title
+            clean_title = self.clean_text(doc['raw_title'])
+            
+            # Split Body
+            preamble, articles_block = self.split_preamble_and_articles(raw_body)
+            clean_preamble = self.clean_text(preamble)
+            
+            # Extract Articles
+            articles = self.extract_articles(articles_block)
+            
+            if articles:
+                # Case A: We found specific articles
+                for art in articles:
+                    # Check if page changed inside the article content
+                    # (This is rough estimation, assigning the page where the article *starts*)
+                    # Ideally, we check for markers inside 'preamble' + previous articles
+                    
+                    chunk = {
+                        "source_file": filename,
+                        "document_type": doc['type'],
+                        "document_title": clean_title,
+                        "page_number": current_page,
+                        "article_header": art['header'],
+                        "article_content": self.clean_text(art['content']),
+                        "full_context": f"{clean_title}\n\n{clean_preamble}\n\n{art['header']} : {self.clean_text(art['content'])}"
+                    }
+                    final_chunks.append(chunk)
+            else:
+                # Case B: No "Article X" structure found (e.g. short decrees)
+                # Treat the whole body as one chunk
+                clean_body = self.clean_text(raw_body)
+                if clean_body:
+                    chunk = {
+                        "source_file": filename,
+                        "document_type": doc['type'],
+                        "document_title": clean_title,
+                        "page_number": current_page,
+                        "article_header": "Texte intégral",
+                        "article_content": clean_body,
+                        "full_context": f"{clean_title}\n\n{clean_body}"
+                    }
+                    final_chunks.append(chunk)
+
+        # Save
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(final_chunks, f, ensure_ascii=False, indent=2)
+            
+        print(f"   ✅ Saved {len(final_chunks)} chunks from {filename}")
 
 def main():
-    """Main entry point."""
+    if not os.path.exists(OUTPUT_DIR): os.makedirs(OUTPUT_DIR)
     
-    # Create output directory if needed
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-    
-    # Get all text files
-    txt_files = [f for f in os.listdir(INPUT_DIR) if f.endswith(".txt")]
-    
-    if not txt_files:
-        print(f"❌ No .txt files found in {INPUT_DIR}")
-        return
-    
-    print("=" * 70)
-    print("📚 Journal Officiel Document Segmentation")
-    print("=" * 70)
-    print(f"Input directory:  {INPUT_DIR}")
-    print(f"Output directory: {OUTPUT_DIR}")
-    print(f"Files to process: {len(txt_files)}")
-    print("=" * 70)
+    files = [f for f in os.listdir(INPUT_DIR) if f.endswith(".txt")]
+    print(f"🧩 Segmenting {len(files)} files...")
     
     segmenter = DocumentSegmenter()
-    
-    for filename in txt_files:
-        segmenter.segment_file(filename)
-    
-    print("\n" + "=" * 70)
-    print("✅ Segmentation complete!")
-    print("=" * 70)
-
+    for f in files:
+        segmenter.segment_file(f)
 
 if __name__ == "__main__":
     main()

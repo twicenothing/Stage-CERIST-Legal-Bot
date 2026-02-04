@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Smart PDF to TXT converter using PyMuPDF (Fitz).
-Handles single/double columns and preserves reading order.
+Handles single/double columns, preserves reading order, and PROTECTS TABLES.
 Compatible with JORADP Cleaning Pipeline.
 """
 
@@ -41,12 +41,42 @@ class SmartPDFExtractor:
         self.pdf_dir = Path(pdf_dir)
         self.txt_dir = Path(txt_dir)
         self.txt_dir.mkdir(parents=True, exist_ok=True)
+
+    def has_center_crossing_table(self, page: fitz.Page) -> bool:
+        """
+        [NEW] Checks if there is a table that crosses the vertical center of the page.
+        If yes, we should NOT split the page into columns.
+        """
+        try:
+            # PyMuPDF's built-in table finder
+            tables = page.find_tables()
+            if not tables.tables:
+                return False
+                
+            page_width = page.rect.width
+            mid_x = page_width / 2
+            
+            for table in tables:
+                x0, y0, x1, y1 = table.bbox
+                # If table starts before the middle and ends after the middle
+                if x0 < mid_x and x1 > mid_x:
+                    return True
+            return False
+        except Exception:
+            # If table detection fails, assume no table to be safe
+            return False
     
     def detect_columns(self, page: fitz.Page, threshold: float = 0.4) -> bool:
         """
         Detect if a page has double columns by analyzing text block positions.
         Returns True if double-column layout detected.
         """
+        # --- NEW LOGIC: TABLE SAFETY CHECK ---
+        # If a table spans the whole width, force Single Column mode.
+        if self.has_center_crossing_table(page):
+            return False
+        # -------------------------------------
+
         blocks = page.get_text("dict")["blocks"]
         if not blocks: return False
         
@@ -139,9 +169,6 @@ class SmartPDFExtractor:
         right_column.sort(key=lambda x: x[0])
         
         # --- STITCHING STRATEGY ---
-        # Simple Stitch: Top Headers -> Left Col -> Right Col
-        # (This assumes the layout is: Header -> Columns. Complex layouts might vary)
-        
         text = ""
         
         # 1. Add Full Width Blocks (Titles)
@@ -174,7 +201,7 @@ class SmartPDFExtractor:
                     # print(f"  [Page {page_num}] 2-Column Detected")
                     page_text = self.extract_double_column(page)
                 else:
-                    # print(f"  [Page {page_num}] Single Column")
+                    # print(f"  [Page {page_num}] Single Column / Table")
                     page_text = self.extract_single_column(page)
                 
                 full_text.append(page_text)

@@ -3732,36 +3732,25 @@ nationale.
 --------------------
 
 [[PAGE_REF:41]]
+TITRE IV
 CLASSIFICATION DES GRADES ET BONIFICATION INDICIAIRE DES POSTES SUPERIEURS
+Chapitre 1er
+CLASSIFICATION DES GRADES
 Art. 287. — En application des dispositions de l’article 118 de l’ordonnance n° 06-03 du 19 Joumada Ethania 1427
 correspondant au 15 juillet 2006, complétée, susvisée, la classification des grades des fonctionnaires appartenant aux corps
 spécifiques de l’éducation nationale est fixée conformément aux tableaux ci-après :
 CORPS
 GRADES
-CLASSIFICATION
-CORPS
-GRADES
-Maître de l’école primaire
-Professeurs de l’enseignement primaire
-Professeur de l’enseignement fondamental
-Professeurs de l’enseignement moyen
-Professeurs de l’enseignement secondaire
-Censeurs
-Conseiller de l’éducation
-Adjoints de l’éducation
-Conseiller de l’éducation
-Adjoint de l’éducation
-Superviseur de l’éducation
-Superviseurs de l’éducation
-Educateurs spécialisés en soutien éducatif
-TITRE IV
-Chapitre 1er
-CLASSIFICATION DES GRADES
 1. Personnels enseignants
 CLASSIFICATION
 Indice
 minimal
 Catégorie
+Maître de l’école primaire
+Professeurs de l’enseignement primaire
+Professeur de l’enseignement fondamental
+Professeurs de l’enseignement moyen
+Professeurs de l’enseignement secondaire
 Maître de l’école primaire
 Professeur de l’enseignement primaire
 Professeur de l’enseignement primaire classe 1
@@ -3776,14 +3765,13 @@ Professeur de l’enseignement secondaire
 Professeur de l’enseignement secondaire classe 1
 Professeur de l’enseignement secondaire classe 2
 Professeur émérite de l’enseignement secondaire
-2. Personnels d’éducation
-Indice
-minimal
-Catégorie
 Censeur de l’enseignement primaire
 Censeur de l’enseignement moyen
 Censeur de l’enseignement secondaire
+Conseiller de l’éducation
+Adjoint de l’éducation
 Adjoint principal de l’éducation
+Superviseur de l’éducation
 Superviseur principal de l’éducation
 Superviseur de l’éducation en chef
 Superviseur général de l’éducation
@@ -3791,42 +3779,34 @@ Educateur spécialisé en soutien éducatif
 Educateur spécialisé principal en soutien éducatif
 Educateur spécialisé en chef en soutien éducatif
 Educateur spécialisé général en soutien éducatif
+2. Personnels d’éducation
+Censeurs
+Conseiller de l’éducation
+Adjoints de l’éducation
+Superviseurs de l’éducation
+Educateurs spécialisés en soutien éducatif
+CORPS
+GRADES
+CLASSIFICATION
+Indice
+minimal
+Catégorie
 
 --------------------
 
 [[PAGE_REF:42]]
 CORPS
 GRADES
-CLASSIFICATION
-CORPS
-GRADES
-CLASSIFICATION
-CORPS
-GRADES
-CLASSIFICATION
-Tableau (suite)
-CORPS
-GRADES
-Conseillers de l’orientation et de la guidance
-scolaire et professionnelle
-4- Personnels de laboratoire
-Agent technique de laboratoire
-Adjoint technique de laboratoire
-Attachés de laboratoire
-5- Personnels de l’alimentation scolaire
-Conseillers en alimentation scolaire
-Adjoints des services économiques
-Sous-intendant
-Sous-intendants
-Sous-intendant gestionnaire
-Intendant
-Intendants
-Intendant principal
 3- Personnels de l’orientation et de la guidance scolaire et professionnelle
 CLASSIFICATION
 Indice
 minimal
 Catégorie
+Conseillers de l’orientation et de la guidance
+scolaire et professionnelle
+Agent technique de laboratoire
+Adjoint technique de laboratoire
+Attachés de laboratoire
 Conseiller de l’orientation et de la guidance scolaire
 et professionnelle
 Conseiller analyste de l’orientation et de la guidance
@@ -3835,68 +3815,58 @@ Conseiller principal de l’orientation et de la guidance
 scolaire et professionnelle
 Conseiller en chef de l’orientation et de la guidance
 scolaire et professionnelle
-Indice
-minimal
-Catégorie
+Tableau (suite)
+4- Personnels de laboratoire
 Agent technique de laboratoire
 Adjoint technique de laboratoire
 Attaché de laboratoire
 Attaché principal de laboratoire
 Attaché en chef de laboratoire
 Attaché superviseur de laboratoire
-Indice
-minimal
-Catégorie
+Conseillers en alimentation scolaire
 Conseiller en alimentation scolaire
 Conseiller principal en alimentation scolaire
 Conseiller en chef en alimentation scolaire
+Adjoints des services économiques
+Sous-intendants
+Intendants
+Adjoint des services économiques
+Adjoint principal des services économiques
+Sous-intendant
+Sous-intendant gestionnaire
+Intendant
+Intendant principal
+5- Personnels de l’alimentation scolaire
 6- Personnels d’intendance
+CORPS
+GRADES
+CLASSIFICATION
 Indice
 minimal
 Catégorie
-Adjoint des services économiques
-Adjoint principal des services économiques
+CORPS
+GRADES
+CLASSIFICATION
+Indice
+minimal
+Catégorie
+CORPS
+GRADES
+CLASSIFICATION
+Indice
+minimal
+Catégorie
 
 --------------------
 
 [[PAGE_REF:43]]
-Chapitre 2
-BONIFICATION INDICIAIRE DES POSTES SUPERIEURS
-Art. 288. — En application des dispositions de l’article 3 du décret présidentiel n° 07-307 du 17 Ramadhan 1428
-correspondant au 29 septembre 2007, modifié, susvisé, la bonification indiciaire des postes supérieurs au titre des corps
-spécifiques de l’éducation nationale est fixée conformément au tableau ci-après :
-Directeur d’école primaire
-Directeur de collège
-Directeur de collège
-Directeur de lycée
-Directeur de lycée
+CORPS
+GRADES
 8- Personnels d’inspection
-CORPS
-GRADES
-Inspecteurs de l’enseignement
-primaire
-Inspecteurs de l’enseignement
-moyen
-Inspecteurs de l’enseignement
-secondaire
-Inspecteur de l’éducation nationale
-Inspecteur de l’enseignement moyen spécialité disciplines
-Professeurs coordinateurs de l’enseignement moyen
-Professeurs coordinateurs de l’enseignement secondaire
-Tableau (suite)
-7- Personnels de direction des établissements d’éducation et d’enseignement
-CORPS
-GRADES
 CLASSIFICATION
 Indice
 minimal
 Catégorie
-Directeur de l’école primaire
-CLASSIFICATION
-Indice
-minimal
-Catégorie
-Inspecteurs de l’enseignement primaire spécialité disciplines
 Hors catégorie-
 subdivision 1
 Hors catégorie-
@@ -3905,9 +3875,18 @@ Hors catégorie-
 subdivision 1
 Hors catégorie-
 subdivision 2
+Inspecteurs de l’enseignement
+primaire
+Inspecteurs de l’enseignement
+moyen
+Inspecteurs de l’enseignement
+secondaire
+Inspecteur de l’éducation nationale
+Inspecteurs de l’enseignement primaire spécialité disciplines
 Inspecteur de l’enseignement primaire spécialité administration des
 écoles primaires
 Inspecteur de l’enseignement primaire spécialité alimentation scolaire
+Inspecteur de l’enseignement moyen spécialité disciplines
 Inspecteur de l’enseignement moyen spécialité administration des
 collèges
 Inspecteur de l’orientation et de la guidance scolaire et professionnelle
@@ -3920,10 +3899,31 @@ Inspecteur de l’orientation et de la guidance scolaire et professionnelle
 aux lycées
 Inspecteur de la gestion financière et matérielle des lycées
 Inspecteur de l’éducation nationale
+Tableau (suite)
+Chapitre 2
+BONIFICATION INDICIAIRE DES POSTES SUPERIEURS
+Art. 288. — En application des dispositions de l’article 3 du décret présidentiel n° 07-307 du 17 Ramadhan 1428
+correspondant au 29 septembre 2007, modifié, susvisé, la bonification indiciaire des postes supérieurs au titre des corps
+spécifiques de l’éducation nationale est fixée conformément au tableau ci-après :
 BONIFICATION INDICIAIRE
 Bonification
 Niveau
 POSTES SUPERIEURS
+Professeurs coordinateurs de l’enseignement moyen
+Professeurs coordinateurs de l’enseignement secondaire
+CORPS
+GRADES
+CLASSIFICATION
+Indice
+minimal
+Catégorie
+Directeur d’école primaire
+Directeur de collège
+Directeur de lycée
+Directeur de l’école primaire
+Directeur de collège
+Directeur de lycée
+7- Personnels de direction des établissements d’éducation et d’enseignement
 
 --------------------
 

@@ -988,11 +988,6 @@ Sifi GHRIEB.
 --------------------
 
 [[PAGE_REF:13]]
-Ces indemnités sont versées à toutes les catégories figurant dans le tableau ci-dessus, et ce, à l'achèvement de cette opération
-de recensement général moyennant un bilan sur les objectifs réalisés après service fait.
-.............................................................................. (le reste sans changement) ...................................................................... ».
-Art. 2. — Le présent arrêté sera publié au  Journal officiel  de la République algérienne démocratique et populaire.
-Fait à Alger, le 8 Joumada Ethania 1446 correspondant au 10 décembre 2024.
 MINISTERE DE L’AGRICULTURE, DU
 DEVELOPPEMENT RURAL
 ET DE LA PECHE
@@ -1019,17 +1014,6 @@ Vu le décret exécutif n° 95-160 du 4 Moharram 1416
 correspondant au 3 juin 1995, modifié et complété, portant
 organisation et fonctionnement du conseil national de la
 statistique ;
-Ingénieurs en informatique (développeurs)
-Ingénieurs en informatique (décodage des
-données et contrôle)
-Superviseurs nationaux
-Chargés de communication
-Superviseurs de wilayas
-Contrôleurs de wilayas
-Agents recenseurs
-Conducteurs de véhicules
-Le ministre de l’agriculture, du développement rural et de la pêche
-Youcef CHERFA
 Vu le décret exécutif n° 01-114 du 13 Safar 1422 correspondant
 au 7 mai 2001, modifié et complété, portant recensement
 général de l'agriculture (R.G.A.) ;
@@ -1043,13 +1027,13 @@ d'autres catégories de personnels appelés à accomplir des
 tâches liées au recensement général de l'agriculture de
 l'année 2024 ;
 Arrêtent :
-Article 1er. — Les dispositions de l' article 2  de l'arrêté
+Article 1er. — Les dispositions de l'article 2 de l'arrêté
 interministériel du 5 Chaoual 1445 correspondant au 14 avril
 2024 susvisé, sont modifiées, complétées et rédigées comme
 suit :
-« Art. 2. —  Les personnels ayant participé au recensement
+« Art. 2. — Les personnels ayant participé au recensement
 général de l'agriculture de l'année 2024, bénéficient d'une
-indemnité forfaitaire calculée  au prorata  des journées
+indemnité forfaitaire calculée au prorata des journées
 travaillées, plafonnée à la durée maximale fixée conformément
 au tableau ci-après :
 Catégorie
@@ -1059,6 +1043,15 @@ Montant
 DA/mois
 Durée du travail
 maximum
+Ingénieurs en informatique (développeurs)
+Ingénieurs en informatique (décodage des
+données et contrôle)
+Superviseurs nationaux
+Chargés de communication
+Superviseurs de wilayas
+Contrôleurs de wilayas
+Agents recenseurs
+Conducteurs de véhicules
 36 500,00
 36 500,00
 36 500,00
@@ -1071,6 +1064,13 @@ maximum
 2 mois
 2,5 mois
 2 mois
+Ces indemnités sont versées à toutes les catégories figurant dans le tableau ci-dessus, et ce, à l'achèvement de cette opération
+de recensement général moyennant un bilan sur les objectifs réalisés après service fait.
+.............................................................................. (le reste sans changement) ...................................................................... ».
+Art. 2. — Le présent arrêté sera publié au Journal officiel de la République algérienne démocratique et populaire.
+Fait à Alger, le 8 Joumada Ethania 1446 correspondant au 10 décembre 2024.
+Le ministre de l’agriculture, du développement rural et de la pêche
+Youcef CHERFA
 Le ministre des finances
 Laziz FAID
 
