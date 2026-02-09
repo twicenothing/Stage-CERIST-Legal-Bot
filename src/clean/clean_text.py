@@ -1,96 +1,76 @@
 import os
 import re
 
-# --- PATHS ---
+# --- CONFIGURATION ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TXT_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/txt"))
-CLEANED_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/cleaned"))
+# Entrée : Le dossier où sont tes TXT extraits avec pypdf
+INPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/txt"))
+# Sortie : Le dossier propre
+OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/cleaned"))
 
 def remove_sommaire_pages(text):
     """
-    Removes any page block that contains the word 'SOMMAIRE'.
+    Découpe le texte par pages (basé sur tes marqueurs '--- Page X ---')
+    et supprime les blocs contenant le mot 'SOMMAIRE'.
     """
-    parts = re.split(r"(--- Page \d+ ---)", text)
+    # 1. On découpe le fichier en gardant le séparateur (le marqueur de page)
+    # Le regex capture le marqueur : (--- Page \d+ ---)
+    parts = re.split(r'(--- Page \d+ ---)', text)
+    
     cleaned_parts = []
     
-    # Handle start of file
+    # parts[0] est souvent vide (avant la première page), on le garde si besoin
     if parts[0].strip():
         cleaned_parts.append(parts[0])
 
+    # 2. On boucle par pas de 2 car le split donne : [Marqueur, Contenu, Marqueur, Contenu...]
+    # On commence à 1 car l'index 0 est le début du fichier (souvent vide)
     for i in range(1, len(parts), 2):
-        marker = parts[i]
-        content = parts[i+1]
+        marker = parts[i]       # Ex: "--- Page 2 ---"
+        content = parts[i+1]    # Ex: "\n\nTexte de la page..."
         
-        # Heuristic: If it has SOMMAIRE, it's trash.
+        # 3. La condition unique : Si "SOMMAIRE" est dans le contenu, on zappe tout le bloc
         if "SOMMAIRE" in content:
-            print(f"   [DELETE] Nuked Sommaire at {marker.strip()}")
-            continue
+            print(f"   🗑️  Sommaire détecté et supprimé : {marker}")
+            continue # On passe à la page suivante sans rien ajouter
         
+        # Sinon, on garde le marqueur et le contenu
         cleaned_parts.append(marker)
         cleaned_parts.append(content)
         
     return "".join(cleaned_parts)
 
-def stitch_broken_lines(text):
-    """
-    Reconstructs sentences broken by newlines.
-    Rules:
-    1. 'word-\nnext' -> 'wordnext' (Fix hyphenation)
-    2. 'word\nnext'  -> 'word next' (If 'word' doesn't end in punctuation)
-    """
-    
-    # 1. Fix Hyphenation (Word split across lines)
-    # Ex: "constitu-\ntion" -> "constitution"
-    # We remove the hyphen and the newline.
-    text = re.sub(r'-\n\s*', '', text)
-
-    # 2. Fix Broken Lines (The Main Logic)
-    # Regex Explanation:
-    # (?<![.:;?!])   -> Lookbehind: If the char BEFORE \n is NOT punctuation (. : ; ? !)
-    # \n             -> The target newline to remove
-    # (?!\s*(?:---|===)) -> Lookahead: Ensure we don't merge into a Page Marker or Separator
-    
-    # We replace the newline with a SPACE.
-    text = re.sub(r'(?<![.:;?!])\n(?!\s*(?:---|===))', ' ', text)
-    
-    # 3. Cleanup multiple spaces created by the merge
-    text = re.sub(r' +', ' ', text)
-    
-    # 4. Restore paragraph breaks
-    # Sometimes this logic kills valid empty lines. 
-    # If you want to force space between "Article 1" and "Article 2", 
-    # standard legal text usually has punctuation so it should be fine.
-    
-    return text
-
 def main():
-    if not os.path.exists(CLEANED_DIR):
-        os.makedirs(CLEANED_DIR)
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
 
-    print(f"Cleaning and Stitching files from: {TXT_DIR}")
-    
-    for filename in os.listdir(TXT_DIR):
-        if filename.lower().endswith(".txt"):
-            input_path = os.path.join(TXT_DIR, filename)
-            output_path = os.path.join(CLEANED_DIR, filename)
+    if not os.path.exists(INPUT_DIR):
+        print(f"❌ Erreur : Le dossier d'entrée n'existe pas : {INPUT_DIR}")
+        return
+
+    files = [f for f in os.listdir(INPUT_DIR) if f.endswith(".txt")]
+    print(f"🧹 Nettoyage 'Sommaire' sur {len(files)} fichiers...")
+    print(f"📂 Entrée : {INPUT_DIR}")
+    print(f"📂 Sortie : {OUTPUT_DIR}\n")
+
+    for filename in files:
+        input_path = os.path.join(INPUT_DIR, filename)
+        output_path = os.path.join(OUTPUT_DIR, filename)
+        
+        try:
+            with open(input_path, "r", encoding="utf-8") as f:
+                raw_content = f.read()
             
-            try:
-                with open(input_path, "r", encoding="utf-8") as f:
-                    raw_content = f.read()
-
-                # Step 1: Remove Sommaire
-                content_no_sommaire = remove_sommaire_pages(raw_content)
+            # Action unique : Supprimer les pages Sommaire
+            final_content = remove_sommaire_pages(raw_content)
+            
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(final_content)
                 
-                # Step 2: Stitch Sentences
-                final_content = stitch_broken_lines(content_no_sommaire)
+            print(f"✅ Nettoyé : {filename}")
 
-                with open(output_path, "w", encoding="utf-8") as f:
-                    f.write(final_content)
-                    
-                print(f"[FIXED] {filename} -> Sommaire removed & Lines stitched.")
-
-            except Exception as e:
-                print(f"[ERROR] {filename}: {e}")
+        except Exception as e:
+            print(f"❌ Erreur sur {filename}: {e}")
 
 if __name__ == "__main__":
     main()
