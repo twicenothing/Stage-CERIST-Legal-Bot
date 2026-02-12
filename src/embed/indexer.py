@@ -1,116 +1,101 @@
 import os
 import json
 import chromadb
-from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer
-import torch
 
 # --- CONFIGURATION ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data"))
-JSON_WHOLE_DIR = os.path.join(DATA_DIR, "json_whole")
-JSON_ARRETES_DIR = os.path.join(DATA_DIR, "json_arretes")
-CHROMA_DB_DIR = os.path.join(DATA_DIR, "chroma_db")
-
-# Model Name (HuggingFace)
+JSON_DIR = "../../data/json_llm_extracted"  # Là où safe_chunker a mis les fichiers
+CHROMA_PATH = "../../data/chroma_db"        # Le dossier qu'on va recréer
+COLLECTION_NAME = "legal_algeria"
 MODEL_NAME = "BAAI/bge-m3"
 
-# --- 1. SETUP EMBEDDING MODEL ---
-print(f"🔄 Loading Model: {MODEL_NAME}...")
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"   > Running on: {device.upper()}")
+def main():
+    # 1. Initialiser ChromaDB
+    print(f"🔄 Initialisation de ChromaDB dans {CHROMA_PATH}...")
+    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    
+    # On supprime la collection si elle existe pour repartir de zéro (double sécurité)
+    try:
+        client.delete_collection(COLLECTION_NAME)
+        print("🗑️ Ancienne collection supprimée.")
+    except:
+        pass
+    
+    collection = client.create_collection(name=COLLECTION_NAME)
 
-# On force l'utilisation de "safetensors" pour éviter l'erreur de sécurité PyTorch
-model = SentenceTransformer(
-    MODEL_NAME, 
-    device=device,
-    model_kwargs={"use_safetensors": True}
-)
-# BGE-M3 supports up to 8192 tokens. We set a safe limit.
-model.max_seq_length = 8192 
+    # 2. Charger le modèle d'embedding
+    print(f"🤖 Chargement du modèle {MODEL_NAME}...")
+    model = SentenceTransformer(MODEL_NAME, device="cuda", model_kwargs={"use_safetensors": True})
 
-# --- 2. SETUP CHROMADB ---
-print(f"🔄 Initializing ChromaDB at: {CHROMA_DB_DIR}")
-client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
-
-# Create or get the collection
-# We use Cosine Similarity (metadata={"hnsw:space": "cosine"})
-collection = client.get_or_create_collection(
-    name="legal_algeria",
-    metadata={"hnsw:space": "cosine"}
-)
-
-def process_folder(folder_path, doc_type_tag):
-    if not os.path.exists(folder_path):
-        print(f"⚠️ Folder not found: {folder_path}")
+    # 3. Lister les fichiers JSON
+    if not os.path.exists(JSON_DIR):
+        print(f"❌ Erreur : Le dossier {JSON_DIR} n'existe pas. Lance safe_chunker.py d'abord.")
         return
 
-    print(f"📂 Scanning folder: {folder_path}")
-    
-    files = [f for f in os.listdir(folder_path) if f.endswith(".jsonl")]
+    files = [f for f in os.listdir(JSON_DIR) if f.endswith(".json")]
+    print(f"📦 {len(files)} fichiers trouvés à indexer.")
+
+    # 4. Boucle d'indexation
+    total_docs = 0
     
     for filename in files:
-        file_path = os.path.join(folder_path, filename)
-        print(f"   > Processing: {filename}")
+        file_path = os.path.join(JSON_DIR, filename)
+        print(f"   📄 Traitement de {filename}...", end="")
         
-        # Buffers for batch processing (faster than one by one)
-        ids = []
-        documents = []
-        metadatas = []
-        
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line_num, line in enumerate(f):
-                try:
-                    data = json.loads(line)
-                    
-                    # Create a unique ID for the database
-                    # format: filename_lineindex (e.g., F2025001_0)
-                    doc_id = f"{filename}_{line_num}"
-                    
-                    # Prepare Metadata
-                    meta = {
-                        "source": data.get("source", filename),
-                        "journal_date": data.get("journal_date", "Unknown"),
-                        "page": data.get("page_start", 1),
-                        "type": doc_type_tag, # "Decree" or "Arrete"
-                        "official_id": data.get("decree_id") or data.get("title_extract", "Unknown")
-                    }
-                    
-                    # Prepare Text
-                    text_content = data.get("text", "")
-                    
-                    if len(text_content) > 50:
-                        ids.append(doc_id)
-                        documents.append(text_content)
-                        metadatas.append(meta)
-                        
-                except json.JSONDecodeError:
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            # On vérifie que la structure est bonne (celle de safe_chunker)
+            if "documents" not in data:
+                print(" ⚠️ Pas de clé 'documents', fichier ignoré.")
+                continue
+
+            documents = []
+            ids = []
+            metadatas = []
+            embeddings = []
+
+            # Extraction des données
+            texts_to_embed = []
+            
+            for item in data["documents"]:
+                doc_content = item.get("content", "")
+                
+                if not doc_content.strip():
                     continue
 
-        # --- BATCH EMBEDDING & UPSERT ---
-        if documents:
-            # Generate Embeddings
-            # BGE-M3 instructions: Pass raw text.
-            embeddings = model.encode(documents, normalize_embeddings=True)
-            
-            # Add to Chroma
-            collection.upsert(
-                ids=ids,
-                embeddings=embeddings.tolist(), # Convert numpy array to list
-                metadatas=metadatas,
-                documents=documents
-            )
-            print(f"     ✅ Indexed {len(documents)} documents.")
+                # On prépare les listes pour Chroma
+                documents.append(doc_content)
+                ids.append(item.get("id", f"{filename}_{total_docs}")) # Fallback ID
+                metadatas.append({
+                    "source": filename,
+                    "title": item.get("title", filename)
+                })
+                texts_to_embed.append(doc_content)
+                total_docs += 1
 
-def main():
-    # Process Decrees
-    process_folder(JSON_WHOLE_DIR, "Decret")
-    
-    # Process Arretes
-    process_folder(JSON_ARRETES_DIR, "Arrete")
-    
-    print("\n🎉 Indexing Complete! Database saved in 'data/chroma_db'")
-    print(f"Total documents in collection: {collection.count()}")
+            # Calcul des embeddings (Vectorisation)
+            if texts_to_embed:
+                embeddings = model.encode(texts_to_embed).tolist()
+                
+                # Ajout dans la base
+                collection.add(
+                    documents=documents,
+                    embeddings=embeddings,
+                    metadatas=metadatas,
+                    ids=ids
+                )
+                print(f" ✅ {len(documents)} chunks indexés.")
+            else:
+                print(" ⚠️ Aucun texte valide trouvé.")
+
+        except Exception as e:
+            print(f" ❌ Erreur : {e}")
+
+    print("\n" + "="*50)
+    print(f"🎉 INDEXATION TERMINÉE ! Total : {total_docs} fragments de texte.")
+    print("="*50)
 
 if __name__ == "__main__":
     main()

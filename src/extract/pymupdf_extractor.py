@@ -1,46 +1,70 @@
+import fitz  # PyMuPDF
 import os
-from pypdf import PdfReader  # pip install pypdf (recommended) or PyPDF2
+from tqdm import tqdm
 
 # --- CONFIGURATION ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-# Input folder
-PDF_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/pdfs"))
-# Output folder
-OUTPUT_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../data/txt"))
+PDF_DIR = "../../data/pdfs"            # Tes PDFs originaux
+TXT_OUTPUT_DIR = "../../data/raw_text" # Les TXT nettoyés
 
-# Create output directory if it doesn't exist
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+def extract_text_from_pdf(pdf_path):
+    doc = fitz.open(pdf_path)
+    full_text = []
+    
+    for i, page in enumerate(doc):
+        # 1. Extraction avec tri intelligent (Colonnes)
+        text = page.get_text("text", sort=True)
+        
+        # 2. FILTRE ANTI-SOMMAIRE 🚫
+        # Dans le JO Algérien, le mot "SOMMAIRE" est souvent en haut de page.
+        # On vérifie s'il est présent.
+        if "SOMMAIRE" in text:
+            # On affiche un petit message pour confirmer qu'on a bien sauté la page
+            # (Utilise print conditionnel pour ne pas spammer si tu veux)
+            # print(f"   -> Page {i+1} ignorée (Contient 'SOMMAIRE')")
+            continue
 
-print(f"Processing PDFs from: {PDF_DIR}")
-print(f"Outputting TXT files to: {OUTPUT_DIR}\n")
+        # 3. Nettoyage basique des en-têtes/pieds de page répétitifs
+        # (Optionnel : enlève "JOURNAL OFFICIEL" si ça se répète trop)
+        lines = text.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            # On ignore les lignes trop courtes ou purement décoratives
+            if len(line.strip()) > 3: 
+                cleaned_lines.append(line)
+        
+        full_text.append("\n".join(cleaned_lines))
+        
+    return "\n\n".join(full_text)
 
-# Process each PDF file
-for filename in os.listdir(PDF_DIR):
-    if filename.lower().endswith('.pdf'):
+def main():
+    # Vérifications des dossiers
+    if not os.path.exists(PDF_DIR):
+        print(f"❌ Erreur : Dossier {PDF_DIR} introuvable.")
+        return
+    if not os.path.exists(TXT_OUTPUT_DIR):
+        os.makedirs(TXT_OUTPUT_DIR)
+
+    files = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
+    print(f"🧹 Démarrage du nettoyage sur {len(files)} fichiers (Pages 'SOMMAIRE' exclues)...")
+
+    count_success = 0
+    for filename in tqdm(files):
         pdf_path = os.path.join(PDF_DIR, filename)
+        txt_filename = filename.replace(".pdf", ".txt").replace(".PDF", ".txt")
+        txt_path = os.path.join(TXT_OUTPUT_DIR, txt_filename)
+        
         try:
-            reader = PdfReader(pdf_path)
-            full_text = ""
-
-            # Skip first page (index 0), start from page 1 (which is actual page 2)
-            for page_num in range(1, len(reader.pages)):
-                page = reader.pages[page_num]
-                page_text = page.extract_text()
-                if page_text:
-                    # Add page header with actual page number (page_num + 1)
-                    full_text += f"--- Page {page_num + 1} ---\n\n"
-                    full_text += page_text + "\n\n"
-
-            # Save to .txt file (same base name)
-            txt_filename = os.path.splitext(filename)[0] + ".txt"
-            txt_path = os.path.join(OUTPUT_DIR, txt_filename)
-
+            clean_content = extract_text_from_pdf(pdf_path)
+            
             with open(txt_path, "w", encoding="utf-8") as f:
-                f.write(full_text)
-
-            print(f"✅ Processed: {filename} → {txt_filename} ({len(reader.pages)-1} pages extracted)")
-
+                f.write(clean_content)
+            count_success += 1
+                
         except Exception as e:
-            print(f"❌ Error processing {filename}: {e}")
+            print(f"❌ Erreur sur {filename}: {e}")
 
-print("\nAll PDFs processed!")
+    print(f"\n✨ Terminé ! {count_success} fichiers traités.")
+    print("👉 IMPORTANT : N'oublie pas de relancer 'safe_chunker.py' puis 'indexer.py' !")
+
+if __name__ == "__main__":
+    main()
