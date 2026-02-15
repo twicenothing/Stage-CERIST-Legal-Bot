@@ -1,70 +1,121 @@
 import fitz  # PyMuPDF
+import re
 import os
-from tqdm import tqdm
 
 # --- CONFIGURATION ---
-PDF_DIR = "../../data/pdfs"            # Tes PDFs originaux
-TXT_OUTPUT_DIR = "../../data/raw_text" # Les TXT nettoyés
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PDF_DIR = os.path.join(BASE_DIR, "data", "pdfs")
+OUTPUT_TXT_DIR = os.path.join(BASE_DIR, "data", "txt")
 
-def extract_text_from_pdf(pdf_path):
-    doc = fitz.open(pdf_path)
-    full_text = []
+def remove_arabic(text):
+    """Supprime les caractères arabes via Regex"""
+    return re.sub(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+', '', text)
+
+def is_sommaire_page(text_blocks):
+    """Vérifie si la page est une page de sommaire"""
+    if not text_blocks: return False
+    # On regarde les premiers blocs de texte (5 premiers)
+    header_text = " ".join([b[4] for b in text_blocks[:5]]).lower()
+    return "sommaire" in header_text
+
+def get_sorted_text_from_page(page):
+    """
+    Extrait le texte en respectant les colonnes (En-tête -> Gauche -> Droite).
+    """
+    blocks = page.get_text("blocks")
     
-    for i, page in enumerate(doc):
-        # 1. Extraction avec tri intelligent (Colonnes)
-        text = page.get_text("text", sort=True)
+    page_width = page.rect.width
+    mid_point = page_width / 2
+
+    full_width_blocks = []
+    left_col_blocks = []  
+    right_col_blocks = []  
+
+    for b in blocks:
+        x0, y0, x1, y1, text, block_no, block_type = b
         
-        # 2. FILTRE ANTI-SOMMAIRE 🚫
-        # Dans le JO Algérien, le mot "SOMMAIRE" est souvent en haut de page.
-        # On vérifie s'il est présent.
-        if "SOMMAIRE" in text:
-            # On affiche un petit message pour confirmer qu'on a bien sauté la page
-            # (Utilise print conditionnel pour ne pas spammer si tu veux)
-            # print(f"   -> Page {i+1} ignorée (Contient 'SOMMAIRE')")
+        text = text.strip()
+        if not text:
             continue
 
-        # 3. Nettoyage basique des en-têtes/pieds de page répétitifs
-        # (Optionnel : enlève "JOURNAL OFFICIEL" si ça se répète trop)
-        lines = text.split('\n')
-        cleaned_lines = []
-        for line in lines:
-            # On ignore les lignes trop courtes ou purement décoratives
-            if len(line.strip()) > 3: 
-                cleaned_lines.append(line)
+        block_width = x1 - x0
+
+        # Si le bloc fait plus de 75% de la page, c'est un en-tête (titre traversant)
+        if block_width > (page_width * 0.75):
+            full_width_blocks.append(b)
+        # Sinon, tri gauche/droite
+        elif x0 < mid_point:
+            left_col_blocks.append(b)
+        else:
+            right_col_blocks.append(b)
+
+    # --- TRI PAR POSITION VERTICALE (Haut vers Bas pour chaque colonne) ---
+    full_width_blocks.sort(key=lambda b: b[1])
+    left_col_blocks.sort(key=lambda b: b[1])
+    right_col_blocks.sort(key=lambda b: b[1])
+
+    # --- ASSEMBLAGE : En-tête -> Gauche -> Droite ---
+    sorted_blocks = full_width_blocks + left_col_blocks + right_col_blocks
+    
+    final_text = ""
+    for b in sorted_blocks:
+        # b[4] est le contenu texte du bloc
+        final_text += b[4] + "\n"
         
-        full_text.append("\n".join(cleaned_lines))
-        
-    return "\n\n".join(full_text)
+    return final_text
 
 def main():
-    # Vérifications des dossiers
-    if not os.path.exists(PDF_DIR):
-        print(f"❌ Erreur : Dossier {PDF_DIR} introuvable.")
-        return
-    if not os.path.exists(TXT_OUTPUT_DIR):
-        os.makedirs(TXT_OUTPUT_DIR)
+    if not os.path.exists(OUTPUT_TXT_DIR):
+        os.makedirs(OUTPUT_TXT_DIR)
 
     files = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
-    print(f"🧹 Démarrage du nettoyage sur {len(files)} fichiers (Pages 'SOMMAIRE' exclues)...")
+    print(f"📦 Démarrage : Traitement de {len(files)} fichiers PDF...")
 
-    count_success = 0
-    for filename in tqdm(files):
+    for filename in files:
         pdf_path = os.path.join(PDF_DIR, filename)
         txt_filename = filename.replace(".pdf", ".txt").replace(".PDF", ".txt")
-        txt_path = os.path.join(TXT_OUTPUT_DIR, txt_filename)
+        txt_path = os.path.join(OUTPUT_TXT_DIR, txt_filename)
+        
+        full_doc_text = ""
         
         try:
-            clean_content = extract_text_from_pdf(pdf_path)
+            doc = fitz.open(pdf_path)
             
-            with open(txt_path, "w", encoding="utf-8") as f:
-                f.write(clean_content)
-            count_success += 1
+            for page_num, page in enumerate(doc):
                 
-        except Exception as e:
-            print(f"❌ Erreur sur {filename}: {e}")
+                # 🛑 1. SKIP PREMIÈRE PAGE (Page de garde)
+                # C'est la première instruction, elle bloque tout le reste pour la page 0
+                if page_num == 0:
+                    continue
 
-    print(f"\n✨ Terminé ! {count_success} fichiers traités.")
-    print("👉 IMPORTANT : N'oublie pas de relancer 'safe_chunker.py' puis 'indexer.py' !")
+                # 2. Récupérer les blocs pour vérifier le sommaire
+                blocks = page.get_text("blocks")
+                
+                # 🛑 3. SKIP SOMMAIRE
+                if is_sommaire_page(blocks):
+                    print(f"   🚫 {filename} - Page {page_num+1} ignorée (Sommaire)")
+                    continue
+
+                # ✅ 4. Extraction Intelligente (Tri des colonnes)
+                # On utilise ta fonction de tri ici
+                page_text = get_sorted_text_from_page(page)
+                
+                # 5. Nettoyage Arabe
+                page_text = remove_arabic(page_text)
+                
+                # Ajout au texte global
+                full_doc_text += page_text + "\n\n"
+
+            # Sauvegarde
+            with open(txt_path, "w", encoding="utf-8") as f:
+                f.write(full_doc_text)
+                
+            print(f"✅ Extrait : {filename}")
+
+        except Exception as e:
+            print(f"❌ Erreur sur {filename} : {e}")
+
+    print("\n🚀 Extraction terminée !")
 
 if __name__ == "__main__":
     main()
