@@ -2,154 +2,129 @@ import os
 import json
 import chromadb
 from sentence_transformers import SentenceTransformer
-from collections import Counter
-import torch
 
 # --- CONFIGURATION ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-JSON_DIR = os.path.join(BASE_DIR, "data", "json")
-CHROMA_PATH = os.path.join(BASE_DIR, "data", "chroma_db")
+# We go up two levels: embed -> src -> Stage-CERIST-Legal-Bot -> data
+JSON_DIR = "../../data/json"
+CHROMA_PATH = "../../data/chroma_db"
 COLLECTION_NAME = "legal_algeria"
 MODEL_NAME = "BAAI/bge-m3"
-BATCH_SIZE_PER_GPU = 32 
 
-def summarize_text(text, max_length=1500):
+def summarize_text(text, max_length=1000):
+    """
+    Simple truncation for embedding parents (titles/preambles).
+    Keeps the context manageable for the vector model.
+    """
     return text[:max_length] + "..." if len(text) > max_length else text
 
-def uniquify_ids(ids):
-    count = Counter(ids)
-    unique_ids = []
-    seen = {}
-    for id_val in ids:
-        if count[id_val] > 1:
-            if id_val not in seen: seen[id_val] = 0
-            seen[id_val] += 1
-            unique_ids.append(f"{id_val}_{seen[id_val]}")
-        else:
-            unique_ids.append(id_val)
-    return unique_ids
-
 def main():
-    print(f"🔄 Initialisation de ChromaDB dans {CHROMA_PATH}...")
+    # 1. Initialize ChromaDB
+    print(f"🔄 Initializing ChromaDB at: {CHROMA_PATH}...")
     client = chromadb.PersistentClient(path=CHROMA_PATH)
     
+    # Reset collection (Delete if exists)
     try:
         client.delete_collection(COLLECTION_NAME)
-        print("🗑️ Ancienne collection supprimée.")
+        print("🗑️  Old collection deleted (Starting fresh).")
     except:
         pass
     
-    collection = client.create_collection(name=COLLECTION_NAME)
+    collection = client.get_or_create_collection(name=COLLECTION_NAME)
 
-    # --- 🚀 GPU SETUP ---
-    target_devices = None
-    if torch.cuda.is_available():
-        gpu_count = torch.cuda.device_count()
-        print(f"⚡ {gpu_count} GPUs détectés.")
-        target_devices = list(range(gpu_count))
+    # 2. Load Embedding Model
+    print(f"🤖 Loading Model: {MODEL_NAME}...")
+    # device="cuda" if you have an NVIDIA GPU, else "cpu"
+    model = SentenceTransformer(MODEL_NAME, device="cpu", model_kwargs={"use_safetensors": True})
 
-    print(f"🤖 Chargement du modèle {MODEL_NAME}...")
-    model = SentenceTransformer(MODEL_NAME, device="cuda" if target_devices else "cpu", model_kwargs={"use_safetensors": True})
-
-    if target_devices:
-        pool = model.start_multi_process_pool(target_devices=target_devices)
-    
+    # 3. List JSON Files
     if not os.path.exists(JSON_DIR):
-        print(f"❌ Erreur : Dossier {JSON_DIR} introuvable.")
+        print(f"❌ Error: JSON directory not found: {JSON_DIR}")
         return
 
     files = [f for f in os.listdir(JSON_DIR) if f.endswith(".json")]
-    print(f"📦 {len(files)} fichiers à indexer.")
+    print(f"📦 Found {len(files)} JSON files to index.")
 
-    total_docs = 0
+    total_chunks = 0
     
+    # 4. Processing Loop
     for filename in files:
         file_path = os.path.join(JSON_DIR, filename)
+        print(f"   📄 Processing {filename}...", end=" ")
         
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            if "hierarchical_documents" not in data:
+            # Check for the new structure key
+            if "documents" not in data:
+                print("⚠️ Skipped (No 'documents' key found).")
                 continue
 
-            documents = []
+            # Lists to hold batch data
             ids = []
+            documents = []  # The text content to embed
             metadatas = []
-            texts_to_embed = []
-            
-            for hierarchy in data["hierarchical_documents"]:
-                parent = hierarchy.get("parent", {})
-                children = hierarchy.get("children", [])
-                
-                if not parent: continue
 
-                # --- TRAITEMENT DU PARENT ---
-                parent_id = parent.get("id", f"{filename}_parent_{len(ids)}")
-                parent_text = parent.get("text", "")
+            # Iterate through Decrees (Parents)
+            for doc_idx, doc in enumerate(data["documents"]):
+                parent_title = doc.get("title", "Sans titre")
+                full_context = doc.get("full_context", "")
                 
-                # Extraction du titre pour le contexte
-                parent_title = parent.get("metadata", {}).get("title", "")
-                if not parent_title:
-                    parent_title = parent_text[:250].replace("\n", " ")
-
-                parent_summary = summarize_text(parent_text)
-                parent_metadata = parent.get("metadata", {})
-                parent_metadata.update({"source": filename, "type": "parent", "full_text": parent_text})
+                # --- A. INDEX THE PARENT (The Decree Itself) ---
+                # We embed the Title + A summary of the preamble
+                parent_id = f"{filename}_doc_{doc_idx}"
+                parent_text_for_embedding = f"{parent_title}\n{summarize_text(full_context)}"
                 
-                documents.append(parent_summary)
                 ids.append(parent_id)
-                metadatas.append(parent_metadata)
-                texts_to_embed.append(parent_summary)
-                total_docs += 1
+                documents.append(parent_text_for_embedding)
+                metadatas.append({
+                    "source": filename,
+                    "type": "parent",
+                    "title": parent_title,
+                    "full_text": full_context  # Store full text for retrieval display
+                })
+                total_chunks += 1
 
-                # --- TRAITEMENT DES ENFANTS (ARTICLES) ---
-                for child in children:
-                    child_id = child.get("id", f"{parent_id}_child_{len(ids)}")
-                    child_text = child.get("text", "")
-                    
-                    if not child_text.strip(): continue
-
-                    child_metadata = child.get("metadata", {})
-                    child_metadata.update({
-                        "source": filename, 
-                        "type": "child", 
-                        "parent_id": parent_id,
-                        "full_context": f"{parent_title}\n---\n{child_text}"
-                    })
-                    
-                    # 💡 MODIFICATION CRITIQUE ICI 💡
-                    # On crée un texte qui contient explicitement le titre ET l'article
-                    contextualized_text = f"Source: {parent_title}\n---\nContenu Article: {child_text}"
-
-                    # AVANT : documents.append(child_text)  <-- C'était l'erreur (Mistral ne voyait pas le titre)
-                    # APRÈS : On donne le texte enrichi à Mistral
-                    documents.append(contextualized_text) 
+                # --- B. INDEX THE CHILDREN (The Articles) ---
+                articles = doc.get("articles", [])
+                
+                for art_idx, article_text in enumerate(articles):
+                    child_id = f"{parent_id}_art_{art_idx}"
                     
                     ids.append(child_id)
-                    metadatas.append(child_metadata)
-                    texts_to_embed.append(contextualized_text) # On embed aussi le texte enrichi
-                    total_docs += 1
+                    documents.append(article_text)
+                    
+                    # CRITICAL: Add parent title to metadata so we know context later
+                    metadatas.append({
+                        "source": filename,
+                        "type": "child",
+                        "parent_title": parent_title,
+                        "parent_id": parent_id
+                    })
+                    total_chunks += 1
 
-            ids = uniquify_ids(ids)
-
-            if texts_to_embed:
-                if target_devices:
-                    embeddings = model.encode_multi_process(texts_to_embed, pool, batch_size=BATCH_SIZE_PER_GPU)
-                    if hasattr(embeddings, "tolist"): embeddings = embeddings.tolist()
-                else:
-                    embeddings = model.encode(texts_to_embed, batch_size=BATCH_SIZE_PER_GPU).tolist()
+            # --- C. BATCH EMBEDDING & ADDING ---
+            if documents:
+                # Generate vectors
+                embeddings = model.encode(documents).tolist()
                 
-                collection.add(documents=documents, embeddings=embeddings, metadatas=metadatas, ids=ids)
-                print(f" ✅ {filename} : {len(documents)} docs indexés.")
+                # Add to Chroma
+                collection.add(
+                    ids=ids,
+                    documents=documents,
+                    embeddings=embeddings,
+                    metadatas=metadatas
+                )
+                print(f"✅ Indexed {len(documents)} items.")
+            else:
+                print("⚠️ No valid text found.")
 
         except Exception as e:
-            print(f" ❌ Erreur sur {filename}: {e}")
+            print(f"❌ Error: {e}")
 
-    if target_devices:
-        model.stop_multi_process_pool(pool)
-
-    print(f"\n🎉 Indexation terminée ! ({total_docs} fragments)")
+    print("\n" + "="*60)
+    print(f"🎉 INDEXING COMPLETE! Total Vectors: {total_chunks}")
+    print("="*60)
 
 if __name__ == "__main__":
     main()
