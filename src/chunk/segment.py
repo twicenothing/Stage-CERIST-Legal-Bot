@@ -1,151 +1,165 @@
+
 import os
-import json
 import re
+import json
 
 # --- CONFIGURATION ---
-RAW_TEXT_DIR = "../../data/txt"
-OUTPUT_JSON_DIR = "../../data/json"
+# Update these paths to match your folder structure
+INPUT_FOLDER = "../../data/txt"
+OUTPUT_FOLDER = "../../data/json"
 
 def clean_text(text):
+    # 1. Normalize newlines (Crucial for regex anchors)
+    text = re.sub(r'\r\n', '\n', text) 
     text = re.sub(r'\n+', '\n', text)
-    text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF]+', ' ', text)
+    # 2. Clean strange characters
+    text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF\n]+', ' ', text)
     return text.strip()
 
-def extract_decrees(text: str):
-    chunks = []
-    
-    # Regex de détection (Large)
-    header_pattern = re.compile(
-        r'(Décret\s+(?:présidentiel|exécutif)|Arrêté|Décision)\s+(?:n[°o\.]?)?\s*(\d+[-‐‑]\d+|\d{1,4}(?!\d))', 
+def extract_articles_simple(decree_body: str):
+    """
+    Splits the decree body into a list of full article strings.
+    """
+    # 1. FIND ARTICLE HEADERS
+    article_header_pattern = re.compile(
+        r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?)\.?\s*[-—–]+', 
         re.IGNORECASE
     )
 
-    # 1. On repère TOUS les candidats
-    raw_matches = list(header_pattern.finditer(text))
-    valid_matches = []
-
-    # 2. FILTRAGE INTELLIGENT (Anti-Visas)
-    for m in raw_matches:
-        start = m.start()
-        # On regarde les 50 caractères AVANT le match
-        context_before = text[max(0, start-50):start].lower()
-        
-        # Si ça commence par "vu le", "vu l'", "considérant le", c'est une citation, pas un titre !
-        if "vu le" in context_before or "vu l'" in context_before or "application du" in context_before:
-            continue
-            
-        valid_matches.append(m)
-
-    # Si aucun décret trouvé, on prend tout le texte
-    if not valid_matches:
-        return [{
-            "parent": {
-                "id": "doc_entier", 
-                "text": text, 
-                "metadata": {"title": "Document complet"}
-            },
-            "children": []
-        }]
-
-    # 3. DÉCOUPAGE SUR LES MATCHS VALIDES
-    for i, match in enumerate(valid_matches):
-        doc_type = match.group(1).replace(" ", "_").lower()
-        doc_num = match.group(2)
-        decree_id = f"{doc_num}" # ex: 24-440
-        
-        start_pos = match.start()
-        
-        # La fin est le début du prochain match valide
-        if i + 1 < len(valid_matches):
-            end_pos = valid_matches[i+1].start()
-        else:
-            end_pos = len(text)
-            
-        full_decree_text = text[start_pos:end_pos].strip()
-        
-        # Titre approximatif (les 300 premiers caractères)
-        title_extract = full_decree_text[:300].replace("\n", " ")
-        
-        parent = {
-            "type": "parent",
-            "id": decree_id,
-            "text": full_decree_text,
-            "metadata": {
-                "decree_number": doc_num,
-                "title": title_extract[:200] + "..."
-            }
-        }
-        
-        # Extraction des articles (Inchangée)
-        children = []
-        article_pattern = r'Art(?:icle)?\.?\s*(\d+(?:er)?)\.?\s*—'
-        art_matches = list(re.finditer(article_pattern, full_decree_text, re.IGNORECASE))
-        
-        for j, art_match in enumerate(art_matches):
-            art_num = art_match.group(1).replace("er", "1")
-            art_start = art_match.start()
-            
-            if j + 1 < len(art_matches):
-                art_end = art_matches[j+1].start()
-            else:
-                art_end = len(full_decree_text)
-                
-            art_text = full_decree_text[art_start:art_end].strip()
-            
-            children.append({
-                "type": "child",
-                "id": f"{decree_id}_art{art_num}",
-                "text": art_text,
-                "metadata": {
-                    "parent_id": decree_id,
-                    "article_number": art_num
-                }
-            })
-        
-        chunks.append({
-            "parent": parent,
-            "children": children
-        })
+    matches = list(article_header_pattern.finditer(decree_body))
     
-    return chunks
+    if not matches:
+        return []
 
-def main():
-    if not os.path.exists(OUTPUT_JSON_DIR):
-        os.makedirs(OUTPUT_JSON_DIR)
+    articles_list = []
 
-    files = [f for f in os.listdir(RAW_TEXT_DIR) if f.endswith(".txt")]
-    print(f"📦 Démarrage du découpage (Anti-Visas activé) sur {len(files)} fichiers...")
+    # 2. SLICING LOOP
+    for i in range(len(matches)):
+        current_match = matches[i]
+        start_pos = current_match.start()
+        
+        if i + 1 < len(matches):
+            end_pos = matches[i+1].start()
+        else:
+            remaining_text = decree_body[start_pos:]
+            stop_markers = ["Fait à Alger", "Fait à ", "Le Premier ministre", "Le Président"]
+            cutoff = len(remaining_text)
+            for marker in stop_markers:
+                idx = remaining_text.find(marker)
+                if idx != -1 and idx < cutoff:
+                    cutoff = idx
+            end_pos = start_pos + cutoff
 
-    for filename in files:
-        file_path = os.path.join(RAW_TEXT_DIR, filename)
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                raw_text = f.read()
+        full_article_text = decree_body[start_pos:end_pos].strip()
+        clean_article_text = re.sub(r'\s+', ' ', full_article_text)
 
-            clean_content = clean_text(raw_text)
-            hierarchical_chunks = extract_decrees(clean_content)
+        if clean_article_text:
+            articles_list.append(clean_article_text)
+
+    return articles_list
+
+def extract_documents_and_articles(text: str):
+    # --- STRICT DOCUMENT TITLE REGEX ---
+    title_pattern = re.compile(
+        r"""
+        (?:^|\n)                                
+        (                                       
+          (?:                                   
+            Décret\s+(?:présidentiel|exécutif)|       
+            Arrêté(?:\s+interministériel)?|           
+            Décision                                  
+          )
+          \s+
+          (?:n[°o\.]?|du)                       
+          .*?                                   
+          \.                                    
+        )                                       
+        \s* [-—–_]{3,}                          
+        """, 
+        re.IGNORECASE | re.VERBOSE | re.DOTALL 
+    )
+
+    matches = list(title_pattern.finditer(text))
+
+    if not matches:
+        return []
+
+    documents = []
+
+    for i in range(len(matches)):
+        match = matches[i]
+        raw_title = match.group(1).strip()
+        
+        # Security Filter
+        if "Article" in raw_title or "Art." in raw_title or "Chapitre" in raw_title:
+            continue
+        
+        clean_title_str = re.sub(r'\s+', ' ', raw_title)
+
+        start_body = match.end()
+        if i + 1 < len(matches):
+            end_body = matches[i+1].start()
+        else:
+            end_body = len(text)
             
-            # Petit log pour vérifier
-            print(f"📄 {filename} : {len(hierarchical_chunks)} décrets trouvés.")
-            for c in hierarchical_chunks:
-                print(f"   - ID: {c['parent']['id']} ({len(c['children'])} articles)")
+        body_text = text[start_body:end_body].strip()
+        simple_articles = extract_articles_simple(body_text)
+        
+        documents.append({
+            "title": clean_title_str,
+            "articles": simple_articles,
+            "full_context": body_text 
+        })
 
-            json_output = {
+    return documents
+
+def process_all_files():
+    # 1. Create Output Directory if it doesn't exist
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
+        print(f"📁 Created output folder: {OUTPUT_FOLDER}")
+
+    # 2. List all .txt files
+    files = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith('.txt')]
+    
+    if not files:
+        print(f"⚠️ No .txt files found in {INPUT_FOLDER}")
+        return
+
+    print(f"🚀 Starting batch processing for {len(files)} files...\n")
+
+    # 3. Process Loop
+    for index, filename in enumerate(files):
+        input_path = os.path.join(INPUT_FOLDER, filename)
+        
+        # Create output filename (replace .txt with .json)
+        output_filename = os.path.splitext(filename)[0] + ".json"
+        output_path = os.path.join(OUTPUT_FOLDER, output_filename)
+
+        print(f"   [{index+1}/{len(files)}] Processing {filename}...", end=" ")
+
+        try:
+            with open(input_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            
+            cleaned_content = clean_text(content)
+            data = extract_documents_and_articles(cleaned_content)
+            
+            final_output = {
                 "source_file": filename,
-                "total_decrees": len(hierarchical_chunks),
-                "hierarchical_documents": hierarchical_chunks
+                "total_documents": len(data),
+                "documents": data
             }
 
-            output_filename = filename.replace(".txt", ".json")
-            output_path = os.path.join(OUTPUT_JSON_DIR, output_filename)
-            
             with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(json_output, f, ensure_ascii=False, indent=4)
-
+                json.dump(final_output, f, ensure_ascii=False, indent=4)
+            
+            print(f"✅ Done. ({len(data)} docs found)")
+            
         except Exception as e:
-            print(f"❌ Erreur sur {filename}: {e}")
+            print(f"❌ ERROR: {e}")
 
-    print("\n🎉 Terminé ! Relance l'indexation (indexer.py).")
+    print(f"\n🎉 Batch processing complete! Check the '{OUTPUT_FOLDER}' folder.")
 
 if __name__ == "__main__":
-    main()
+    process_all_files()
