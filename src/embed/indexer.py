@@ -32,9 +32,12 @@ def main():
     collection = client.get_or_create_collection(name=COLLECTION_NAME)
 
     # 2. Load Embedding Model
-    print(f"🤖 Loading Model: {MODEL_NAME}...")
-    # device="cuda" if you have an NVIDIA GPU, else "cpu"
-    model = SentenceTransformer(MODEL_NAME, device="cpu", model_kwargs={"use_safetensors": True})
+    print(f"🤖 Loading Model: {MODEL_NAME} for Multi-GPU...")
+    # Removed device="cpu" so it defaults to CUDA and can span across GPUs
+    model = SentenceTransformer(MODEL_NAME, model_kwargs={"use_safetensors": True})
+    
+    # 🔥 NEW: Start the multi-process pool to use all available GPUs
+    gpu_pool = model.start_multi_process_pool()
 
     # 3. List JSON Files
     if not os.path.exists(JSON_DIR):
@@ -71,7 +74,6 @@ def main():
                 full_context = doc.get("full_context", "")
                 
                 # --- A. INDEX THE PARENT (The Decree Itself) ---
-                # We embed the Title + A summary of the preamble
                 parent_id = f"{filename}_doc_{doc_idx}"
                 parent_text_for_embedding = f"{parent_title}\n{summarize_text(full_context)}"
                 
@@ -87,26 +89,30 @@ def main():
 
                 # --- B. INDEX THE CHILDREN (The Articles) ---
                 articles = doc.get("articles", [])
-                
+
                 for art_idx, article_text in enumerate(articles):
                     child_id = f"{parent_id}_art_{art_idx}"
                     
-                    ids.append(child_id)
-                    documents.append(article_text)
+                    # Prepend the parent title to the article text
+                    contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
                     
-                    # CRITICAL: Add parent title to metadata so we know context later
+                    ids.append(child_id)
+                    documents.append(contextualized_text) 
+                    
                     metadatas.append({
                         "source": filename,
                         "type": "child",
                         "parent_title": parent_title,
-                        "parent_id": parent_id
+                        "parent_id": parent_id,
+                        "original_article_text": article_text 
                     })
                     total_chunks += 1
 
-            # --- C. BATCH EMBEDDING & ADDING ---
+            # --- C. BATCH EMBEDDING & ADDING (MULTI-GPU) ---
             if documents:
-                # Generate vectors
-                embeddings = model.encode(documents).tolist()
+                # 🔥 NEW: Encode using all GPUs in parallel
+                embeddings_array = model.encode_multi_process(documents, gpu_pool)
+                embeddings = embeddings_array.tolist()
                 
                 # Add to Chroma
                 collection.add(
@@ -125,6 +131,9 @@ def main():
     print("\n" + "="*60)
     print(f"🎉 INDEXING COMPLETE! Total Vectors: {total_chunks}")
     print("="*60)
+    
+    # 🔥 NEW: Always close the pool at the end to free up GPU memory
+    model.stop_multi_process_pool(gpu_pool)
 
 if __name__ == "__main__":
     main()
