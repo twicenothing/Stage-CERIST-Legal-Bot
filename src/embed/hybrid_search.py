@@ -32,7 +32,7 @@ def generate_answer(query, ranked_results):
 
     # Préparation du contexte pour Mistral
     context_pieces = []
-    for rank, (doc_id, data) in enumerate(ranked_results[:5]):
+    for rank, (doc_id, data) in enumerate(ranked_results[:3]):
         meta = data['meta']
         text = data['text']
         
