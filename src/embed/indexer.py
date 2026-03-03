@@ -4,18 +4,10 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 
 # --- CONFIGURATION ---
-# We go up two levels: embed -> src -> Stage-CERIST-Legal-Bot -> data
 JSON_DIR = "../../data/json"
 CHROMA_PATH = "../../data/chroma_db"
 COLLECTION_NAME = "legal_algeria"
 MODEL_NAME = "BAAI/bge-m3"
-
-def summarize_text(text, max_length=1000):
-    """
-    Simple truncation for embedding parents (titles/preambles).
-    Keeps the context manageable for the vector model.
-    """
-    return text[:max_length] + "..." if len(text) > max_length else text
 
 def main():
     # 1. Initialize ChromaDB
@@ -33,10 +25,9 @@ def main():
 
     # 2. Load Embedding Model
     print(f"🤖 Loading Model: {MODEL_NAME} for Multi-GPU...")
-    # Removed device="cpu" so it defaults to CUDA and can span across GPUs
     model = SentenceTransformer(MODEL_NAME, model_kwargs={"use_safetensors": True})
     
-    # 🔥 NEW: Start the multi-process pool to use all available GPUs
+    # Start the multi-process pool
     gpu_pool = model.start_multi_process_pool()
 
     # 3. List JSON Files
@@ -58,24 +49,24 @@ def main():
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            # Check for the new structure key
             if "documents" not in data:
                 print("⚠️ Skipped (No 'documents' key found).")
                 continue
 
-            # Lists to hold batch data
             ids = []
-            documents = []  # The text content to embed
+            documents = []  
             metadatas = []
 
             # Iterate through Decrees (Parents)
             for doc_idx, doc in enumerate(data["documents"]):
                 parent_title = doc.get("title", "Sans titre")
-                full_context = doc.get("full_context", "")
+                # 🔥 CHANGEMENT : On récupère la nouvelle clé "context"
+                context_text = doc.get("context", "") 
                 
                 # --- A. INDEX THE PARENT (The Decree Itself) ---
                 parent_id = f"{filename}_doc_{doc_idx}"
-                parent_text_for_embedding = f"{parent_title}\n{summarize_text(full_context)}"
+                # 🔥 CHANGEMENT : Plus besoin de summarize_text, on indexe le titre + le préambule propre
+                parent_text_for_embedding = f"Titre: {parent_title}\nPréambule: {context_text}"
                 
                 ids.append(parent_id)
                 documents.append(parent_text_for_embedding)
@@ -83,7 +74,7 @@ def main():
                     "source": filename,
                     "type": "parent",
                     "title": parent_title,
-                    "full_text": full_context  # Store full text for retrieval display
+                    "context": context_text  # 🔥 CHANGEMENT dans la métadonnée
                 })
                 total_chunks += 1
 
@@ -93,7 +84,7 @@ def main():
                 for art_idx, article_text in enumerate(articles):
                     child_id = f"{parent_id}_art_{art_idx}"
                     
-                    # Prepend the parent title to the article text
+                    # 🔥 ON GARDE CECI : Titre + Article (C'est le mix parfait de contexte)
                     contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
                     
                     ids.append(child_id)
@@ -110,11 +101,9 @@ def main():
 
             # --- C. BATCH EMBEDDING & ADDING (MULTI-GPU) ---
             if documents:
-                # 🔥 NEW: Encode using all GPUs in parallel
                 embeddings_array = model.encode_multi_process(documents, gpu_pool)
                 embeddings = embeddings_array.tolist()
                 
-                # Add to Chroma
                 collection.add(
                     ids=ids,
                     documents=documents,
@@ -132,7 +121,7 @@ def main():
     print(f"🎉 INDEXING COMPLETE! Total Vectors: {total_chunks}")
     print("="*60)
     
-    # 🔥 NEW: Always close the pool at the end to free up GPU memory
+    # Close the pool at the end
     model.stop_multi_process_pool(gpu_pool)
 
 if __name__ == "__main__":

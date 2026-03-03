@@ -79,7 +79,7 @@ def reciprocal_rank_fusion(results_dict, weights=None, k=60):
 
 # --- FONCTION D'ÉVALUATION ---
 # J'ai ajouté les paramètres model, collection, etc. pour éviter les erreurs de variables globales
-def evaluate_system(golden_dataset, model, collection, bm25, ids, documents, metadatas, weights={"keyword": 1.0, "vector": 1.0}, top_k=5):
+def evaluate_system(golden_dataset, model, collection, bm25, ids, documents, metadatas, weights={"keyword": 1.0, "vector": 1.0}, top_k=3):
     print(f"\n📊 RUNNING EVALUATION (Weights: {weights})")
     print("-" * 50)
     
@@ -139,7 +139,7 @@ def main():
     collection = client.get_collection(COLLECTION_NAME)
     
     print("🤖 Chargement du modèle d'embedding...")
-    model = SentenceTransformer(MODEL_NAME, device="cpu", model_kwargs={"use_safetensors": True})
+    model = SentenceTransformer(MODEL_NAME, model_kwargs={"use_safetensors": True})
 
     print("📚 Préparation de l'index BM25...")
     all_docs = collection.get()

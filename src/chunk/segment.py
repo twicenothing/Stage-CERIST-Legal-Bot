@@ -1,10 +1,8 @@
-
 import os
 import re
 import json
 
 # --- CONFIGURATION ---
-# Update these paths to match your folder structure
 INPUT_FOLDER = "../../data/txt"
 OUTPUT_FOLDER = "../../data/json"
 
@@ -105,10 +103,41 @@ def extract_documents_and_articles(text: str):
         body_text = text[start_body:end_body].strip()
         simple_articles = extract_articles_simple(body_text)
         
+        # =========================================================
+        # 🔥 NOUVELLE LOGIQUE D'EXTRACTION DU CONTEXTE (PRÉAMBULE)
+        # =========================================================
+        
+        # 1. On cherche les mots-clés de transition (avec ou sans espace avant les deux points)
+      # 1. On cherche les mots-clés de transition isolés (précédés et suivis d'un saut de ligne ou fin de texte)
+        preamble_end_pattern = re.compile(
+            r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
+            re.IGNORECASE
+        )
+        preamble_match = preamble_end_pattern.search(body_text)
+        
+        if preamble_match:
+            # Si on trouve "Décrète :", on coupe juste après ce mot
+            preamble = body_text[:preamble_match.end()].strip()
+        else:
+            # ROUE DE SECOURS 1 : Pas de mot-clé, mais il y a des articles
+            # On coupe juste avant l'apparition du premier article
+            first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*1?(?:er|ER)?\.?\s*[-—–]+', body_text, re.IGNORECASE)
+            if first_art_match:
+                preamble = body_text[:first_art_match.start()].strip()
+            else:
+                # ROUE DE SECOURS 2 : Ni mot-clé, ni articles. 
+                # C'est un texte très court ou sans structure, on prend tout.
+                preamble = body_text.strip()
+                
+        # 2. On fusionne le Titre propre avec le Préambule extrait
+        context_text = f"{clean_title_str}\n\n{preamble}"
+        
+        # =========================================================
+        
         documents.append({
             "title": clean_title_str,
             "articles": simple_articles,
-            "full_context": body_text 
+            "context": context_text  # Remplace l'ancien "full_context"
         })
 
     return documents
