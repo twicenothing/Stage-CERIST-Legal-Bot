@@ -18,50 +18,96 @@ def is_sommaire_page(text_blocks):
     header_text = " ".join([b[4] for b in text_blocks[:5]]).lower()
     return "sommaire" in header_text
 
+def is_ignored_title(text):
+    """
+    Vérifie si le texte (seul sur sa ligne/bloc) fait partie des titres à ignorer.
+    """
+    # Nettoyage : on met en minuscules et on normalise les espaces
+    clean_text = " ".join(text.strip().lower().split())
+    
+    # Liste des titres stricts à supprimer (avec et sans accents)
+    exact_matches = [
+        "decisions et avis", "décisions et avis",
+        "arretes", "arrêtés", "arrêtes",
+        "arretes, decisions et avis", "arrêtés, décisions et avis",
+        "conventions et accords internationaux",
+        "decrets", "décrets",
+        "decisions individuelles", "décisions individuelles",
+        "annonces et communications"
+    ]
+    
+    return clean_text in exact_matches
+
 def get_sorted_text_from_page(page):
     """
-    Extrait le texte en respectant les colonnes (En-tête -> Gauche -> Droite).
+    Extrait le texte en gérant les ruptures de colonnes (titres centrés).
+    Dès qu'un titre centré est détecté, on traite les colonnes du dessus, 
+    puis on recommence pour les colonnes du dessous.
     """
     blocks = page.get_text("blocks")
-    
     page_width = page.rect.width
     mid_point = page_width / 2
 
-    full_width_blocks = []
-    left_col_blocks = []  
-    right_col_blocks = []  
-
+    # 1. On garde uniquement le texte et on trie TOUT de haut en bas (axe Y)
+    valid_blocks = []
     for b in blocks:
-        x0, y0, x1, y1, text, block_no, block_type = b
-        
-        text = text.strip()
-        if not text:
-            continue
+        if b[6] == 0 and b[4].strip(): # b[6] == 0 signifie que c'est du texte, pas une image
+            valid_blocks.append(b)
+            
+    valid_blocks.sort(key=lambda b: b[1]) # b[1] est y0 (la position verticale)
 
+    final_text = ""
+    current_band_blocks = [] # Les blocs de la "section" en cours
+
+    # Fonction interne pour traiter une section (lire sa gauche puis sa droite)
+    def process_band(band_blocks):
+        if not band_blocks: return ""
+        left_col = []
+        right_col = []
+        for b in band_blocks:
+            if b[0] < mid_point:
+                left_col.append(b)
+            else:
+                right_col.append(b)
+        
+        # On trie verticalement chaque colonne
+        left_col.sort(key=lambda b: b[1])
+        right_col.sort(key=lambda b: b[1])
+        
+        band_text = ""
+        # On ajoute toute la gauche, PUIS toute la droite de cette section
+        for b in left_col + right_col:
+            band_text += b[4] + "\n"
+        return band_text
+
+    # 2. On parcourt la page de haut en bas
+    for b in valid_blocks:
+        x0, y0, x1, y1, text, block_no, block_type = b
         block_width = x1 - x0
 
-        # Si le bloc fait plus de 75% de la page, c'est un en-tête (titre traversant)
-        if block_width > (page_width * 0.75):
-            full_width_blocks.append(b)
-        # Sinon, tri gauche/droite
-        elif x0 < mid_point:
-            left_col_blocks.append(b)
+        # Est-ce que ce bloc est un séparateur (Mur) ?
+        is_separator = False
+        if is_ignored_title(text):
+            is_separator = True
+        elif block_width > (page_width * 0.75):
+            is_separator = True
+
+        if is_separator:
+            # ON A TOUCHÉ UN MUR !
+            # On traite tout ce qu'on a accumulé au-dessus (Gauche -> Droite)
+            final_text += process_band(current_band_blocks)
+            current_band_blocks = [] # On vide la liste pour la section d'en dessous
+            
+            # Si le séparateur N'EST PAS dans notre liste d'ignorés, on l'ajoute au texte
+            if not is_ignored_title(text):
+                final_text += text + "\n\n"
         else:
-            right_col_blocks.append(b)
+            # C'est un bloc de colonne normal, on le met de côté
+            current_band_blocks.append(b)
 
-    # --- TRI PAR POSITION VERTICALE (Haut vers Bas pour chaque colonne) ---
-    full_width_blocks.sort(key=lambda b: b[1])
-    left_col_blocks.sort(key=lambda b: b[1])
-    right_col_blocks.sort(key=lambda b: b[1])
+    # 3. Fin de la page : on traite la toute dernière section (en dessous du dernier mur)
+    final_text += process_band(current_band_blocks)
 
-    # --- ASSEMBLAGE : En-tête -> Gauche -> Droite ---
-    sorted_blocks = full_width_blocks + left_col_blocks + right_col_blocks
-    
-    final_text = ""
-    for b in sorted_blocks:
-        # b[4] est le contenu texte du bloc
-        final_text += b[4] + "\n"
-        
     return final_text
 
 def main():
@@ -84,7 +130,6 @@ def main():
             for page_num, page in enumerate(doc):
                 
                 # 🛑 1. SKIP PREMIÈRE PAGE (Page de garde)
-                # C'est la première instruction, elle bloque tout le reste pour la page 0
                 if page_num == 0:
                     continue
 
@@ -96,8 +141,7 @@ def main():
                     print(f"   🚫 {filename} - Page {page_num+1} ignorée (Sommaire)")
                     continue
 
-                # ✅ 4. Extraction Intelligente (Tri des colonnes)
-                # On utilise ta fonction de tri ici
+                # ✅ 4. Extraction Intelligente (Tri des colonnes + Suppression des titres)
                 page_text = get_sorted_text_from_page(page)
                 
                 # 5. Nettoyage Arabe
