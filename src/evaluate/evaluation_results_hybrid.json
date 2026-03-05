@@ -1,0 +1,142 @@
+[
+    {
+        "id": 1,
+        "question": "Quel est le montant exact en dinars algériens (DA) annulé pour les 'Dépenses imprévues' en vertu du décret n° 24-432 ?",
+        "retrieval_pass": true,
+        "score": 4,
+        "reasoning": "La réponse générée est presque exacte. Il manque le montant annulé pour les 'Dépenses imprévues' en autorisations d'engagement qui est de 29.711.200.000 DA."
+    },
+    {
+        "id": 2,
+        "question": "Quelles sont les deux personnes désignées comme membres de la Cour constitutionnelle par le décret n° 25-01 ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exacte et complète en termes de noms des membres désignés et du document qui les concerne."
+    },
+    {
+        "id": 3,
+        "question": "D'après les transferts de crédits du décret n° 24-432, quels secteurs d'infrastructures ont été les principaux bénéficiaires des crédits nouvellement ouverts ?",
+        "retrieval_pass": false,
+        "score": 0,
+        "reasoning": "La réponse générée ne fournit pas les informations attendues sur les principaux secteurs d'infrastructures qui ont bénéficié des crédits nouvellement ouverts. La réponse devrait spécifier les montants alloués aux infrastructures routières et autoroutières (22.896.200.000 DA) ainsi qu'aux infrastructures ferroviaires (2.300.000.000 DA), comme indiqué dans la réponse attendue."
+    },
+    {
+        "id": 4,
+        "question": "Identifiez les sociétés internationales qui ont signé le contrat d'exploitation d'hydrocarbures pour le périmètre 'Menzel Lejmat' le 15 juin 2023.",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exacte et correspond à la réponse attendue."
+    },
+    {
+        "id": 5,
+        "question": "Comment le décret n° 25-03 a-t-il modifié la durée et la structure des mandats des membres du Conseil National Economique, Social et Environnemental (CNESE) ?",
+        "retrieval_pass": true,
+        "score": 0,
+        "reasoning": "La réponse générée ne correspond pas exactement à la réponse attendue. La réponse attendue précise que les membres du CNESE sont désignés pour un mandat de quatre ans renouvelable une seule fois et que les membres du bureau et les présidents des commissions permanentes sont désormais élus pour un mandat de deux ans non renouvelable. La réponse générée ne mentionne pas ces précisions."
+    },
+    {
+        "id": 6,
+        "question": "Quelle est la catégorie et l'indice minimal pour le grade de 'Professeur émérite de l’enseignement secondaire' ?",
+        "retrieval_pass": false,
+        "score": 3,
+        "reasoning": "La réponse générée ne fournit pas le nom exact de la catégorie pour le grade de 'Professeur émérite de l'enseignement secondaire', mais elle fournit une explication valide sur la possibilité que ce grade soit classé et un indice minimal possible. Cependant, il manque une référence directe à la catégorie 17 avec un indice minimal de 962 comme dans la réponse attendue."
+    },
+    {
+        "id": 7,
+        "question": "En vertu de l'article 17, quelle est la durée maximale et la fréquence du 'congé de mobilité professionnelle' pour les enseignants ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exacte et correspond à la réponse attendue."
+    },
+    {
+        "id": 8,
+        "question": "Quelles sont les conditions physiques et de santé spécifiques requises pour les candidats au recrutement dans les grades d'enseignement du secteur de l'éducation nationale ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est parfaitement exacte et correspond à la réponse attendue."
+    },
+    {
+        "id": 9,
+        "question": "Quels sont les trois responsables spécifiques légalement tenus d'assurer une présence de jour et de nuit dans leur établissement en cas de nécessité ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exacte et correspond à la réponse attendue."
+    },
+    {
+        "id": 10,
+        "question": "Selon les articles 37 et 39, quelles sont les trois issues possibles pour un enseignant stagiaire à la suite de son 'examen de titularisation' à la fin de son stage probatoire ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est parfaitement exacte en termes de contenu et de structure. Elle reproduit fidèlement la réponse attendue."
+    },
+    {
+        "id": 11,
+        "question": "Quel montant exact en autorisations d'engagement est transféré au portefeuille de programmes de la Présidence de la République en vertu du décret n° 24-440 ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exactement la même que la réponse attendue en termes de montant et de structure de la phrase."
+    },
+    {
+        "id": 12,
+        "question": "Selon le décret n° 25-60, quels sont les éléments principaux qui doivent être inclus dans un plan de confortement prioritaire pour les infrastructures exposées aux risques de catastrophes ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est parfaitement exacte et comprend tous les éléments du plan de confortement prioritaire pour les infrastructures exposées aux risques de catastrophes comme indiqué dans la réponse attendue."
+    },
+    {
+        "id": 13,
+        "question": "Quels sont les deux sous-comités techniques inclus dans la commission intersectorielle d'évaluation des dommages établie par le décret n° 25-61 ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exactement conforme à la réponse attendue en termes de structure et de contenu."
+    },
+    {
+        "id": 14,
+        "question": "Comment l'article 2 du décret n° 25-62 définit-il les 'déchets de catastrophe' ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est identique à la réponse attendue en termes de structure et de contenu."
+    },
+    {
+        "id": 15,
+        "question": "En vertu du décret n° 25-62, quelle autorité spécifique est chargée d'assurer le secrétariat de la commission de wilaya chargée du plan de gestion des déchets de catastrophe ?",
+        "retrieval_pass": false,
+        "score": 0,
+        "reasoning": "La réponse générée ne correspond pas exactement à la réponse attendue. La réponse attendue indique que le secrétariat de la commission est assuré par la direction de l'environnement de la wilaya, tandis que la réponse générée ne fournit aucune information sur cette autorité."
+    },
+    {
+        "id": 16,
+        "question": "Selon l'article 158 de la Constitution mentionné dans l'avis de la Cour constitutionnelle, quel est le délai maximum de réponse pour les questions écrites et orales adressées au Gouvernement ?",
+        "retrieval_pass": false,
+        "score": 0,
+        "reasoning": "La réponse générée ne fournit pas le délai maximal de réponse attendu. Il est spécifié que ce délai est de trente jours dans la réponse attendue."
+    },
+    {
+        "id": 17,
+        "question": "Pourquoi la Cour constitutionnelle a-t-elle rejeté la demande parlementaire d'interprétation de l'article 158 de la Constitution dans son Avis n° 01 ?",
+        "retrieval_pass": false,
+        "score": 2,
+        "reasoning": "La réponse générée ne fournit pas une réponse exacte et concise comme demandé. Elle fournit plutôt des informations contextuelles sur la façon dont une cour constitutionnelle peut rejeter une demande d'interprétation de la Constitution, sans donner une raison précise pourquoi la Cour constitutionnelle a rejeté la demande en question."
+    },
+    {
+        "id": 18,
+        "question": "En vertu du décret n° 24-441, quels transferts financiers spécifiques ont été effectués dans le budget de l'Etat 2024 concernant le secteur agricole ?",
+        "retrieval_pass": true,
+        "score": 2,
+        "reasoning": "La réponse générée ne fournit pas le montant exact du transfert de crédits et ne précise pas qu'il s'agit d'un transfert à partir des dépenses imprévues gérées par le ministre des finances vers le programme Agriculture et développement rural."
+    },
+    {
+        "id": 19,
+        "question": "Qui a reçu la médaille de l'ordre du mérite national au rang de 'Achir' en vertu du décret n° 25-70 ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est exacte et complète en termes de contenu et de grammaire."
+    },
+    {
+        "id": 20,
+        "question": "Comment le décret n° 25-71 modifie-t-il la structure administrative locale de la commune d'El Khroub ?",
+        "retrieval_pass": true,
+        "score": 5,
+        "reasoning": "La réponse générée est parfaitement exacte en termes de contenu et de structure. Elle reproduit fidèlement la réponse attendue en détaillant les modifications apportées par le décret à l'organisation administrative locale de la commune d'El Khroub, y compris la suppression des antennes communales existantes et la création de huit (8) nouvelles délégations communales."
+    }
+]
