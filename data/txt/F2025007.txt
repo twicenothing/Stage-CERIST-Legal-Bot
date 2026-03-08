@@ -3,7 +3,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
-DECRETS
 
 Décret présidentiel n° 24-440 du 29 Joumada Ethania 1446 
 correspondant au 31 décembre 2024 portant transfert 
@@ -144,6 +143,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
+
 Décret exécutif n° 25-60 du 28 Rajab 1446  correspondant 
 au 28 janvier 2025 fixant les modalités d’élaboration 
 et d’exécution des plans de confortement priorisés 
@@ -268,6 +268,7 @@ risques de catastrophes, notamment les séismes.
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
+
 
 Art. 3. — Le plan de confortement des constructions et 
 infrastructures de base affectées par un risque de catastrophe, 
@@ -403,6 +404,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
+
 CHAPITRE 4 
 
 LISTE DES INFRASTRUCTURES ET BATIMENTS 
@@ -524,6 +526,7 @@ et réhabiliter après la survenance des catastrophes.
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
+
 
 Art. 3. — Le comité, présidé par le ministre chargé de 
 l’intérieur ou par son représentant, est composé des 
@@ -659,6 +662,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
+
 Vu le décret exécutif n° 04-409 du 2 Dhou El Kaâda 1425 
 correspondant au 14 décembre 2004 fixant les modalités de 
 transport des déchets spéciaux dangereux ; 
@@ -789,6 +793,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
+
 — du directeur des services agricoles ; 
  
 — du directeur des transports ; 
@@ -916,6 +921,7 @@ matière d'hygiène et de sécurité en milieu de travail ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
+
 
 Vu le décret exécutif n° 02-427 du 3 Chaoual 1423 
 correspondant au  7 décembre 2002 relatif aux conditions 
@@ -1052,6 +1058,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
+
 Art. 5. — Le plan particulier d’intervention pour les zones 
 industrielles, porte sur l’ensemble des installations et 
 ouvrages industriels, y compris les installations et les lignes 
@@ -1179,6 +1186,7 @@ gendarmerie nationale ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
+
 
 — le chef de la sûreté de wilaya ; 
 
@@ -1309,6 +1317,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
+
 Art. 22. — Le directeur de wilaya de l’industrie ou de 
 l’énergie, selon le cas, doit : 
 
@@ -1432,7 +1441,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
-DECISIONS INDIVIDUELLES 
 
 Décret présidentiel du 29 Rajab 1446 correspondant au 
 29 janvier 2025 mettant fin aux fonctions d'un 
@@ -1558,6 +1566,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
+
 Décret présidentiel du 29 Rajab 1446 correspondant au 
 29 janvier 2025 portant nomination de sous-
 directeurs à la direction générale du domaine 
@@ -1678,7 +1687,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
-ARRETES, DECISIONS ET AVIS
 
  
 MINISTERE DE LA CULTURE ET DES ARTS 
@@ -1812,6 +1820,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
+
 Arrête : 
  
 Article 1er. — Les dispositions de l’article 2 de l'arrêté du 22 Joumada Ethania 1443 correspondant au 25 janvier 2022 
@@ -1821,6 +1830,17 @@ sont modifiées et rédigées comme suit :
 « Art. 2. — Il est constitué auprès de l'administration centrale du ministère de la communication trois (3) commissions 
 administratives paritaires, conformément au tableau ci-après :
 
+
+
+| Commissions | Corps et grades | Représentants de l’administration |  | Représentants des fonctionnaires |  |
+|---|---|---|---|---|---|
+|  |  | Membres titulaires | Membres suppléants | Membres titulaires | Membres suppléants |
+| 1ère commission | Administrateur conseiller Administrateur principal Administrateur analyste Administrateur Assistant administrateur | 3 | 3 | 3 | 3 |
+| 2ème commission | Traducteur - interprète en chef Ingénieur en statistiques en chef Traducteur - interprète principal Ingénieur principal en statistiques Ingénieur d'Etat en informatique Ingénieur d'Etat en statistiques Documentaliste - archiviste analyste Traducteur - interprète Documentaliste - archiviste Assistant ingénieur de niveau 2 en statistiques Assistant ingénieur de niveau 2 en informatique Assistant ingénieur de niveau 1 en informatique | 3 | 3 | 3 | 3 |
+| 3ème commission | Attaché principal d'administration Comptable administratif principal Secrétaire principal de direction Technicien supérieur en informatique Attaché d'administration Agent principal d'administration Comptable administratif Technicien en informatique Secrétaire de direction Secrétaire Ouvrier professionnel hors catégorie Ouvrier professionnel 1ère catégorie Conducteur d'automobile 2ème catégorie | 3 | 3 | 3 | 3 » |
+
+
+
 Art. 3. — Le présent arrêté sera publié au Journal officiel de la République algérienne démocratique et populaire.  
  
  Fait à Alger, le 8 Rajab 1446 correspondant au 8 janvier 2025. 
@@ -1828,175 +1848,6 @@ Art. 3. — Le présent arrêté sera publié au Journal officiel de la Républi
  
 Mohamed MEZIANE.
 
-Commissions
-1ère  
-commission
-
-Représentants de l’administration Représentants des fonctionnaires
-
-Corps et grades
-
-Membres 
-titulaires
-Membres 
-suppléants
-
-Administrateur conseiller 
-Administrateur principal 
-Administrateur analyste 
-Administrateur 
-Assistant administrateur 
- 
-Traducteur - interprète en chef 
-Ingénieur en statistiques en chef 
-Traducteur - interprète principal 
-Ingénieur principal en statistiques 
-Ingénieur d'Etat en informatique 
-Ingénieur d'Etat en statistiques  
-Documentaliste - archiviste analyste 
-Traducteur - interprète 
-Documentaliste - archiviste 
-Assistant ingénieur de niveau 2 en statistiques 
-Assistant ingénieur de niveau 2 en informatique 
-Assistant ingénieur de niveau 1 en informatique 
- 
-Attaché principal d'administration 
-Comptable administratif principal 
-Secrétaire principal de direction 
-Technicien supérieur en informatique 
-Attaché d'administration 
-Agent principal d'administration 
-Comptable administratif 
-Technicien en informatique 
-Secrétaire  de  direction 
-Secrétaire 
-Ouvrier professionnel hors catégorie 
-Ouvrier professionnel 1ère catégorie 
-Conducteur d'automobile 2ème catégorie 
-
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-3
-
-2ème 
-commission
-
-3ème 
-commission
-
-Membres 
-titulaires
-Membres 
-suppléants
-
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-3
-
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-3
-
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
-3 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-3 
- 
- 
- 
-
-»
 
 
 
@@ -2004,6 +1855,7 @@ suppléants
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
+
 
  
 MINISTERE DES TRANSPORTS 
@@ -2142,7 +1994,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
-Durée totale de la formation : sept (7) semaines, à raison de 27 heures par semaine, soit un volume horaire total de : 189 h.
 
 Art. 9. — Il est créé auprès de chaque école technique de 
 formation et d’instruction maritimes, un jury pour l’évaluation 
@@ -2192,33 +2043,6 @@ ANNEXE
 Programme de formation de mise à niveau 
 A- Matelot filière « pont » : 
 
-Matière
-Volume horaire
-
-Timonerie 
-
-Amarrage et mouillage 
-
-Gréement 
-
-Règles de barre/balisage et signaux 
-
-Moyens de communication 
-
-Activités du quart 
-
-Code IMDG 
-
-Sécurité incendie et abandon 
-
-Sécurité et prévention des accidents 
-
-Anglais maritime 
-
-Réglementation maritime 
-
-Protection de l’environnement 
-
 Art. 12 . — Les frais de la formation de mise à niveau et de 
 l’évaluation orale, sont fixés par le ministre chargé de la marine 
 marchande et des ports, sur proposition du directeur de l’école. 
@@ -2256,29 +2080,26 @@ Fait à Alger, le 6 Joumada Ethania 1446 correspondant au
  
 Saïd SAYOUD. 
 
-28 
 
-18 
+| Matière | Volume horaire |
+|---|---|
+| Timonerie | 28 |
+| Amarrage et mouillage | 18 |
+| Gréement | 18 |
+| Règles de barre/balisage et signaux | 21 |
+| Moyens de communication | 12 |
+| Activités du quart | 21 |
+| Code IMDG | 12 |
+| Sécurité incendie et abandon | 18 |
+| Sécurité et prévention des accidents | 12 |
+| Anglais maritime | 12 |
+| Réglementation maritime | 7 |
+| Protection de l’environnement | 10 |
 
-18 
 
-21 
 
-12 
+Durée totale de la formation : sept (7) semaines, à raison de 27 heures par semaine, soit un volume horaire total de : 189 h.
 
-21 
-
-12 
-
-18 
-
-12 
-
-12 
-
-7 
-
-10 
 
 
 
@@ -2287,127 +2108,55 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
 6 Chaâbane 1446 
 5 février 2025
 
-Durée totale de la formation : sept (7) semaines, à raison de 27 heures par semaine, soit un volume horaire total de : 189 h.
-
-Durée totale de la formation : sept (7) semaines, à raison de 29 heures par semaine, soit un volume horaire total de : 203 h.
 
 B- Matelot filière « machine » :  
 
-Matière
-Volume horaire
 
-Machine (cours théoriques) 
+| Matière | Volume horaire |
+|---|---|
+| Machine (cours théoriques) | 28 |
+| Machine (cours pratiques) | 29 |
+| Technologie | 14 |
+| Electricité | 14 |
+| Conduite et entretien | 12 |
+| Mesures de sécurité liées à l’exploitation de la machine | 14 |
+| Activités de quart | 14 |
+| Procédure en situation d’urgence à la salle des machines | 12 |
+| Description du navire | 7 |
+| Sécurité incendie et abandon | 14 |
+| Réglementation maritime | 7 |
+| Anglais | 14 |
+| Protection de l’environnement (pollution) | 10 |
 
-Machine (cours pratiques) 
 
-Technologie 
 
-Electricité 
+Durée totale de la formation : sept (7) semaines, à raison de 27 heures par semaine, soit un volume horaire total de : 189 h.
 
-Conduite et entretien 
-
-Mesures de sécurité liées à l’exploitation de la machine 
-
-Activités de quart 
-
-Procédure en situation d’urgence à la salle des machines 
-
-Description du navire 
-
-Sécurité incendie et abandon 
-
-Réglementation maritime 
-
-Anglais 
-
-Protection de l’environnement (pollution) 
 
 C- Matelot filière « électrotechnicien » :  
 
-Matière
-Volume horaire
 
-Electrotechnique (cours théoriques) 
+| Matière | Volume horaire |
+|---|---|
+| Electrotechnique (cours théoriques) | 15 |
+| Electrotechnique (cours pratiques) | 30 |
+| Automatique (cours théoriques) | 10 |
+| Automatique (cours pratiques) | 30 |
+| Electronique (cours théoriques) | 10 |
+| Electronique (cours pratiques) | 20 |
+| Sécurité incendie et abandon | 10 |
+| Réglementation maritime/protection de l’environnement | 10 |
+| Anglais maritime | 10 |
+| Physique | 12 |
+| Mathématiques | 12 |
+| Travaux et entretien | 12 |
+| Sécurité du travail | 12 |
+| Informatique (travaux pratiques) | 10 |
 
-Electrotechnique (cours pratiques) 
 
-Automatique (cours théoriques) 
 
-Automatique (cours pratiques) 
+Durée totale de la formation : sept (7) semaines, à raison de 29 heures par semaine, soit un volume horaire total de : 203 h.
 
-Electronique (cours théoriques) 
-
-Electronique (cours pratiques) 
-
-Sécurité incendie et abandon  
-
-Réglementation maritime/protection de l’environnement  
-
-Anglais maritime   
-
-Physique 
-
-Mathématiques 
-
-Travaux et entretien 
-
-Sécurité du travail 
-
-Informatique (travaux pratiques) 
-
-28 
-
-29 
-
-14 
-
-14 
-
-12 
-
-14 
-
-14 
-
-12 
-
-7 
-
-14 
-
-7 
-
-14 
-
-10 
-
-15 
-
-30 
-
-10 
-
-30 
-
-10 
-
-20 
-
-10 
-
-10 
-
-10 
-
-12 
-
-12 
-
-12 
-
-12 
-
-10
 
 
 
@@ -2416,7 +2165,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 07
  6 Chaâbane 1446 
 5 février 2025
 
-ANNONCES ET COMMUNICATIONS
 
  
 BANQUE  D’ALGERIE 

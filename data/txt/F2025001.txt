@@ -3,73 +3,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
-Portefeuille de programmes de l'ex-ministère de 
-l'agriculure et du développement rural
-—
-—
-4 500 000 000
-4 500 000 000
-4 500 000 000
-4 500 000 000
-
-Agriculure et développement rural
-—
-—
-4 500 000 000
-4 500 000 000
-4 500 000 000
-4 500 000 000
-
-Développement de l'agriculture
-—
-—
-4 500 000 000
-4 500 000 000
-4 500 000 000
-4 500 000 000
-
-Portefeuille de programmes du ministère des 
-travaux publics et des infrastructures de base
-25 211 200 000
-—
-—
-—
-25 211 200 000
-—
-
-Infrastructures routières et autoroutières
-22 896 200 000
-—
-—
-—
-22 896 200 000
-—
-
-Infrastructures ferroviaires et transports guidés
-2 300 000 000
-—
-—
-—
-2 300 000 000
-—
-
-Développement des infrastructures ferroviaires
-2 300 000 000
-—
-—
-—
-2 300 000 000
-—
-
-Total des crédits ouverts
-25 211 200 000
-—
-4 500 000 000
-4 500 000 000
-29 711 200 000
-4 500 000 000
-
-DECRETS
 
 Décret présidentiel n° 24-432 du 29 Joumada Ethania 
 1446 correspondant au 31 décembre 2024 portant 
@@ -116,58 +49,6 @@ infrastructures de base ;
 
 ETAT ANNEXE  
 
-Titre 3 : Dépenses  
-d’investissement
-Titre 4 : Dépenses  
-de transfert
-Total
-
-Intitulés des programmes et  
-sous-programmes
-
-Autorisations
- 
-d’engagement
-Crédits de
- 
-paiement
-Autorisations
- 
-d’engagement
-Crédits de
- 
-paiement
-Autorisations
- 
-d’engagement
-Crédits de
- 
-paiement
-
-Entretien routier
-22 896 200 000
-—
-—
-—
-22 896 200 000
-—
-
-Administration générale
-15 000 000
-—
-—
-—
-15 000 000
-—
-
-Soutien administratif
-15 000 000
-—
-—
-—
-15 000 000
-—
-
 Décrète : 
  
 Article 1er. — Il est annulé, sur les crédits ouverts, au titre 
@@ -205,11 +86,30 @@ Abdelmadjid TEBBOUNE.
 En DA 
 
 
+| Intitulés des programmes et sous-programmes | Titre 3 : Dépenses d’investissement |  | Titre 4 : Dépenses de transfert |  | Total |  |
+|---|---|---|---|---|---|---|
+|  | Autorisations d’engagement | Crédits de paiement | Autorisations d’engagement | Crédits de paiement | Autorisations d’engagement | Crédits de paiement |
+| Portefeuille de programmes de l'ex-ministère de l'agriculure et du développement rural | — | — | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 |
+| Agriculure et développement rural | — | — | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 |
+| Développement de l'agriculture | — | — | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 | 4 500 000 000 |
+| Portefeuille de programmes du ministère des travaux publics et des infrastructures de base | 25 211 200 000 | — | — | — | 25 211 200 000 | — |
+| Infrastructures routières et autoroutières | 22 896 200 000 | — | — | — | 22 896 200 000 | — |
+| Entretien routier | 22 896 200 000 | — | — | — | 22 896 200 000 | — |
+| Infrastructures ferroviaires et transports guidés | 2 300 000 000 | — | — | — | 2 300 000 000 | — |
+| Développement des infrastructures ferroviaires | 2 300 000 000 | — | — | — | 2 300 000 000 | — |
+| Administration générale | 15 000 000 | — | — | — | 15 000 000 | — |
+| Soutien administratif | 15 000 000 | — | — | — | 15 000 000 | — |
+| Total des crédits ouverts | 25 211 200 000 | — | 4 500 000 000 | 4 500 000 000 | 29 711 200 000 | 4 500 000 000 |
+
+
+
+
 
 5
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Décret présidentiel n° 24-433 du 29 Joumada Ethania 
 1446 correspondant au 31 décembre 2024 portant  
@@ -343,6 +243,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
+
 Décret présidentiel n° 24-435 du 29 Joumada Ethania 
 1446 correspondant au 31 décembre 2024 portant 
 transfert de crédits, au titre du budget de l'Etat, mis 
@@ -461,6 +362,7 @@ Abdelmadjid TEBBOUNE.
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Décret présidentiel n° 24-437  du 29 Joumada Ethania 
 1446 correspondant au 31 décembre 2024 portant 
@@ -600,6 +502,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
+
 Vu l'acte d'attribution n° 1/2023 du 14 juin 2023 portant 
 l'octroi par ALNAFT à la société nationale « SONATRACH-
 S.P.A » et les sociétés « PT Pertamina Algeria Eksplorasi 
@@ -728,6 +631,7 @@ du Conseil d'Etat à la Cour constitutionnelle, daté du
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Vu le procès-verbal portant proclamation des résultats 
 définitifs de l'élection des professeurs de droit constitutionnel, 
@@ -876,28 +780,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
-Décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025 mettant fin aux fonctions d’un chargé d’études 
-et de synthèse au rectorat de Djamaâ El Djazaïr. 
-———— 
- 
-Par décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025, il est mis fin au fonctions de chargé d’études et 
-de synthèse au rectorat de Djamaâ El Djazaïr, exercées par M. Tahar Braik, appelé à exercer une autre fonction. 
-————H———— 
- 
-Décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025 portant nomination du directeur général de 
-l’office national du pélerinage et de la omra (ONPO). 
-———— 
- 
-Par décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025, M. Tahar Braik est nommé directeur général de 
-l’office national du pèlerinage et de la omra (ONPO). 
-————H———— 
- 
-Décret exécutif du 5 Rajab 1446 correspondant au 5 janvier 2025 portant nomination du directeur de la réglementation 
-et des affaires générales à la wilaya de Ghardaïa. 
-———— 
- 
-Par décret exécutif du 5 Rajab 1446 correspondant au 5 janvier 2025, M. Abdelatif Nasrat est nommé directeur de la 
-réglementation et des affaires générales à la wilaya de Ghardaïa. 
 
 — d'un (1) représentant des administrations et institutions 
 de l'Etat, élu par les membres de cette catégorie. 
@@ -935,8 +817,6 @@ Les modalités d'élection des membres au sein des
 commissions permanentes, sont fixées par le règlement 
 intérieur du Conseil. ». 
 
-DECISIONS INDIVIDUELLES 
-
 « Art. 45. — Les commissions permanentes se composent 
 d'au moins : 
 
@@ -968,6 +848,30 @@ Fait à Alger, le 6 Rajab 1446 correspondant au 6 janvier
  
 Abdelmadjid TEBBOUNE.
 
+Décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025 mettant fin aux fonctions d’un chargé d’études 
+et de synthèse au rectorat de Djamaâ El Djazaïr. 
+———— 
+ 
+Par décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025, il est mis fin au fonctions de chargé d’études et 
+de synthèse au rectorat de Djamaâ El Djazaïr, exercées par M. Tahar Braik, appelé à exercer une autre fonction. 
+————H———— 
+ 
+Décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025 portant nomination du directeur général de 
+l’office national du pélerinage et de la omra (ONPO). 
+———— 
+ 
+Par décret présidentiel du 7 Rajab 1446 correspondant au 7 janvier 2025, M. Tahar Braik est nommé directeur général de 
+l’office national du pèlerinage et de la omra (ONPO). 
+————H———— 
+ 
+Décret exécutif du 5 Rajab 1446 correspondant au 5 janvier 2025 portant nomination du directeur de la réglementation 
+et des affaires générales à la wilaya de Ghardaïa. 
+———— 
+ 
+Par décret exécutif du 5 Rajab 1446 correspondant au 5 janvier 2025, M. Abdelatif Nasrat est nommé directeur de la 
+réglementation et des affaires générales à la wilaya de Ghardaïa. 
+
+
 
 
 11
@@ -975,7 +879,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
-ARRETES, DECISIONS ET AVIS
 
  
 MINISTERE DES AFFAIRES RELIGIEUSES  
@@ -1040,14 +943,13 @@ du ministère des affaires religieuses et des wakfs et dans la
 limite d'effectif prévu par le présent arrêté, les fonctionnaires 
 appartenant à l’un des corps suivants : 
 
-Corps
-Effectif
 
-Ingénieurs
-2
+| Corps | Effectif |
+|---|---|
+| Ingénieurs | 2 |
+| Techniciens | 5 |
 
-Techniciens
-5
+
 
 Art. 2. — La gestion de la carrière des fonctionnaires 
 appartenant aux deux (2) corps cités à l'article ler ci-dessus, 
@@ -1094,6 +996,7 @@ Abdelouahab LAOUICI
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
  
 MINISTERE DE L'INDUSTRIE 
@@ -1191,31 +1094,13 @@ de recours compétente à l’égard des corps des fonctionnaires
 du ministère de l'industrie et de la production pharmaceutique, 
 conformément au tableau ci-après :
 
-Représentants 
-de l’administration
 
-Représentants 
-des fonctionnaires
+| Représentants de l’administration |  | Représentants des fonctionnaires |  |
+|---|---|---|---|
+| Membres titulaires | Membres suppléants | Membres titulaires | Membres suppléants |
+| 7 | 7 | 7 | 7 |
 
-Membres 
-suppléants
 
-Membres 
-titulaires
-
-Membres 
-suppléants
-
-Membres 
-titulaires
-
-7
-
-7
-
-7
-
-7
 
 Art. 2. — Le présent arrêté sera publié au Journal officiel 
 de la République algérienne démocratique et populaire. 
@@ -1232,14 +1117,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
-Ces indemnités sont versées à toutes les catégories figurant dans le tableau ci-dessus, et ce, à l'achèvement de cette opération 
-de recensement général moyennant un bilan sur les objectifs réalisés après service fait. 
-
-.............................................................................. (le reste sans changement) ...................................................................... ». 
- 
-Art. 2. — Le présent arrêté sera publié au Journal officiel de la République algérienne démocratique et populaire. 
- 
-Fait à Alger, le 8 Joumada Ethania 1446 correspondant au 10 décembre 2024.
 
  
 MINISTERE DE L’AGRICULTURE, DU 
@@ -1280,44 +1157,6 @@ DA/mois
 Durée du travail 
 maximum 
 
-Ingénieurs en informatique (développeurs) 
- 
-Ingénieurs en informatique (décodage des 
-données et contrôle) 
- 
-Superviseurs nationaux 
- 
-Chargés de communication 
- 
-Superviseurs de wilayas 
- 
-Contrôleurs de wilayas 
- 
-Agents recenseurs 
- 
-Conducteurs de véhicules 
-
-2 
- 
-6 
- 
- 
-28 
- 
-65 
- 
-120 
- 
-1350 
- 
-6700 
- 
-1035
-
-Le ministre de l’agriculture, du développement rural et de la pêche 
- 
-Youcef CHERFA
-
 Vu le décret exécutif n° 01-114 du 13 Safar 1422 correspondant 
 au 7 mai 2001, modifié et complété, portant recensement 
 général de l'agriculture (R.G.A.) ; 
@@ -1346,37 +1185,32 @@ indemnité forfaitaire calculée au prorata des journées
 travaillées, plafonnée à la durée maximale fixée conformément 
 au tableau ci-après :
 
-36 500,00 
- 
-36 500,00 
- 
- 
-36 500,00 
- 
-36 500,00 
- 
-36 500,00 
- 
-32 500,00 
- 
-33 000,00 
- 
-22 000,00
 
-6 mois 
+| Ingénieurs en informatique (développeurs) | 2 | 36 500,00 | 6 mois |
+|---|---|---|---|
+| Ingénieurs en informatique (décodage des données et contrôle) | 6 | 36 500,00 | 2 mois |
+| Superviseurs nationaux | 28 | 36 500,00 |  |
+| Chargés de communication | 65 | 36 500,00 |  |
+| Superviseurs de wilayas | 120 | 36 500,00 | 2,5 mois |
+| Contrôleurs de wilayas | 1350 | 32 500,00 |  |
+| Agents recenseurs | 6700 | 33 000,00 |  |
+
+
+
+Ces indemnités sont versées à toutes les catégories figurant dans le tableau ci-dessus, et ce, à l'achèvement de cette opération 
+de recensement général moyennant un bilan sur les objectifs réalisés après service fait. 
+
+
+.............................................................................. (le reste sans changement) ...................................................................... ». 
  
+Art. 2. — Le présent arrêté sera publié au Journal officiel de la République algérienne démocratique et populaire. 
  
+Fait à Alger, le 8 Joumada Ethania 1446 correspondant au 10 décembre 2024.
+
+
+Le ministre de l’agriculture, du développement rural et de la pêche 
  
- 
-2 mois 
- 
- 
- 
-2,5 mois 
- 
- 
- 
-2 mois
+Youcef CHERFA
 
 Le ministre des finances 
  
@@ -1388,6 +1222,7 @@ Laziz FAID
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Arrêté du 10 Joumada El Oula 1446 correspondant au 
 12 novembre 2024 portant désignation des membres 
@@ -1514,6 +1349,7 @@ d'environnement Tazmourt.
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Arrêté du 23 Joumada El Oula 1446 correspondant au 
 25 novembre 2024 portant délégation de signature 
@@ -1652,6 +1488,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
+
 Vu le décret exécutif n°16-05 du 29 Rabie El Aouel 1437 
 correspondant au 10 janvier 2016, modifié et complété, fixant 
 les attributions du ministre du tourisme et de l'artisanat ; 
@@ -1762,6 +1599,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
+
 Arrêté du 21 Joumada Ethania 1446 correspondant au  
 23 décembre 2024 portant approbation du plan 
 d'aménagement touristique de la zone d'expansion 
@@ -1868,6 +1706,7 @@ Zerrifa et Kef Kadous (wilaya de Mostaganem) ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
+
 
 Arrête : 
  
@@ -1996,6 +1835,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
+
 Vu l'arrêté du 20 Rajab 1435 correspondant au 20 mai 2014, 
 modifié, portant prescription d'établissement de plans 
 d'aménagement touristique des zones d'expansion et sites 
@@ -2116,7 +1956,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 01
 7 Rajab 1446 
 7 janvier 2025
 
-ANNONCES ET COMMUNICATIONS
 
  
 BANQUE D’ALGERIE 

@@ -3,7 +3,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-DECISIONS ET AVIS
 
  
 COUR CONSTITUTIONNELLE 
@@ -105,6 +104,7 @@ audience ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
+
 
 Après en avoir délibéré ; 
  
@@ -216,6 +216,7 @@ nécessaire, conformément à l’article 570 (alinéa 2) ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
+
 
 Attendu que la Cour suprême a renvoyé le dossier de 
 l’exception d’inconstitutionnalité des dispositions législatives, 
@@ -329,6 +330,7 @@ entre eux et en rendant la justice accessible à tous ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
+
 
 Attendu que le droit d’ester en justice est garanti au 
 justiciable par le constituant, et que celui-ci a confié au 
@@ -475,7 +477,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-DECRETS
 
 Décret présidentiel n° 24-439 du 29 Joumada Ethania 
 1446 correspondant au 31 décembre 2024 portant 
@@ -510,33 +511,6 @@ autorisations d'engagement et des crédits de paiement
 ouverts,  au  titre  du  budget  de l’Etat, par la loi de finances 
 pour 2024, mis à la disposition du ministre des transports ; 
 
-ARRETES, DECISIONS ET AVIS
-
- 
-MINISTERE DES FINANCES 
- 
-
-Arrêté interministériel du 15 Rajab 1446 correspondant 
-au 15 janvier 2025 modifiant l’arrêté interministériel 
-du 13 Ramadhan 1430 correspondant au 3 septembre 
-2009 fixant les effectifs par emploi, leur classification 
-et la durée du contrat des agents exerçant des 
-activités d’entretien, de maintenance ou de service 
-au titre de l’administration centrale de la direction 
-générale du budget. 
-———— 
-
-Le Premier ministre, et 
-
-Le ministre des finances, 
-
-Vu le décret présidentiel n° 07-308 du 17 Ramadhan 1428 
-correspondant au 29 septembre 2007, modifié et complété, fixant 
-les modalités de recrutement des agents contractuels, leurs droits 
-et obligations, les éléments constitutifs de leur rémunération, les 
-règles relatives à leur gestion ainsi que le régime disciplinaire  
-qui  leur  est  applicable, notamment son  article 8 ; 
-
 Décrète : 
  
 Article 1er. — Il est annulé, sur les crédits ouverts, au titre 
@@ -564,6 +538,31 @@ officiel de la République algérienne démocratique et populaire.
 au 31 décembre 2024. 
  
 Abdelmadjid TEBBOUNE. 
+
+ 
+MINISTERE DES FINANCES 
+ 
+
+Arrêté interministériel du 15 Rajab 1446 correspondant 
+au 15 janvier 2025 modifiant l’arrêté interministériel 
+du 13 Ramadhan 1430 correspondant au 3 septembre 
+2009 fixant les effectifs par emploi, leur classification 
+et la durée du contrat des agents exerçant des 
+activités d’entretien, de maintenance ou de service 
+au titre de l’administration centrale de la direction 
+générale du budget. 
+———— 
+
+Le Premier ministre, et 
+
+Le ministre des finances, 
+
+Vu le décret présidentiel n° 07-308 du 17 Ramadhan 1428 
+correspondant au 29 septembre 2007, modifié et complété, fixant 
+les modalités de recrutement des agents contractuels, leurs droits 
+et obligations, les éléments constitutifs de leur rémunération, les 
+règles relatives à leur gestion ainsi que le régime disciplinaire  
+qui  leur  est  applicable, notamment son  article 8 ; 
 
 Vu le décret présidentiel n° 23-404 du 27 Rabie Ethani 
 1445 correspondant au  11 novembre 2023 portant  nomination  
@@ -596,84 +595,37 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
+
 Arrêtent : 
  
 Article 1er. — Les dispositions de l’article 1er de l’arrêté interministériel du 13 Ramadhan 1430 correspondant au  
 3 septembre 2009, modifié, susvisé, sont modifiées comme suit : 
+
 
 « Art. 1er. — En application des dispositions de l’article 8 du décret présidentiel n° 07-308 du 17 Ramadhan 1428 
 correspondant au 29 septembre 2007, modifié et complété, susvisé, le présent arrêté a pour objet de fixer les effectifs par 
 emploi, leur classification et la durée du contrat des agents exerçant des activités d’entretien, de maintenance ou de service 
 au titre de l’administration centrale de la direction générale du budget, conformément au tableau ci-après : 
 
+
+
+| EMPLOIS | E F DF UE CC T OI NF S T S R AE TL DO N E L T A R N A VA AT IU L R E |  |  |  | EFFECTIFS (1 + 2) | CLASSIFICATION |  |
+|---|---|---|---|---|---|---|---|
+|  | Contrat à durée indéterminée (1) |  | Contrat à durée déterminée (2) |  |  | C a té g o r ie s | Indices |
+|  | à temps plein | p a te r m tieà p ls | à temps plein | à temps partiel |  |  |  |
+| Ouvrier professionnel de niveau 1 | 3 | — | — | — | 3 | 1 | 400 |
+| Agent de service de niveau 1 | 14 | — | — | — | 14 | 1 | 400 |
+| Gardien | 11 | — | — | — | 11 | 1 | 400 |
+| Conducteur d’automobile de niveau 1 | 16 | — | — | — | 16 | 2 | 419 |
+| Agent de service de niveau 3 | 7 | — | — | — | 7 | 5 | 488 |
+| Agent de prévention de niveau 1 | 3 | — | — | — | 3 | 5 | 488 |
+| Ouvrier professionnel de niveau 4 | 2 | — | — | — | 2 | 6 | 515 |
+| Total général | 56 | — | — | — | 56 | » |  |
+
+
+
 Art 2. — Le présent arrêté sera publié au Journal officiel de la République  algérienne démocratique et populaire. 
 
-CLASSIFICATION
-EFFECTIFS SELON LA NATURE 
-DU CONTRAT DE TRAVAIL
-
-Contrat à durée 
-indéterminée  
-(1)
-
-EMPLOIS
-
-à temps 
-plein
-à temps 
-partiel
-à temps 
-plein
-à temps 
-partiel
-
-Ouvrier professionnel de niveau 1 
- 
-Agent de service de niveau 1 
- 
-Gardien 
- 
-Conducteur d’automobile de niveau 1 
- 
-Agent de service de niveau 3 
- 
-Agent de prévention de niveau 1 
- 
-Ouvrier professionnel de niveau 4 
- 
-Total général
-
-3 
- 
-14 
- 
-11 
- 
-16 
- 
-7 
- 
-3 
- 
-2 
- 
-56
-
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-—
 
 Fait à Alger, le 15 Rajab 1446 correspondant au 15 janvier 2025. 
 
@@ -712,96 +664,6 @@ Vu la loi n° 99-05 du 18 Dhou El Hidja 1419 correspondant
 au 4 avril 1999, modifiée et complétée, portant loi d'orientation 
 sur l'enseignement supérieur ; 
 
-Contrat à durée 
-déterminée  
-(2)
-
-EFFECTIFS 
-(1 + 2)
-
-Indices 
-
-Catégories
-
-400 
- 
-400  
- 
-400 
- 
-419 
- 
-488 
- 
-488 
- 
-515 
- 
-» 
-
-1 
- 
-1 
- 
-1 
- 
-2 
- 
-5 
- 
-5 
- 
-6 
- 
-
-3 
- 
-14 
- 
-11 
- 
-16 
- 
-7 
- 
-3 
- 
-2 
- 
-56
-
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-—
-
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-— 
- 
-—
-
 Vu le décret présidentiel n° 24-374 du 16 Joumada El Oula 
 1446 correspondant au 18 novembre 2024 portant nomination 
 des membres du Gouvernement ; 
@@ -831,6 +693,7 @@ relevant d'autres départements ministériels ;
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
+
 
 Vu le décret  exécutif n° 23-51 du 12 Joumada Ethania 
 1444 correspondant au 5 janvier 2023 portant transformation 
@@ -974,6 +837,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
+
 Arrêté interministériel du 21 Joumada Ethania 1446 
 correspondant au 23 décembre 2024 fixant la 
 classification de l'école supérieure de la sécurité 
@@ -1096,429 +960,19 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Directeur | A | 2 | N | 1098 | Professeur d’enseignement supérieur ou à défaut maître de conférences classe A. | Décret |
+|  | Directeur adjoint | A | 2 | N’ | 695 | Enseignant-chercheur titulaire ayant le grade le plus élevé. | Arrêté conjoint entre le ministre chargé de la sécurité sociale et le ministre chargé de l'ensei- gnement supérieur ou arrêté du ministre |
+|  | Chef de département | A | 2 | N’ | 695 | Enseignant-chercheur titulaire ayant le grade le plus élevé. | Arrêté du ministre |
+|  | Secrétaire général | A | 2 | N’ | 695 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années de service effectif en cette qualité. Intendant universitaire principal justifiant de trois (3) années de service effectif en cette qualité. Administrateur analyste ou administrateur ou grade équivalent justifiant de huit (8) années de service effectif en cette qualité. Intendant universitaire justifiant de huit (8) années de service effectif en cette qualité. | Arrêté du ministre |
+|  | Directeur de bibliothèque | A | 2 | N-1 | 453 | Conservateur des bibliothèques universitaires, au moins justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Documentaliste-archiviste principal, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Attaché des bibliothèques universitaires de niveau 2 ou de niveau 1 justifiant de cinq (5) années de service effectif en cette qualité. Documentaliste-archiviste analyste ou documentaliste-archiviste justifiant de cinq (5) années de service effectif en cette qualité. | Arrêté du ministre |
+|  | Sous- directeur des personnels, de la formation et des activités culturelles et sportives | A | 2 | N-1 | 453 | Administrateur principal, au moins, ou grade équivalent justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Animateur universitaire principal, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de cinq (5) années de service effectif en cette qualité. Animateur universitaire de niveau 2 ou de niveau 1 justifiant de cinq (5) années de service effectif en cette qualité. | Décision du directeur de l'école |
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
 
-Directeur 
- 
- 
-Directeur 
-adjoint 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de  
-département 
- 
-Secrétaire 
-général 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Directeur de 
-bibliothèque 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Sous-
-directeur 
-des  
-personnels, 
-de la 
-formation et 
-des activités 
-culturelles et 
-sportives
-
-A 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A
-
-2 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2
-
-N 
- 
- 
-N’ 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N’ 
- 
- 
-N’ 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-1 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-1
-
-1098 
- 
- 
-695 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-695 
- 
- 
-695 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-453 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-453
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Décret 
- 
- 
-Arrêté 
-conjoint 
-entre le 
-ministre  
-chargé de 
-la sécurité 
-sociale et le 
-ministre 
-chargé  
-de l'ensei- 
-gnement 
-supérieur 
-ou arrêté du 
-ministre 
- 
- 
- 
-Arrêté du 
-ministre 
- 
-Arrêté du 
-ministre 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Arrêté du 
-ministre 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-  
-Décision 
-du 
-directeur 
-de l'école 
-
-Professeur d’enseignement supérieur ou à défaut 
-maître de conférences classe A. 
- 
-Enseignant-chercheur titulaire ayant le grade le 
-plus élevé. 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Enseignant-chercheur titulaire ayant le grade le 
-plus élevé. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années de 
-service effectif en cette qualité. 
-Intendant universitaire principal justifiant de 
-trois (3) années de service effectif en cette 
-qualité. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de huit (8) années 
-de service effectif en cette qualité. 
-Intendant universitaire justifiant de huit (8) 
-années de service effectif en cette qualité. 
- 
-Conservateur des bibliothèques universitaires, 
-au moins justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire. 
-Documentaliste-archiviste principal, au moins, 
-justifiant de cinq (5) années d'ancienneté en 
-qualité de fonctionnaire. 
-Attaché des bibliothèques universitaires de 
-niveau 2 ou de niveau 1 justifiant de cinq (5) 
-années de service effectif en cette qualité. 
-Documentaliste-archiviste 
-analyste 
-ou 
-documentaliste-archiviste justifiant de cinq (5) 
-années de service effectif en cette qualité. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire. 
-Animateur universitaire principal, au moins, 
-justifiant de cinq (5) années d'ancienneté en 
-qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de cinq (5) années 
-de service effectif en cette qualité. 
-Animateur universitaire de niveau 2 ou de 
-niveau 1 justifiant de cinq (5) années de service 
-effectif en cette qualité. 
 
 
 
@@ -1527,369 +981,16 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Sous-directeur des finances et des moyens | A | 2 | N-1 | 453 | Administrateur principal, au moins, ou grade équivalent justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Intendant universitaire principal justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de cinq (5) années de service effectif en cette qualité. Intendant universitaire justifiant de cinq (5) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Responsable du centre d'impression et d’audiovisuel | A | 2 | N-1 | 453 | Ingénieur principal de laboratoire et maintenance, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal de laboratoires universitaires, au moins justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Administrateur principal, au moins, ou grade équivalent justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire et ayant obtenu une licence ou un master en sciences de l'information et de la communication (option audiovisuel). Ingénieur d'Etat de laboratoire et maintenance, justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d'Etat des laboratoires universitaires ou attaché des laboratoires universitaires, justifiant de cinq (5) années de service effectif en cette qualité. Administrateur analyste ou administrateur ou grade équivalent justifiant de cinq (5) années de service effectif en cette qualité et ayant obtenu une licence ou un master en sciences de l'information et de la communication (option audiovisuel). | Décision du directeur de l'école |
+|  | Responsable du centre des systèmes et réseaux d’information, de communication et d’enseignement à distance | A | 2 | N-1 | 453 | Ingénieur principal en informatique, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal de laboratoire et maintenance, au moins, justifiant de cinq (5) années d’ancienneté en qualité de fonctionnaire . Ingénieur principal des laboratoires universitaires (option électronique ou informatique), au moins, justifiant de cinq (5) années d’ancienneté en qualité de fonctionnaire. Ingénieur d’Etat en informatique justifiant de (5) années de service effectif en cette qualité. Ingénieur d’Etat de laboratoire et maintenance, justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires (option électronique ou informatique) justifiant de cinq (5) années de service effectif en cette qualité. | Décision du directeur de l'école |
 
-453 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-453 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-453
 
-N-1 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-1 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-1
-
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
-
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
-
-Sous-directeur 
-des  finances 
-et des moyens 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Responsable du 
-centre 
-d'impression 
-et  
-d’audiovisuel 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Responsable  
-du centre  
-des systèmes  
-et réseaux 
-d’information, 
-de  
-communication 
-et 
-d’enseignement 
-à distance
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
-
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire. 
-Intendant universitaire principal justifiant de  
-cinq (5) années d'ancienneté en qualité de 
-fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de cinq (5) années de 
-service effectif en cette qualité. 
-Intendant universitaire justifiant de cinq (5) années 
-de service effectif en cette qualité. 
- 
-Ingénieur principal de laboratoire et maintenance, 
-au moins, justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire. 
-Ingénieur principal de laboratoires universitaires, 
-au moins justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire. 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de cinq (5) années 
-d'ancienneté en qualité de fonctionnaire et ayant 
-obtenu une licence ou un master en sciences de 
-l'information et de la communication (option 
-audiovisuel). 
-Ingénieur d'Etat de laboratoire et maintenance, 
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d'Etat des laboratoires universitaires ou 
-attaché des laboratoires universitaires, justifiant 
-de cinq (5) années de service effectif en cette 
-qualité. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de cinq (5) années de 
-service effectif en cette qualité et ayant obtenu 
-une licence ou un master en sciences de 
-l'information et de la communication (option 
-audiovisuel). 
- 
-Ingénieur principal en informatique, au moins, 
-justifiant de cinq (5) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur principal de laboratoire et maintenance, 
-au moins, justifiant de cinq (5) années 
-d’ancienneté en qualité de fonctionnaire . 
-Ingénieur principal des laboratoires universitaires 
-(option électronique ou informatique), au moins, 
-justifiant de cinq (5) années d’ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur d’Etat en informatique justifiant de  
-(5) années de service effectif en cette qualité. 
-Ingénieur d’Etat de laboratoire et maintenance, 
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d’Etat des laboratoires universitaires ou 
-attaché des laboratoires universitaires (option 
-électronique ou informatique) justifiant de  
-cinq (5) années de service effectif en cette 
-qualité. 
 
 
 
@@ -1898,424 +999,16 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Responsable du hall de technologie | A | 2 | N-1 | 453 | Ingénieur principal de laboratoire et maintenance, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal en informatique, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur d’Etat de laboratoire et maintenance justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d’Etat en informatique, justifiant de cinq (5) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Chef de service commun de recherche | A | 2 | N-1 | 453 | Maître de conférences classe « B », au moins, justifiant de deux (2) années d'ancienneté en qualité de fonctionnaire. Enseignant chercheur classe « B », au moins, justifiant de deux (2) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal de laboratoire et maintenance, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal en informatique, au moins, justifiant de cinq (5) années d'ancienneté en qualité de fonctionnaire. Ingénieur d'Etat de laboratoire et maintenance justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires justifiant de cinq (5) années de service effectif en cette qualité. Ingénieur d’Etat en informatique justifiant de cinq (5) années de service effectif en cette qualité. | Arrêté du ministre |
+|  | Chef de service auprès du sous- directeur des personnels, de la formation et des activités culturelles et sportives | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Animateur universitaire principal, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de quatre (4) années de service effectif en cette qualité. Animateur universitaire de niveau 2 ou de niveau 1 justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
 
-453 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-453 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-308
 
-N-1 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-1 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-2
-
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
-
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
-
-Responsable 
-du hall de 
-technologie 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-service 
-commun de 
-recherche 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-service 
-auprès du 
-sous- 
-directeur des 
-personnels, 
-de la 
-formation et 
-des activités 
-culturelles et 
-sportives
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Arrêté du 
-ministre 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
-
-Ingénieur 
-principal 
-de 
-laboratoire 
-et 
-maintenance, au moins, justifiant de cinq (5) 
-années d'ancienneté en qualité de fonctionnaire. 
-Ingénieur principal des laboratoires universitaires, 
-au moins, justifiant de cinq (5) années d'ancienneté 
-en qualité de fonctionnaire. 
-Ingénieur principal en informatique, au moins, 
-justifiant de cinq (5) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur d’Etat de laboratoire et maintenance  
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d’Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires 
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d’Etat en informatique, justifiant de 
-cinq (5) années de service effectif en cette 
-qualité. 
- 
-Maître de conférences classe « B », au moins, 
-justifiant de deux (2) années d'ancienneté en 
-qualité de fonctionnaire. 
-Enseignant chercheur classe « B », au moins, 
-justifiant de deux (2) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur 
-principal 
-de 
-laboratoire 
-et 
-maintenance, au moins, justifiant de cinq (5) 
-années d'ancienneté en qualité de fonctionnaire. 
-Ingénieur principal des laboratoires universitaires, 
-au moins, justifiant de cinq (5) années d'ancienneté 
-en qualité de fonctionnaire. 
-Ingénieur principal en informatique, au moins, 
-justifiant de cinq (5) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur d'Etat de laboratoire et maintenance 
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d’Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires 
-justifiant de cinq (5) années de service effectif 
-en cette qualité. 
-Ingénieur d’Etat en informatique justifiant de 
-cinq (5) années de service effectif en cette 
-qualité.  
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Animateur universitaire principal, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de quatre (4) années 
-de service effectif en cette qualité. 
-Animateur universitaire de niveau 2 ou de 
-niveau 1 justifiant de quatre (4) années de 
-service effectif en cette qualité.  
 
 
 
@@ -2324,375 +1017,15 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Chef de service auprès du sous- directeur des finances et des moyens | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal de laboratoire et maintenance, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Intendant universitaire principal justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d'Etat des laboratoires universitaires ou attaché des laboratoires universitaires, justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d'Etat de laboratoire et maintenance, justifiant de quatre (4) années de service effectif en cette qualité. Intendant universitaire justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Chef de service auprès du directeur adjoint | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, (option statistique ou informatique) justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal en informatique, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal en statistiques, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Traducteur interprète principal, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent, justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d'Etat des laboratoires universitaires ou attaché des laboratoires universitaires (option statistique ou informatique) justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d'Etat en informatique, justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d'Etat en statistiques justifiant de quatre (4) années de service effectif en cette qualité. Traducteur-interprète spécialisé ou traducteur interprète justifiant de quatre (4) années de service effectif en cette qualité. | Décision du d i r e c t e u r de l'école |
 
-308 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-308
 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
-
-Chef de 
-service 
-auprès du 
-sous-
-directeur  
-des finances 
-et des 
-moyens 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-service 
-auprès du 
-directeur 
-adjoint
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
-
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire.    
-Ingénieur principal des laboratoires universitaires, 
-au moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire.                        
-Ingénieur 
-principal 
-de 
-laboratoire 
-et 
-maintenance, au moins, justifiant de trois (3) 
-années 
-d'ancienneté 
-en 
-qualité 
-de 
-fonctionnaire. 
-Intendant universitaire principal justifiant de 
-trois (3) années d'ancienneté en qualité de 
-fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Ingénieur d'Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires, 
-justifiant de quatre (4) années de service 
-effectif en cette qualité.  
-Ingénieur d'Etat de laboratoire et maintenance, 
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
-Intendant universitaire justifiant de quatre (4) 
-années de service effectif en cette qualité. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire.                            
-Ingénieur principal des laboratoires universitaires, 
-au moins, (option statistique ou informatique) 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire.                        
-Ingénieur principal en informatique, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur principal en statistiques, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Traducteur interprète principal, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent, justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Ingénieur d'Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires (option 
-statistique ou informatique) justifiant de quatre 
-(4) années de service effectif en cette qualité. 
-Ingénieur d'Etat en informatique, justifiant de 
-quatre (4) années de service effectif en cette 
-qualité. 
-Ingénieur d'Etat en statistiques justifiant de 
-quatre (4) années de service effectif en cette 
-qualité.                                 
-Traducteur-interprète spécialisé ou traducteur 
-interprète justifiant de quatre (4) années de 
-service effectif en cette qualité. 
 
 
 
@@ -2701,382 +1034,17 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Chef de service au niveau de la bibliothèque | A | 2 | N-2 | 308 | Conservateur des bibliothèques universitaires, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Documentaliste – archiviste principal, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Attaché des bibliothèques universitaires de niveau 2 ou de niveau 1 justifiant de quatre (4) années de service effectif en cette qualité. Documentaliste – archiviste analyste ou documentaliste – archiviste, justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Chef de service auprès du chef de département | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Responsable du bureau de sûreté interne | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Intendant universitaire principal justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de quatre (4) années de service effectif en cette qualité. Intendant universitaire justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Chef de section des services techniques | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d’ancienneté en qualité de fonctionnaire, ayant obtenu une licence ou un master en sciences de l'information et de la communication (option audiovisuel). Ingénieur principal en informatique, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal de laboratoire et maintenance, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent justifiant de quatre (4) années de service effectif en cette qualité, ayant obtenu une licence ou un master en sciences de l'information et de la communication (option audiovisuel). Ingénieur d’Etat en informatique justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
 
-Chef de 
-service 
-au niveau 
-de la 
-bibliothèque 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-service 
-auprès du 
-chef de 
-département 
- 
- 
-Responsable 
-du bureau 
-de sûreté 
-interne  
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-section des 
-services 
-techniques 
- 
- 
- 
- 
- 
-
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-308 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-308 
- 
- 
- 
- 
- 
- 
-308 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-308
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Conservateur des bibliothèques universitaires, 
-au moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Documentaliste – archiviste principal, au 
-moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Attaché des bibliothèques universitaires de 
-niveau 2 ou de niveau 1 justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Documentaliste – archiviste analyste ou 
-documentaliste – archiviste, justifiant de 
-quatre (4) années de service effectif en cette 
-qualité. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de quatre (4) 
-années de service effectif en cette qualité. 
- 
-Administrateur principal, au moins,  ou grade 
-équivalent justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Intendant universitaire principal justifiant de 
-trois (3) années d'ancienneté en qualité de 
-fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Intendant universitaire justifiant de quatre (4) 
-années de service effectif en cette qualité. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d’ancienneté en qualité de fonctionnaire, 
-ayant obtenu une licence ou un master en 
-sciences de l'information et de la communication 
-(option audiovisuel). 
-Ingénieur principal en informatique, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Ingénieur principal des laboratoires  universitaires, 
-au moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Ingénieur principal de laboratoire et maintenance, 
-au moins, justifiant de trois (3) années d'ancienneté 
-en qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent justifiant de quatre (4) 
-années de service effectif en cette qualité, 
-ayant obtenu une licence ou un master en 
-sciences de l'information et de la communication 
-(option audiovisuel). 
-Ingénieur d’Etat en informatique justifiant de  
-quatre (4) années de service effectif en cette 
-qualité.
-
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
 
 
 
@@ -3085,369 +1053,16 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Classement
 
-Etablissement 
-public
-Postes 
-supérieurs
 
-Catégorie Section
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
+| Etablissement public | Postes supérieurs | Classement |  |  |  | Conditions d’accès aux postes | Mode de nomination |
+|---|---|---|---|---|---|---|---|
+|  |  | Catégorie | Section | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Chef de section des services techniques (suite) | A | 2 | N-2 | 308 | Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d’Etat de laboratoire et maintenance justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école (suite) |
+|  | Chef de service des œuvres universitaires | A | 2 | N-2 | 308 | Administrateur principal, au moins, ou grade équivalent justifiant de trois (3) années d’ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Intendant universitaire principal, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Animateur universitaire principal, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Administrateur analyste ou administrateur ou grade équivalent, justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires justifiant de quatre (4) années de service effectif en cette qualité. Intendant universitaire justifiant de quatre (4) années de service effectif en cette qualité. Animateur universitaire de niveau 2 ou de niveau 1 justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
+|  | Chef de section de service commun de recherche | A | 2 | N-2 | 308 | Ingénieur principal de laboratoire et maintenance, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal des laboratoires universitaires, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur principal en informatique, au moins, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. Ingénieur d'Etat de laboratoire et maintenance justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d’Etat des laboratoires universitaires ou attaché des laboratoires universitaires justifiant de quatre (4) années de service effectif en cette qualité. Ingénieur d’Etat en informatique, justifiant de quatre (4) années de service effectif en cette qualité. | Décision du directeur de l'école |
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
 
-Chef de 
-section des 
-services 
-techniques 
-(suite) 
- 
- 
- 
-Chef de 
-service 
-des œuvres 
-universitaires 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Chef de 
-section de 
-service 
-commun de 
-recherche 
-
-A 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-A 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-2 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-N-2 
- 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-N-2 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-
-308 
- 
- 
- 
- 
- 
- 
- 
-308 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-308
-
-Conditions d’accès aux postes
-Mode 
- de 
-nomination
-
-Ingénieur d’Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires 
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
-Ingénieur d’Etat de laboratoire et maintenance  
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
- 
-Administrateur principal, au moins, ou grade 
-équivalent justifiant de trois (3) années 
-d’ancienneté en qualité de fonctionnaire. 
-Ingénieur principal des laboratoires universitaires, 
-au moins justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Intendant universitaire principal, justifiant de 
-trois (3) années d'ancienneté en qualité de 
-fonctionnaire. 
-Animateur universitaire principal, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire. 
-Administrateur analyste ou administrateur ou 
-grade équivalent, justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Ingénieur d’Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires  
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
-Intendant universitaire justifiant de quatre (4) 
-années de service effectif en cette qualité. 
-Animateur universitaire de niveau 2 ou de 
-niveau 1 justifiant de quatre (4) années de 
-service effectif en cette qualité. 
- 
-Ingénieur principal de laboratoire et maintenance, 
-au moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire.  
-Ingénieur principal des laboratoires universitaires, 
-au moins, justifiant de trois (3) années 
-d'ancienneté en qualité de fonctionnaire. 
-Ingénieur principal en informatique, au moins, 
-justifiant de trois (3) années d'ancienneté en 
-qualité de fonctionnaire.   
-Ingénieur d'Etat de laboratoire et maintenance 
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
-Ingénieur d’Etat des laboratoires universitaires 
-ou attaché des laboratoires universitaires 
-justifiant de quatre (4) années de service 
-effectif en cette qualité. 
-Ingénieur d’Etat en informatique, justifiant de 
-quatre (4) années de service effectif en cette 
-qualité.
-
-Décision 
-du 
-directeur 
-de l'école 
-(suite) 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-Décision 
-du 
-directeur 
-de l'école 
- 
- 
- 
- 
- 
- 
 
 
 
@@ -3456,10 +1071,23 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
+
 Art. 4. — En application des dispositions des articles 3 et 10 du décret présidentiel n° 07-307 du 17 Ramadhan 1428 
 correspondant au 29 septembre 2007 susvisé, la bonification indiciaire des postes supérieurs de « directeur d'unité de recherche, 
 directeur de laboratoire de recherche, directeur de division de recherche, chef ou responsable d'équipe de recherche » et les 
 conditions d'accès à ces postes, sont fixées conformément au tableau suivant :
+
+
+
+| Etablissement public | Postes supérieurs | Classification |  | Conditions d’accès | Mode de nomination |
+|---|---|---|---|---|---|
+|  |  | Niveau hiérarchique | Bonification indiciaire |  |  |
+| Ecole supérieure de la sécurité sociale | Directeur d'unité de recherche | 13 | 685 | Maître de conférences classe « B », au moins, justifiant de deux (2) années d'ancienneté en qualité de fonctionnaire. | Arrêté du ministre |
+|  | Directeur de laboratoire de recherche | 11 | 495 | Maître de conférences classe « B », au moins. | Arrêté du ministre |
+|  | Directeur de division de recherche | 11 | 495 | Maître de conférences classe « B », au moins. | Arrêté du ministre |
+|  | Chef ou Responsable d’équipe de recherche | 9 | 345 | Maître assistant classe « B », au moins, titulaire, justifiant de trois (3) années d'ancienneté en qualité de fonctionnaire. | Décision du directeur de l'école |
+
+
 
 Art. 5. — Les fonctionnaires ayant vocation à occuper les postes supérieurs, doivent appartenir à des grades dont les missions 
 sont en rapport avec les attributions des structures concernées. 
@@ -3472,99 +1100,6 @@ Art. 7. — Le présent arrêté sera publié au Journal officiel de la Républi
  
  Fait à Alger, le 21 Joumada Ethania 1446 correspondant au 23 décembre 2024.
 
-Classification
-
-Etablissement 
-public
-Postes 
-supérieurs
-
-Niveau 
-hiérarchique
-Bonification 
-indiciaire
-
-Maître de conférences classe « B », au moins, justifiant 
-de deux (2) années d'ancienneté en qualité de 
-fonctionnaire. 
- 
- 
-Maître de conférences classe « B », au moins.  
- 
- 
- 
- 
-Maître de conférences classe « B », au moins.  
- 
- 
- 
- 
-Maître assistant classe « B », au moins, titulaire, 
-justifiant de trois (3) années d'ancienneté en qualité de  
-fonctionnaire. 
-
-Directeur 
-d'unité de 
-recherche 
- 
- 
-Directeur de 
-laboratoire de 
-recherche 
- 
- 
-Directeur de 
-division de 
-recherche 
- 
- 
-Chef ou 
-Responsable 
-d’équipe de 
-recherche 
-
-685 
- 
- 
- 
- 
-495 
- 
- 
- 
- 
-495 
- 
- 
- 
- 
-345 
-
- 
- 
- 
-Ecole 
-supérieure 
-de la sécurité 
-sociale
-
-13 
- 
- 
- 
- 
-11 
- 
- 
- 
- 
-11 
- 
- 
- 
- 
-9 
- 
 
 Le ministre des finances 
  
@@ -3577,30 +1112,6 @@ la sécurité sociale
  
  
 Fayçal BENTALEB
-
-Conditions d’accès
-Mode 
- de 
-nomination
-
-Arrêté du 
-ministre 
- 
- 
- 
-Arrêté du 
-ministre 
- 
- 
- 
-Arrêté du 
-ministre 
- 
- 
- 
-Décision du 
-directeur de 
-l'école
 
 Le ministre de l’enseignement supérieur 
 et de la recherche scientifique 
@@ -3621,6 +1132,7 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
+
  
 CONSEIL NATIONAL ECONOMIQUE, SOCIAL ET ENVIRONNEMENTAL 
  
@@ -3629,8 +1141,12 @@ Décision du 14 Rajab 1446 correspondant au 14 janvier 2025 fixant la liste des 
 économique, social et environnemental. 
 ———— 
 
+
+La présidente du Conseil national économique, social et environnemental, 
+
 Vu le décret présidentiel n° 21-37 du 22 Joumada El Oula 1442 correspondant au 6 janvier 2021, modifié et complété, portant 
 composition et fonctionnement du Conseil national économique, social et environnemental ; 
+
 
 Vu le décret présidentiel du 7 Joumada Ethania 1445 correspondant au 20 décembre 2023 portant nomination de la présidente 
 du Conseil national économique, social et environnemental ; 
@@ -3642,7 +1158,6 @@ environnemental pour un mandat de quatre (4) ans.
  
 Art. 2. — Le Conseil national économique, social et environnemental, est composé de Mmes. et MM. dont les noms suivent : 
 
-La présidente du Conseil national économique, social et environnemental, 
 
 Ahmine Chafir  
 
@@ -3742,6 +1257,7 @@ Boussoufa Amar
 JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
+
 
 Bouati Jalal 
 
@@ -3886,13 +1402,6 @@ JOURNAL OFFICIEL DE LA REPUBLIQUE ALGERIENNE N° 05
 26 Rajab 1446 
 26 janvier 2025
 
-Art. 3. — La liste des membres du Conseil restants sera complétée ultérieurement. 
- 
-Art. 4. — La présente décision sera publiée au Journal officiel de la République algérienne démocratique et populaire.  
- 
- Fait à Alger, le 14 Rajab 1446 correspondant au 14 janvier 2025. 
- 
-Rabéa KHARFI.
 
 Attar Abdelmadjid  
 
@@ -3950,8 +1459,6 @@ Laourari Iméne
 
 Mahi Habib 
 
-Imprimerie Officielle - Les Vergers, Bir-Mourad Raïs, BP 376 - ALGER-GARE 
-
 Mazouni Farid 
 
 Mebrak Bachir 
@@ -4007,6 +1514,17 @@ Yaïci Farid
 Yaïci Samir 
 
 Younga Mohamed. 
+
+Art. 3. — La liste des membres du Conseil restants sera complétée ultérieurement. 
+ 
+Art. 4. — La présente décision sera publiée au Journal officiel de la République algérienne démocratique et populaire.  
+ 
+ Fait à Alger, le 14 Rajab 1446 correspondant au 14 janvier 2025. 
+ 
+Rabéa KHARFI.
+
+
+Imprimerie Officielle - Les Vergers, Bir-Mourad Raïs, BP 376 - ALGER-GARE 
 
 
 

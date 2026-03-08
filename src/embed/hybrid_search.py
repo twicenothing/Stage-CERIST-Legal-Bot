@@ -110,7 +110,7 @@ def main():
     print("🤖 Chargement du modèle d'embedding...")
     model = SentenceTransformer(
         MODEL_NAME, 
-        device="cpu", 
+        device="cuda", 
         model_kwargs={"use_safetensors": True}
     )
 

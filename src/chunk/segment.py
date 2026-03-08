@@ -19,8 +19,9 @@ def extract_articles_simple(decree_body: str):
     Splits the decree body into a list of full article strings.
     """
     # 1. FIND ARTICLE HEADERS
+    # 🔥 AJOUT : "|unique" pour capturer "Article unique"
     article_header_pattern = re.compile(
-        r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?)\.?\s*[-—–]+', 
+        r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)\.?\s*[-—–]+', 
         re.IGNORECASE
     )
 
@@ -63,18 +64,20 @@ def extract_documents_and_articles(text: str):
         (?:^|\n)                                
         (                                       
           (?:                                   
-            Décret\s+(?:présidentiel|exécutif)|       
-            Arrêté(?:\s+interministériel)?|           
-            Décision                                  
+            (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
+            (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
+            (?:Décision|DÉCISION|Decision|DECISION)                                  
           )
           \s+
-          (?:n[°o\.]?|du)                       
-          .*?                                   
+          (?:n[°o\.]?|du|N[°O\.]?|DU)                       
+          # 🔥 AJOUT : On s'arrête aussi si on croise "unique" ou "UNIQUE"
+          (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
           \.                                    
         )                                       
-        \s* [-—–_]{3,}                          
+        \s* [-—–_H]{3,}                          
         """, 
-        re.IGNORECASE | re.VERBOSE | re.DOTALL 
+        re.VERBOSE | re.DOTALL 
+      
     )
 
     matches = list(title_pattern.finditer(text))
@@ -82,7 +85,7 @@ def extract_documents_and_articles(text: str):
     if not matches:
         return []
 
-    documents = []
+    documents = [] 
 
     for i in range(len(matches)):
         match = matches[i]
@@ -107,8 +110,7 @@ def extract_documents_and_articles(text: str):
         # 🔥 NOUVELLE LOGIQUE D'EXTRACTION DU CONTEXTE (PRÉAMBULE)
         # =========================================================
         
-        # 1. On cherche les mots-clés de transition (avec ou sans espace avant les deux points)
-      # 1. On cherche les mots-clés de transition isolés (précédés et suivis d'un saut de ligne ou fin de texte)
+        # 1. On cherche les mots-clés de transition isolés (précédés et suivis d'un saut de ligne ou fin de texte)
         preamble_end_pattern = re.compile(
             r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
             re.IGNORECASE
@@ -120,8 +122,8 @@ def extract_documents_and_articles(text: str):
             preamble = body_text[:preamble_match.end()].strip()
         else:
             # ROUE DE SECOURS 1 : Pas de mot-clé, mais il y a des articles
-            # On coupe juste avant l'apparition du premier article
-            first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*1?(?:er|ER)?\.?\s*[-—–]+', body_text, re.IGNORECASE)
+            # 🔥 AJOUT : "|unique" pour la détection du premier article
+            first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)\.?\s*[-—–]+', body_text, re.IGNORECASE)
             if first_art_match:
                 preamble = body_text[:first_art_match.start()].strip()
             else:

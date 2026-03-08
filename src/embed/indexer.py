@@ -25,7 +25,7 @@ def main():
 
     # 2. Load Embedding Model
     print(f"🤖 Loading Model: {MODEL_NAME} for Multi-GPU...")
-    model = SentenceTransformer(MODEL_NAME, model_kwargs={"use_safetensors": True})
+    model = SentenceTransformer(MODEL_NAME)
     
     # Start the multi-process pool
     gpu_pool = model.start_multi_process_pool()
@@ -60,25 +60,11 @@ def main():
             # Iterate through Decrees (Parents)
             for doc_idx, doc in enumerate(data["documents"]):
                 parent_title = doc.get("title", "Sans titre")
-                # 🔥 CHANGEMENT : On récupère la nouvelle clé "context"
-                context_text = doc.get("context", "") 
                 
-                # --- A. INDEX THE PARENT (The Decree Itself) ---
+                # We still need a parent_id to link the children properly
                 parent_id = f"{filename}_doc_{doc_idx}"
-                # 🔥 CHANGEMENT : Plus besoin de summarize_text, on indexe le titre + le préambule propre
-                parent_text_for_embedding = f"Titre: {parent_title}\nPréambule: {context_text}"
-                
-                ids.append(parent_id)
-                documents.append(parent_text_for_embedding)
-                metadatas.append({
-                    "source": filename,
-                    "type": "parent",
-                    "title": parent_title,
-                    "context": context_text  # 🔥 CHANGEMENT dans la métadonnée
-                })
-                total_chunks += 1
 
-                # --- B. INDEX THE CHILDREN (The Articles) ---
+                # --- B. INDEX THE CHILDREN (The Articles) ONLY ---
                 articles = doc.get("articles", [])
 
                 for art_idx, article_text in enumerate(articles):

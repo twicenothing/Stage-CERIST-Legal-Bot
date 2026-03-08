@@ -1,165 +1,196 @@
-import fitz  # PyMuPDF
-import re
 import os
+import re
+import json
 
 # --- CONFIGURATION ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-PDF_DIR = os.path.join(BASE_DIR, "data", "pdfs")
-OUTPUT_TXT_DIR = os.path.join(BASE_DIR, "data", "txt")
+INPUT_FOLDER = "../../data/txt"
+OUTPUT_FOLDER = "../../data/json"
 
-def remove_arabic(text):
-    """Supprime les caractères arabes via Regex"""
-    return re.sub(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+', '', text)
+def clean_text(text):
+    # 1. Normalize newlines (Crucial for regex anchors)
+    text = re.sub(r'\r\n', '\n', text) 
+    text = re.sub(r'\n+', '\n', text)
+    # 2. Clean strange characters
+    text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF\n]+', ' ', text)
+    return text.strip()
 
-def is_sommaire_page(text_blocks):
-    """Vérifie si la page est une page de sommaire"""
-    if not text_blocks: return False
-    # On regarde les premiers blocs de texte (5 premiers)
-    header_text = " ".join([b[4] for b in text_blocks[:5]]).lower()
-    return "sommaire" in header_text
-
-def is_ignored_title(text):
+def extract_articles_simple(decree_body: str):
     """
-    Vérifie si le texte (seul sur sa ligne/bloc) fait partie des titres à ignorer.
+    Splits the decree body into a list of full article strings.
     """
-    # Nettoyage : on met en minuscules et on normalise les espaces
-    clean_text = " ".join(text.strip().lower().split())
+    # 1. FIND ARTICLE HEADERS
+    # 🔥 AJOUT : "|unique" pour capturer "Article unique"
+    article_header_pattern = re.compile(
+        r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)\.?\s*[-—–]+', 
+        re.IGNORECASE
+    )
+
+    matches = list(article_header_pattern.finditer(decree_body))
     
-    # Liste des titres stricts à supprimer (avec et sans accents)
-    exact_matches = [
-        "decisions et avis", "décisions et avis",
-        "arretes", "arrêtés", "arrêtes",
-        "arretes, decisions et avis", "arrêtés, décisions et avis",
-        "conventions et accords internationaux",
-        "decrets", "décrets",
-        "decisions individuelles", "décisions individuelles",
-        "annonces et communications"
-    ]
-    
-    return clean_text in exact_matches
+    if not matches:
+        return []
 
-def get_sorted_text_from_page(page):
-    """
-    Extrait le texte en gérant les ruptures de colonnes (titres centrés).
-    Dès qu'un titre centré est détecté, on traite les colonnes du dessus, 
-    puis on recommence pour les colonnes du dessous.
-    """
-    blocks = page.get_text("blocks")
-    page_width = page.rect.width
-    mid_point = page_width / 2
+    articles_list = []
 
-    # 1. On garde uniquement le texte et on trie TOUT de haut en bas (axe Y)
-    valid_blocks = []
-    for b in blocks:
-        if b[6] == 0 and b[4].strip(): # b[6] == 0 signifie que c'est du texte, pas une image
-            valid_blocks.append(b)
-            
-    valid_blocks.sort(key=lambda b: b[1]) # b[1] est y0 (la position verticale)
-
-    final_text = ""
-    current_band_blocks = [] # Les blocs de la "section" en cours
-
-    # Fonction interne pour traiter une section (lire sa gauche puis sa droite)
-    def process_band(band_blocks):
-        if not band_blocks: return ""
-        left_col = []
-        right_col = []
-        for b in band_blocks:
-            if b[0] < mid_point:
-                left_col.append(b)
-            else:
-                right_col.append(b)
+    # 2. SLICING LOOP
+    for i in range(len(matches)):
+        current_match = matches[i]
+        start_pos = current_match.start()
         
-        # On trie verticalement chaque colonne
-        left_col.sort(key=lambda b: b[1])
-        right_col.sort(key=lambda b: b[1])
-        
-        band_text = ""
-        # On ajoute toute la gauche, PUIS toute la droite de cette section
-        for b in left_col + right_col:
-            band_text += b[4] + "\n"
-        return band_text
-
-    # 2. On parcourt la page de haut en bas
-    for b in valid_blocks:
-        x0, y0, x1, y1, text, block_no, block_type = b
-        block_width = x1 - x0
-
-        # Est-ce que ce bloc est un séparateur (Mur) ?
-        is_separator = False
-        if is_ignored_title(text):
-            is_separator = True
-        elif block_width > (page_width * 0.75):
-            is_separator = True
-
-        if is_separator:
-            # ON A TOUCHÉ UN MUR !
-            # On traite tout ce qu'on a accumulé au-dessus (Gauche -> Droite)
-            final_text += process_band(current_band_blocks)
-            current_band_blocks = [] # On vide la liste pour la section d'en dessous
-            
-            # Si le séparateur N'EST PAS dans notre liste d'ignorés, on l'ajoute au texte
-            if not is_ignored_title(text):
-                final_text += text + "\n\n"
+        if i + 1 < len(matches):
+            end_pos = matches[i+1].start()
         else:
-            # C'est un bloc de colonne normal, on le met de côté
-            current_band_blocks.append(b)
+            remaining_text = decree_body[start_pos:]
+            stop_markers = ["Fait à Alger", "Fait à ", "Le Premier ministre", "Le Président"]
+            cutoff = len(remaining_text)
+            for marker in stop_markers:
+                idx = remaining_text.find(marker)
+                if idx != -1 and idx < cutoff:
+                    cutoff = idx
+            end_pos = start_pos + cutoff
 
-    # 3. Fin de la page : on traite la toute dernière section (en dessous du dernier mur)
-    final_text += process_band(current_band_blocks)
+        full_article_text = decree_body[start_pos:end_pos].strip()
+        clean_article_text = re.sub(r'\s+', ' ', full_article_text)
 
-    return final_text
+        if clean_article_text:
+            articles_list.append(clean_article_text)
 
-def main():
-    if not os.path.exists(OUTPUT_TXT_DIR):
-        os.makedirs(OUTPUT_TXT_DIR)
+    return articles_list
 
-    files = [f for f in os.listdir(PDF_DIR) if f.lower().endswith(".pdf")]
-    print(f"📦 Démarrage : Traitement de {len(files)} fichiers PDF...")
+def extract_documents_and_articles(text: str):
+    # --- STRICT DOCUMENT TITLE REGEX ---
+    title_pattern = re.compile(
+        r"""
+        (?:^|\n)                                
+        (                                       
+          (?:                                   
+            (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
+            (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
+            (?:Décision|DÉCISION|Decision|DECISION)                                  
+          )
+          \s+
+          (?:n[°o\.]?|du|N[°O\.]?|DU)                       
+          # 🔥 AJOUT : On s'arrête aussi si on croise "unique" ou "UNIQUE"
+          (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
+          \.                                    
+        )                                       
+        \s* [-—–_H]{3,}                          
+        """, 
+        re.VERBOSE | re.DOTALL 
+      
+    )
 
-    for filename in files:
-        pdf_path = os.path.join(PDF_DIR, filename)
-        txt_filename = filename.replace(".pdf", ".txt").replace(".PDF", ".txt")
-        txt_path = os.path.join(OUTPUT_TXT_DIR, txt_filename)
+    matches = list(title_pattern.finditer(text))
+
+    if not matches:
+        return []
+
+    documents = [] 
+
+    for i in range(len(matches)):
+        match = matches[i]
+        raw_title = match.group(1).strip()
         
-        full_doc_text = ""
+        # Security Filter
+        if "Article" in raw_title or "Art." in raw_title or "Chapitre" in raw_title:
+            continue
         
-        try:
-            doc = fitz.open(pdf_path)
+        clean_title_str = re.sub(r'\s+', ' ', raw_title)
+
+        start_body = match.end()
+        if i + 1 < len(matches):
+            end_body = matches[i+1].start()
+        else:
+            end_body = len(text)
             
-            for page_num, page in enumerate(doc):
+        body_text = text[start_body:end_body].strip()
+        simple_articles = extract_articles_simple(body_text)
+        
+        # =========================================================
+        # 🔥 NOUVELLE LOGIQUE D'EXTRACTION DU CONTEXTE (PRÉAMBULE)
+        # =========================================================
+        
+        # 1. On cherche les mots-clés de transition isolés (précédés et suivis d'un saut de ligne ou fin de texte)
+        preamble_end_pattern = re.compile(
+            r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
+            re.IGNORECASE
+        )
+        preamble_match = preamble_end_pattern.search(body_text)
+        
+        if preamble_match:
+            # Si on trouve "Décrète :", on coupe juste après ce mot
+            preamble = body_text[:preamble_match.end()].strip()
+        else:
+            # ROUE DE SECOURS 1 : Pas de mot-clé, mais il y a des articles
+            # 🔥 AJOUT : "|unique" pour la détection du premier article
+            first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)\.?\s*[-—–]+', body_text, re.IGNORECASE)
+            if first_art_match:
+                preamble = body_text[:first_art_match.start()].strip()
+            else:
+                # ROUE DE SECOURS 2 : Ni mot-clé, ni articles. 
+                # C'est un texte très court ou sans structure, on prend tout.
+                preamble = body_text.strip()
                 
-                # 🛑 1. SKIP PREMIÈRE PAGE (Page de garde)
-                if page_num == 0:
-                    continue
+        # 2. On fusionne le Titre propre avec le Préambule extrait
+        context_text = f"{clean_title_str}\n\n{preamble}"
+        
+        # =========================================================
+        
+        documents.append({
+            "title": clean_title_str,
+            "articles": simple_articles,
+            "context": context_text  # Remplace l'ancien "full_context"
+        })
 
-                # 2. Récupérer les blocs pour vérifier le sommaire
-                blocks = page.get_text("blocks")
-                
-                # 🛑 3. SKIP SOMMAIRE
-                if is_sommaire_page(blocks):
-                    print(f"   🚫 {filename} - Page {page_num+1} ignorée (Sommaire)")
-                    continue
+    return documents
 
-                # ✅ 4. Extraction Intelligente (Tri des colonnes + Suppression des titres)
-                page_text = get_sorted_text_from_page(page)
-                
-                # 5. Nettoyage Arabe
-                page_text = remove_arabic(page_text)
-                
-                # Ajout au texte global
-                full_doc_text += page_text + "\n\n"
+def process_all_files():
+    # 1. Create Output Directory if it doesn't exist
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
+        print(f"📁 Created output folder: {OUTPUT_FOLDER}")
 
-            # Sauvegarde
-            with open(txt_path, "w", encoding="utf-8") as f:
-                f.write(full_doc_text)
-                
-            print(f"✅ Extrait : {filename}")
+    # 2. List all .txt files
+    files = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith('.txt')]
+    
+    if not files:
+        print(f"⚠️ No .txt files found in {INPUT_FOLDER}")
+        return
 
+    print(f"🚀 Starting batch processing for {len(files)} files...\n")
+
+    # 3. Process Loop
+    for index, filename in enumerate(files):
+        input_path = os.path.join(INPUT_FOLDER, filename)
+        
+        # Create output filename (replace .txt with .json)
+        output_filename = os.path.splitext(filename)[0] + ".json"
+        output_path = os.path.join(OUTPUT_FOLDER, output_filename)
+
+        print(f"   [{index+1}/{len(files)}] Processing {filename}...", end=" ")
+
+        try:
+            with open(input_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            
+            cleaned_content = clean_text(content)
+            data = extract_documents_and_articles(cleaned_content)
+            
+            final_output = {
+                "source_file": filename,
+                "total_documents": len(data),
+                "documents": data
+            }
+
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(final_output, f, ensure_ascii=False, indent=4)
+            
+            print(f"✅ Done. ({len(data)} docs found)")
+            
         except Exception as e:
-            print(f"❌ Erreur sur {filename} : {e}")
+            print(f"❌ ERROR: {e}")
 
-    print("\n🚀 Extraction terminée !")
+    print(f"\n🎉 Batch processing complete! Check the '{OUTPUT_FOLDER}' folder.")
 
 if __name__ == "__main__":
-    main()
+    process_all_files()
