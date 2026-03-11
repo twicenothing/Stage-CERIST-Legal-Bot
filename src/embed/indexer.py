@@ -60,30 +60,51 @@ def main():
             # Iterate through Decrees (Parents)
             for doc_idx, doc in enumerate(data["documents"]):
                 parent_title = doc.get("title", "Sans titre")
+                document_context = doc.get("context", parent_title)
+                articles = doc.get("articles", [])
                 
-                # We still need a parent_id to link the children properly
                 parent_id = f"{filename}_doc_{doc_idx}"
 
-                # --- B. INDEX THE CHILDREN (The Articles) ONLY ---
-                articles = doc.get("articles", [])
-
-                for art_idx, article_text in enumerate(articles):
-                    child_id = f"{parent_id}_art_{art_idx}"
-                    
-                    # 🔥 ON GARDE CECI : Titre + Article (C'est le mix parfait de contexte)
-                    contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
-                    
-                    ids.append(child_id)
-                    documents.append(contextualized_text) 
-                    
-                    metadatas.append({
-                        "source": filename,
-                        "type": "child",
-                        "parent_title": parent_title,
-                        "parent_id": parent_id,
-                        "original_article_text": article_text 
-                    })
-                    total_chunks += 1
+                # ---------------------------------------------------------
+                # 🔥 LOGIQUE CONDITIONNELLE : ARTICLES vs SANS ARTICLES
+                # ---------------------------------------------------------
+                
+                if not articles:
+                    # CAS 1 : AUCUN ARTICLE
+                    # On indexe le contexte (qui représente l'intégralité du texte)
+                    if document_context:
+                        ids.append(f"{parent_id}_full_context")
+                        documents.append(document_context)
+                        metadatas.append({
+                            "source": filename,
+                            "type": "document_sans_articles", 
+                            "parent_title": parent_title,
+                            "parent_id": parent_id,
+                            "original_article_text": document_context
+                        })
+                        total_chunks += 1
+                        
+                else:
+                    # CAS 2 : IL Y A DES ARTICLES
+                    # On indexe UNIQUEMENT les articles avec le titre (comme d'habitude)
+                    for art_idx, article_text in enumerate(articles):
+                        child_id = f"{parent_id}_art_{art_idx}"
+                        
+                        # Titre + Article (C'est le mix parfait de contexte)
+                        contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
+                        
+                        ids.append(child_id)
+                        documents.append(contextualized_text) 
+                        
+                        metadatas.append({
+                            "source": filename,
+                            "type": "article",
+                            "parent_title": parent_title,
+                            "parent_id": parent_id,
+                            "original_article_text": article_text 
+                        })
+                        total_chunks += 1
+                # ---------------------------------------------------------
 
             # --- C. BATCH EMBEDDING & ADDING (MULTI-GPU) ---
             if documents:

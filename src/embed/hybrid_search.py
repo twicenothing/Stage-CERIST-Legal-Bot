@@ -36,6 +36,7 @@ def generate_answer(query, ranked_results):
         meta = data['meta']
         text = data['text']
         
+        # We smartly extract the parent title so Mistral knows the exact decree/law name
         source_title = meta.get('parent_title', meta.get('title', 'Document sans titre'))
         context_pieces.append(f"DOCUMENT {rank+1} (Source: {source_title})\nCONTENU: {text}")
 
@@ -43,26 +44,26 @@ def generate_answer(query, ranked_results):
 
     # Prompt renforcé
     prompt = f"""Tu es un assistant juridique expert en droit administratif algérien.
-        Ta mission est d'analyser les textes réglementaires fournis en contexte et de répondre à la question de l'utilisateur de manière directe, précise et factuelle.
+Ta mission est d'analyser les textes réglementaires fournis en contexte et de répondre à la question de l'utilisateur de manière directe, précise et factuelle.
 
-        ⚠️ RÈGLES STRICTES DE RÉDACTION :
-        1. EXCLUSIVITÉ DU CONTEXTE : N'invente aucune information. Si la réponse ne se trouve pas dans le contexte, réponds uniquement : "Les documents fournis ne contiennent pas cette information."
-        2. STRUCTURE DIRECTE : Va droit au but. Donne la réponse immédiatement (ex: "Oui.", "C'est M. X.", "Il s'agit du décret..."), puis justifie en citant la base légale.
-        3. CITATION JURIDIQUE : Cite TOUJOURS le numéro de l'Article et le numéro du Décret correspondant tels qu'ils apparaissent dans la Source (ex: "Selon l'article 3 du décret n° 25-74..."). Ne dis JAMAIS "D'après le document 1" ou "Selon la source fournie".
-        4. PRÉCISION CHIRURGICALE : 
-        - Noms et Fonctions : Reproduis fidèlement les noms propres, institutions et intitulés officiels.
-        - Nombres et Budgets : Écris les montants, durées ou quantités exactes. S'il s'agit d'un budget, fais bien la distinction entre les crédits "annulés" et "ouverts/appliqués".
-        - Énumérations : Utilise une liste numérotée si la réponse contient plusieurs éléments distincts (comme des sous-directions ou des délégations).
-        5. NETTOYAGE VISUEL : Ignore les pointillés ("....") ou les mentions d'édition type "(sans changement)" présents dans le texte brut.
+⚠️ RÈGLES STRICTES DE RÉDACTION :
+1. EXCLUSIVITÉ DU CONTEXTE : N'invente aucune information. Si la réponse ne se trouve pas dans le contexte, réponds uniquement : "Les documents fournis ne contiennent pas cette information."
+2. STRUCTURE DIRECTE : Va droit au but. Donne la réponse immédiatement (ex: "Oui.", "C'est M. X.", "Il s'agit du décret..."), puis justifie en citant la base légale.
+3. CITATION JURIDIQUE : Cite TOUJOURS le numéro de l'Article et le numéro du Décret correspondant tels qu'ils apparaissent dans la Source (ex: "Selon l'article 3 du décret n° 25-74..."). Ne dis JAMAIS "D'après le document 1" ou "Selon la source fournie".
+4. PRÉCISION CHIRURGICALE : 
+- Noms et Fonctions : Reproduis fidèlement les noms propres, institutions et intitulés officiels.
+- Nombres et Budgets : Écris les montants, durées ou quantités exactes. S'il s'agit d'un budget, fais bien la distinction entre les crédits "annulés" et "ouverts/appliqués".
+- Énumérations : Utilise une liste numérotée si la réponse contient plusieurs éléments distincts (comme des sous-directions ou des délégations).
+5. NETTOYAGE VISUEL : Ignore les pointillés ("....") ou les mentions d'édition type "(sans changement)" présents dans le texte brut.
 
-        CONTEXTE FOURNI :
-        {full_context}
+CONTEXTE FOURNI :
+{full_context}
 
-        QUESTION DE L'UTILISATEUR :
-        {query}
+QUESTION DE L'UTILISATEUR :
+{query}
 
-        RÉPONSE :
-        """
+RÉPONSE :
+"""
 
     print("🤖 Mistral rédige...", end="", flush=True)
     try:
@@ -75,12 +76,14 @@ def generate_answer(query, ranked_results):
     except Exception as e:
         return f"\n❌ Erreur Ollama : {e}"
 
+
 # --- 2. UTILS ---
 def normalize_text(text):
     text = text.lower()
     return text.translate(str.maketrans('', '', string.punctuation)).split()
 
-# 🛑 MISE À JOUR : La fonction accepte maintenant les poids (weights)
+
+# 🛑 MISE À JOUR : La fonction accepte les poids (weights) pour privilégier le Keyword search
 def reciprocal_rank_fusion(results_dict, weights=None, k=60):
     if weights is None:
         weights = {system: 1.0 for system in results_dict.keys()}
@@ -97,6 +100,7 @@ def reciprocal_rank_fusion(results_dict, weights=None, k=60):
     
     return sorted(fused_scores.items(), key=lambda x: x[1]["score"], reverse=True)
 
+
 # --- 3. MAIN LOOP ---
 def main():
     print(f"🔄 Connexion à ChromaDB...")
@@ -110,8 +114,7 @@ def main():
     print("🤖 Chargement du modèle d'embedding...")
     model = SentenceTransformer(
         MODEL_NAME, 
-        device="cuda", 
-        model_kwargs={"use_safetensors": True}
+        device="cuda"  # Make sure you have PyTorch installed with CUDA if you want to use GPU
     )
 
     print("📚 Chargement de l'index BM25...")
@@ -152,7 +155,7 @@ def main():
                 kw_list.append((ids[idx], documents[idx], metadatas[idx]))
 
         # C. Fusion
-        # 🛑 MISE À JOUR : Application des poids validés par l'évaluation
+        # 🛑 MISE À JOUR : Application des poids validés par l'évaluation (70% Keyword / 30% Vector)
         best_weights = {"keyword": 0.7, "vector": 0.3}
         final_results = reciprocal_rank_fusion(
             {"vector": vec_list, "keyword": kw_list}, 
@@ -165,6 +168,7 @@ def main():
         print("\n" + "-"*50)
         print(f"💡 RÉPONSE :\n{answer}")
         print("-" * 50)
+
 
 if __name__ == "__main__":
     main()

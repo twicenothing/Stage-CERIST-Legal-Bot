@@ -14,16 +14,24 @@ def clean_text(text):
     text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF\n]+', ' ', text)
     return text.strip()
 
-def extract_articles_simple(decree_body: str):
+def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
     """
     Splits the decree body into a list of full article strings.
+    doc_type détermine la souplesse de l'extraction.
     """
-    # 1. FIND ARTICLE HEADERS
-    # 🔥 AJOUT : "|unique" pour capturer "Article unique"
-    article_header_pattern = re.compile(
-        r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)\.?\s*[-—–]+', 
-        re.IGNORECASE
-    )
+    # 1. FIND ARTICLE HEADERS SELON LE TYPE DE DOCUMENT
+    if doc_type == "type2":
+        # TYPE 2 (Accords, Conventions) : Accepte les articles seuls sur leur ligne
+        article_header_pattern = re.compile(
+            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
+            re.IGNORECASE
+        )
+    else:
+        # TYPE 1 (Décrets, Arrêtés) : Exige strictement la présence des tirets de fin
+        article_header_pattern = re.compile(
+            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)\.?\s*[-—–]+', 
+            re.IGNORECASE
+        )
 
     matches = list(article_header_pattern.finditer(decree_body))
     
@@ -58,26 +66,40 @@ def extract_articles_simple(decree_body: str):
     return articles_list
 
 def extract_documents_and_articles(text: str):
-    # --- STRICT DOCUMENT TITLE REGEX ---
+    # --- DOUBLE DOCUMENT TITLE REGEX ---
+   # --- DOUBLE DOCUMENT TITLE REGEX ---
     title_pattern = re.compile(
         r"""
         (?:^|\n)                                
-        (                                       
-          (?:                                   
-            (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
-            (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
-            (?:Décision|DÉCISION|Decision|DECISION)                                  
-          )
-          \s+
-          (?:n[°o\.]?|du|N[°O\.]?|DU)                       
-          # 🔥 AJOUT : On s'arrête aussi si on croise "unique" ou "UNIQUE"
-          (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
-          \.                                    
-        )                                       
-        \s* [-—–_H]{3,}                          
+        (?:
+            # TYPE 1 : Décrets, Arrêtés, Décisions, Avis
+            (?P<type1>                                       
+              (?:                                   
+                (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
+                (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
+                (?:Décision|DÉCISION|Decision|DECISION)|
+                (?:Avis|AVIS)                                    # 🔥 AJOUT ICI
+              )
+              \s+
+              (?:n[°o\.]?|du|N[°O\.]?|DU|\d+)                    
+              (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
+              \.                                    
+              \s* [-—–_H]{3,}
+            )
+            |
+            # TYPE 2 : Accords, Conventions, Mémorandums
+            (?P<type2>
+              (?:Accord|ACCORD|Convention|CONVENTION|Mémorandum|MÉMORANDUM|Memorandum)\b
+              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
+              \b(?:entre|Entre)\b
+              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
+              \b(?:et|Et)\b
+              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
+              (?=\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.))
+            )
+        )                          
         """, 
         re.VERBOSE | re.DOTALL 
-      
     )
 
     matches = list(title_pattern.finditer(text))
@@ -85,11 +107,19 @@ def extract_documents_and_articles(text: str):
     if not matches:
         return []
 
-    documents = [] 
+    documents = []
 
     for i in range(len(matches)):
         match = matches[i]
-        raw_title = match.group(1).strip()
+        
+        # Détection du type de document et nettoyage de base du titre
+        if match.group('type1'):
+            doc_type = "type1"
+            # On retire la ligne de séparation (---) du titre pour que ce soit plus propre
+            raw_title = re.sub(r'\s*[-—–_H]{3,}$', '', match.group('type1')).strip()
+        else:
+            doc_type = "type2"
+            raw_title = match.group('type2').strip()
         
         # Security Filter
         if "Article" in raw_title or "Art." in raw_title or "Chapitre" in raw_title:
@@ -104,46 +134,55 @@ def extract_documents_and_articles(text: str):
             end_body = len(text)
             
         body_text = text[start_body:end_body].strip()
-        simple_articles = extract_articles_simple(body_text)
+        
+        # On passe le type de document à la fonction d'extraction
+        simple_articles = extract_articles_simple(body_text, doc_type)
         
         # =========================================================
-        # 🔥 NOUVELLE LOGIQUE D'EXTRACTION DU CONTEXTE (PRÉAMBULE)
+        # 🔥 LOGIQUE D'EXTRACTION DU CONTEXTE (S'ADAPTE AU TYPE)
         # =========================================================
-        
-        # 1. On cherche les mots-clés de transition isolés (précédés et suivis d'un saut de ligne ou fin de texte)
-        preamble_end_pattern = re.compile(
-            r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
-            re.IGNORECASE
-        )
-        preamble_match = preamble_end_pattern.search(body_text)
-        
-        if preamble_match:
-            # Si on trouve "Décrète :", on coupe juste après ce mot
-            preamble = body_text[:preamble_match.end()].strip()
-        else:
-            # ROUE DE SECOURS 1 : Pas de mot-clé, mais il y a des articles
-            # 🔥 AJOUT : "|unique" pour la détection du premier article
-            first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)\.?\s*[-—–]+', body_text, re.IGNORECASE)
-            if first_art_match:
-                preamble = body_text[:first_art_match.start()].strip()
+        if doc_type == "type1":
+            preamble_end_pattern = re.compile(
+                r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
+                re.IGNORECASE
+            )
+            preamble_match = preamble_end_pattern.search(body_text)
+            
+            if preamble_match:
+                preamble = body_text[:preamble_match.end()].strip()
             else:
-                # ROUE DE SECOURS 2 : Ni mot-clé, ni articles. 
-                # C'est un texte très court ou sans structure, on prend tout.
-                preamble = body_text.strip()
-                
-        # 2. On fusionne le Titre propre avec le Préambule extrait
+                first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)\.?\s*[-—–]+', body_text, re.IGNORECASE)
+                if first_art_match:
+                    preamble = body_text[:first_art_match.start()].strip()
+                else:
+                    preamble = body_text.strip()
+        else:
+            # Pour TYPE 2 (Accords, Conventions), le mot clé de fin de préambule change souvent
+            preamble_end_pattern = re.compile(
+                r'(?:^|\n)\s*(?:sont convenus|ont convenu|sont convenues|ont convenues)(?:\s+de)?\s+ce\s+qui\s+suit\s*:\s*(?:\n|$)', 
+                re.IGNORECASE
+            )
+            preamble_match = preamble_end_pattern.search(body_text)
+            
+            if preamble_match:
+                preamble = body_text[:preamble_match.end()].strip()
+            else:
+                first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', body_text, re.IGNORECASE)
+                if first_art_match:
+                    preamble = body_text[:first_art_match.start()].strip()
+                else:
+                    preamble = body_text.strip()
+                    
         context_text = f"{clean_title_str}\n\n{preamble}"
-        
         # =========================================================
         
         documents.append({
             "title": clean_title_str,
             "articles": simple_articles,
-            "context": context_text  # Remplace l'ancien "full_context"
+            "context": context_text
         })
 
     return documents
-
 def process_all_files():
     # 1. Create Output Directory if it doesn't exist
     if not os.path.exists(OUTPUT_FOLDER):
