@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 import string
 import ollama
-
+from ollama import AsyncClient
 # --- CONFIGURATION ---
 CHROMA_PATH = "../../data/chroma_db"
 COLLECTION_NAME = "legal_algeria"

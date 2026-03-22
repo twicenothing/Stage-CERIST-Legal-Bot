@@ -58,6 +58,7 @@ def main():
             metadatas = []
 
             # Iterate through Decrees (Parents)
+           # Iterate through Decrees (Parents)
             for doc_idx, doc in enumerate(data["documents"]):
                 parent_title = doc.get("title", "Sans titre")
                 document_context = doc.get("context", parent_title)
@@ -65,19 +66,29 @@ def main():
                 
                 parent_id = f"{filename}_doc_{doc_idx}"
 
+                # --- NEW: Extract the Document Type from the title ---
+                title_lower = parent_title.lower()
+                if "décret" in title_lower: doc_type = "Décret"
+                elif "arrêté" in title_lower: doc_type = "Arrêté"
+                elif "décision" in title_lower: doc_type = "Décision"
+                elif "loi" in title_lower: doc_type = "Loi"
+                elif "ordonnance" in title_lower: doc_type = "Ordonnance"
+                else: doc_type = "Autre"
+                # -----------------------------------------------------
+
                 # ---------------------------------------------------------
                 # 🔥 LOGIQUE CONDITIONNELLE : ARTICLES vs SANS ARTICLES
                 # ---------------------------------------------------------
                 
                 if not articles:
                     # CAS 1 : AUCUN ARTICLE
-                    # On indexe le contexte (qui représente l'intégralité du texte)
                     if document_context:
                         ids.append(f"{parent_id}_full_context")
                         documents.append(document_context)
                         metadatas.append({
-                            "source": filename,
-                            "type": "document_sans_articles", 
+                            "source_file": filename,         # 🔥 Exact file name for evaluation
+                            "document_type": doc_type,       # 🔥 "Décret", "Arrêté", etc.
+                            "chunk_format": "full_context",  # Distinguish from articles
                             "parent_title": parent_title,
                             "parent_id": parent_id,
                             "original_article_text": document_context
@@ -86,25 +97,24 @@ def main():
                         
                 else:
                     # CAS 2 : IL Y A DES ARTICLES
-                    # On indexe UNIQUEMENT les articles avec le titre (comme d'habitude)
                     for art_idx, article_text in enumerate(articles):
                         child_id = f"{parent_id}_art_{art_idx}"
                         
-                        # Titre + Article (C'est le mix parfait de contexte)
+                        # Titre + Article
                         contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
                         
                         ids.append(child_id)
                         documents.append(contextualized_text) 
                         
                         metadatas.append({
-                            "source": filename,
-                            "type": "article",
+                            "source_file": filename,         # 🔥 Exact file name for evaluation
+                            "document_type": doc_type,       # 🔥 "Décret", "Arrêté", etc.
+                            "chunk_format": "article",       # Distinguish from full context
                             "parent_title": parent_title,
                             "parent_id": parent_id,
                             "original_article_text": article_text 
                         })
                         total_chunks += 1
-                # ---------------------------------------------------------
 
             # --- C. BATCH EMBEDDING & ADDING (MULTI-GPU) ---
             if documents:

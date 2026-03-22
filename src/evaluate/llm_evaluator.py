@@ -126,6 +126,7 @@ Tu DOIS commencer ta réponse exactement par "SCORE: X" (où X est 0, 0.5 ou 1).
     judge_evaluation = call_llm(judge_prompt, system_instruction="Tu es un juge strict. Tu ne fais aucun sentiment.")
     
     score = 0.0
+    print(judge_evaluation)
     match = re.search(r"SCORE\s*:\s*(1|0\.5|0)", judge_evaluation, re.IGNORECASE)
     if match:
         score = float(match.group(1))
