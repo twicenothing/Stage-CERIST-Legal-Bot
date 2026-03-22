@@ -9,6 +9,7 @@ __pycache__/
 venv/
 ENV/
 
+data/
 # VS Code
 .vscode/
 
