@@ -4,8 +4,8 @@ import json
 
 # --- CONFIGURATION ---
 INPUT_FOLDER = "../../data/txt"
-OUTPUT_FOLDER = "../../data/json"
 
+OUTPUT_FOLDER = "../../data/json"
 def clean_text(text):
     # 1. Normalize newlines (Crucial for regex anchors)
     text = re.sub(r'\r\n', '\n', text) 
@@ -21,20 +21,29 @@ def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
     """
     # 1. FIND ARTICLE HEADERS SELON LE TYPE DE DOCUMENT
     if doc_type == "type2":
-        # TYPE 2 (Accords, Conventions) : Accepte les articles seuls sur leur ligne
+        # TYPE 2 
         article_header_pattern = re.compile(
-            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
+            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
             re.IGNORECASE
         )
     else:
-        # TYPE 1 (Décrets, Arrêtés) : Exige strictement la présence des tirets de fin
+        # TYPE 1 
         article_header_pattern = re.compile(
-            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique)\.?\s*[-—–]+', 
+            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)\.?\s*[-—–]+', 
             re.IGNORECASE
         )
 
     matches = list(article_header_pattern.finditer(decree_body))
     
+    # 🔥 SAFE FALLBACK : Si aucun Article n'est trouvé, on tente de découper par "Chapitres"
+    # MAIS UNIQUEMENT pour les documents de type 2 (Conventions, Accords) !
+    if not matches and doc_type == "type2":
+        chap_pattern = re.compile(
+            r'(?:^|\n)\s*Chapitre\s+(\d+|premier|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
+            re.IGNORECASE
+        )
+        matches = list(chap_pattern.finditer(decree_body))
+
     if not matches:
         return []
 
@@ -67,35 +76,51 @@ def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
 
 def extract_documents_and_articles(text: str):
     # --- DOUBLE DOCUMENT TITLE REGEX ---
-   # --- DOUBLE DOCUMENT TITLE REGEX ---
     title_pattern = re.compile(
         r"""
         (?:^|\n)                                
         (?:
-            # TYPE 1 : Décrets, Arrêtés, Décisions, Avis
+            # TYPE 1 : Décrets, Arrêtés, Décisions, Avis, Règlements, Lois, Proclamations, Délibérations, Instructions, Ordonnances
             (?P<type1>                                       
-              (?:                                   
-                (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
-                (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
-                (?:Décision|DÉCISION|Decision|DECISION)|
-                (?:Avis|AVIS)                                    # 🔥 AJOUT ICI
-              )
-              \s+
-              (?:n[°o\.]?|du|N[°O\.]?|DU|\d+)                    
+              (?:                                  
+                (?:
+                  (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
+                  (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
+                  (?:Décision|DÉCISION|Decision|DECISION)|
+                  (?:Avis|AVIS)|
+                  (?:Loi|LOI)|
+                  (?:Proclamation|PROCLAMATION)|
+                  (?:Délibération|DÉLIBÉRATION|Deliberation|DELIBERATION)|
+                  (?:Instruction|INSTRUCTION)(?:\s+(?:interministérielle|INTERMINISTÉRIELLE|présidentielle|PRÉSIDENTIELLE|presidentielle|PRESIDENTIELLE))?|
+                  (?:Ordonnance|ORDONNANCE)  
+                )\s+(?:n[°o\.]?|du|N[°O\.]?|DU|\d+)
+                |
+                (?:Règlement|RÈGLEMENT|Reglement|REGLEMENT)\b  
+              )                    
               (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
-              \.                                    
+              \.?                                    
               \s* [-—–_H]{3,}
             )
             |
-            # TYPE 2 : Accords, Conventions, Mémorandums
+            # TYPE 2 : Accords, Conventions, Mémorandums (et Conventions Internationales)
             (?P<type2>
-              (?:Accord|ACCORD|Convention|CONVENTION|Mémorandum|MÉMORANDUM|Memorandum)\b
-              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
-              \b(?:entre|Entre)\b
-              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
-              \b(?:et|Et)\b
-              (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.)).)*?
-              (?=\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Article\s+\d|Art\.))
+              (?:
+                (?:Accord|ACCORD|Convention|CONVENTION|Mémorandum|MÉMORANDUM|Memorandum)\b
+                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
+                \b(?:entre|Entre)\b
+                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
+                \b(?:et|Et)\b
+                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
+                (?=\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d)))
+              )
+              |
+              # Conventions internationales sans "Entre/Et"
+              (?:
+                # 🔥 CHANGEMENT ICI : Le numéro (?:\s+\d+)? est devenu optionnel
+                (?:Convention|CONVENTION)(?:\s+\d+)?\s+(?:concernant|sur|CONCERNANT|SUR)\b
+                (?:(?!\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d))).)*?
+                (?=\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d)))
+              )
             )
         )                          
         """, 
@@ -143,7 +168,7 @@ def extract_documents_and_articles(text: str):
         # =========================================================
         if doc_type == "type1":
             preamble_end_pattern = re.compile(
-                r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent)\s*:\s*(?:\n|$)', 
+                r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent|.*?adopte.*?suit|.*?promulgue.*?suit|.*?adopte les dispositions suivantes.*?)\s*[:;]\s*(?:\n|$)', 
                 re.IGNORECASE
             )
             preamble_match = preamble_end_pattern.search(body_text)
@@ -151,7 +176,7 @@ def extract_documents_and_articles(text: str):
             if preamble_match:
                 preamble = body_text[:preamble_match.end()].strip()
             else:
-                first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)\.?\s*[-—–]+', body_text, re.IGNORECASE)
+                first_art_match = re.search(r'(?:^|\n)\s*(?:Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique|ler|Ier)|Chapitre\s+(?:premier|1|unique))\.?\s*[-—–]+', body_text, re.IGNORECASE)
                 if first_art_match:
                     preamble = body_text[:first_art_match.start()].strip()
                 else:
@@ -167,7 +192,7 @@ def extract_documents_and_articles(text: str):
             if preamble_match:
                 preamble = body_text[:preamble_match.end()].strip()
             else:
-                first_art_match = re.search(r'(?:^|\n)\s*Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', body_text, re.IGNORECASE)
+                first_art_match = re.search(r'(?:^|\n)\s*(?:Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique|ler|Ier)|Chapitre\s+(?:premier|1|unique))(?:\.?\s*[-—–]+|\s*(?=\n|$))', body_text, re.IGNORECASE)
                 if first_art_match:
                     preamble = body_text[:first_art_match.start()].strip()
                 else:
@@ -183,6 +208,7 @@ def extract_documents_and_articles(text: str):
         })
 
     return documents
+    
 def process_all_files():
     # 1. Create Output Directory if it doesn't exist
     if not os.path.exists(OUTPUT_FOLDER):
@@ -217,6 +243,7 @@ def process_all_files():
             
             final_output = {
                 "source_file": filename,
+                "chunking_method": "regex",
                 "total_documents": len(data),
                 "documents": data
             }
