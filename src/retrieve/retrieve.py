@@ -5,43 +5,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==============================================================================
-# 🏆 SCRIPT DE RETRIEVAL OPTIMISÉ (RÉSULTATS DU GRID SEARCH)
+# 🏆 MODULE DE RETRIEVAL OPTIMISÉ (PRÊT POUR RERANKER)
 # ==============================================================================
-#
-# Suite à l'évaluation par Grid Search (Hit Rate: 81.0%), voici les conclusions :
-# 1. Seuil de Fallback idéal : 1.05
-# 2. Poids RRF idéaux        : {'keyword': 0.0, 'vector': 1.0}
-#
-# 🛑 POURQUOI LA RECHERCHE PAR MOTS-CLÉS (BM25) A-T-ELLE ÉTÉ SUPPRIMÉE ?
-# Le langage juridique utilise énormément de synonymes ou de périphrases 
-# (ex: "amende" vs "pénalité financière", ou "loi fondamentale" vs "constitution").
-# Le système BM25 cherche des correspondances de mots exactes, ce qui génère des 
-# échecs fréquents. Le modèle d'embedding (BGE-M3), en revanche, cartographie le 
-# "sens" des phrases. Le Grid Search a prouvé qu'une approche 100% sémantique 
-# était la plus performante.
-# -> Avantage majeur : La suppression du BM25 élimine le besoin de charger 
-#    l'intégralité des documents en mémoire vive au lancement du script.
-#
-# ⚙️ EXPLICATION DU FLUX DE TRAVAIL (ROUTAGE SÉQUENTIEL)
-# 1. L'utilisateur pose une question.
-# 2. BGE-M3 encode cette question en un vecteur mathématique.
-# 3. PLAN A (Regex) : ChromaDB cherche les documents les plus proches sémantiquement,
-#    en filtrant UNIQUEMENT sur les chunks structurés (Titre + Préambule + Article).
-# 4. L'ÉVALUATION (Le Seuil à 1.05) : ChromaDB renvoie une "Distance L2". 
-#    - Si Distance <= 1.05 : Le document est jugé très pertinent. On s'arrête là.
-#    - Si Distance > 1.05 : Le modèle doute fortement de la pertinence de sa trouvaille.
-# 5. PLAN B (Récursif) : Le filet de sécurité s'active. On refait une recherche, 
-#    mais cette fois uniquement dans les chunks découpés à l'aveugle (recursive), 
-#    au cas où la réponse aurait été ratée par le script d'extraction Regex.
+# Ce fichier est conçu pour être importé comme un module.
+# Il exécute la logique de routage séquentiel (Regex -> Fallback) 
+# et retourne les Top-K documents qui seront ensuite traités par le Cross-Encoder.
 # ==============================================================================
-
 
 # --- CONFIGURATION MATÉRIELLE ---
 # Masque le GPU 0, utilise les GPU 1, 2 ou 3 pour l'embedding
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3" 
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3" 
 
 # --- CONFIGURATION BASE DE DONNÉES ---
-CHROMA_PATH = "../../data/chroma_db"
+CHROMA_PATH = os.getenv("CHROMA_PATH")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "legal_algeria")
 MODEL_NAME = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
 
@@ -49,12 +25,12 @@ MODEL_NAME = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
 FALLBACK_DISTANCE_THRESHOLD = 1.05 
 
 
-def retrieve_vector_chunks(q_embed, chunk_type, collection):
+def retrieve_vector_chunks(q_embed, chunk_type, collection, top_k):
     """Effectue une recherche purement vectorielle filtrée par métadonnée."""
     
     vec_res = collection.query(
         query_embeddings=q_embed, 
-        n_results=3, # On ne récupère que le Top 3 directement
+        n_results=top_k, # 🔥 Le paramètre modifiable est appliqué ici
         where={"chunking_method": chunk_type} # L'astuce du routage est ici
     )
     
@@ -74,76 +50,34 @@ def retrieve_vector_chunks(q_embed, chunk_type, collection):
     return formatted_results, top_distance
 
 
-def display_results(results, search_type):
-    """Affiche les résultats formatés dans le terminal."""
-    print(f"\n" + "="*80)
-    print(f"📊 RÉSULTATS DU RETRIEVER | STRATÉGIE UTILISÉE : {search_type.upper()}")
-    print("="*80)
+def get_retrieved_documents(query, model, collection, top_k=20, threshold=FALLBACK_DISTANCE_THRESHOLD):
+    """
+    Fonction principale à importer dans ton script de Reranking.
     
-    if not results:
-        print("❌ Aucun document pertinent trouvé.")
-        return
-
-    for i, data in enumerate(results):
-        score = data['distance']
-        text = data['text']
-        meta = data['meta']
+    Args:
+        query (str): La question de l'utilisateur.
+        model (SentenceTransformer): Le modèle BGE-M3 déjà chargé.
+        collection (chromadb.Collection): La collection ChromaDB déjà connectée.
+        top_k (int): Le nombre de documents à récupérer (ex: 20 pour le Reranker).
+        threshold (float): Le seuil de distance pour déclencher le fallback.
         
-        doc_type = meta.get('document_type', 'N/A')
-        source_file = meta.get('source_file', 'Fichier inconnu')
-        
-        print(f"\n🔹 RANG [{i+1}] - DISTANCE L2 : {score:.4f}")
-        print(f"   ID       : {data['id']}")
-        print(f"   MÉTHODE  : {meta.get('chunking_method', 'inconnu').upper()}")
-        print(f"   SOURCE   : {source_file} ({doc_type})")
-        print("-" * 80)
-        print(text[:300] + "..." if len(text) > 300 else text)
-        print("-" * 80)
-
-
-def main():
-    print(f"🔄 Connexion à ChromaDB...")
-    try:
-        chroma_client = chromadb.PersistentClient(path=CHROMA_PATH)
-        collection = chroma_client.get_collection(COLLECTION_NAME)
-    except Exception as e:
-        print(f"❌ Erreur : {e}")
-        return
+    Returns:
+        list: La liste des documents formatés prêts à être rerankés.
+        str: La stratégie utilisée ("regex" ou "recursive").
+    """
+    # 1. Encodage de la question
+    q_embed = model.encode([query]).tolist()
     
-    print("🤖 Chargement du modèle d'embedding BGE-M3 (Device: CUDA)...")
-    # Chargement direct sans fp16 ici car on ne traite qu'une phrase à la fois, 
-    # la consommation VRAM est négligeable en inférence simple.
-    model = SentenceTransformer(MODEL_NAME, device="cuda")
-
-    print(f"✅ Système Prêt ! Seuil Fallback L2 = {FALLBACK_DISTANCE_THRESHOLD}")
-
-    while True:
-        query = input("\n❓ Entrez votre requête juridique (ou 'q' pour quitter) : ").strip()
-        if query.lower() == 'q': 
-            break
+    # 2. PLAN A : Recherche dans les chunks REGEX
+    final_results, top_dist = retrieve_vector_chunks(q_embed, "regex", collection, top_k)
+    
+    # 3. ROUTAGE SÉQUENTIEL (Le Fallback)
+    if top_dist > threshold or not final_results:
+        # ⚠️ Distance trop élevée, basculement sur le filet de sécurité (Chunks Récursifs)
+        final_results, _ = retrieve_vector_chunks(q_embed, "recursive", collection, top_k)
+        strategy_used = "recursive"
+    else:
+        # 🎯 Document structuré valide trouvé
+        strategy_used = "regex"
         
-        # 1. Encodage de la question
-        q_embed = model.encode([query]).tolist()
-        
-        # 2. PLAN A : Recherche dans les chunks REGEX
-        print("\n🔍 Lancement de la recherche structurée (Regex)...")
-        final_results, top_dist = retrieve_vector_chunks(q_embed, "regex", collection)
-        
-        print(f"   > Meilleure distance sémantique L2 (Regex) : {top_dist:.4f}")
-        
-        # 3. ROUTAGE SÉQUENTIEL (Le Fallback)
-        if top_dist > FALLBACK_DISTANCE_THRESHOLD or not final_results:
-            print(f"⚠️ Distance L2 ({top_dist:.4f}) > Seuil ({FALLBACK_DISTANCE_THRESHOLD}).")
-            print("🔀 Basculement sur le filet de sécurité (Chunks Récursifs)...")
-            
-            final_results, top_dist_rec = retrieve_vector_chunks(q_embed, "recursive", collection)
-            print(f"   > Meilleure distance sémantique L2 (Récursif) : {top_dist_rec:.4f}")
-            
-            display_results(final_results, search_type="RÉCURSIF (Fallback)")
-            
-        else:
-            print(f"🎯 Document structuré valide trouvé.")
-            display_results(final_results, search_type="REGEX (Principal)")
-
-if __name__ == "__main__":
-    main()
+    return final_results, strategy_used
