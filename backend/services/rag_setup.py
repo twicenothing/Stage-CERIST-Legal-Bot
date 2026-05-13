@@ -16,6 +16,7 @@ if PROJECT_ROOT not in sys.path:
 
 # 2. Modular Imports from your workstation 'src'
 from src.rerank.rerank import get_best_documents_for_llm
+from src.generate.query_parse import rewrite_query
 
 # Global variables for models
 collection = None
@@ -104,9 +105,12 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
     """
     The main generator called by the FastAPI router.
     """
+
+    optimized_query = rewrite_query(query)
+
     # 1. Modular Retrieval & Reranking using workstation src
     best_docs = get_best_documents_for_llm(
-        query, 
+        optimized_query, 
         collection, 
         bi_encoder, 
         reranker,
