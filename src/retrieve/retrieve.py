@@ -12,10 +12,6 @@ load_dotenv()
 # et retourne les Top-K documents qui seront ensuite traités par le Cross-Encoder.
 # ==============================================================================
 
-# --- CONFIGURATION MATÉRIELLE ---
-# Masque le GPU 0, utilise les GPU 1, 2 ou 3 pour l'embedding
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3" 
-
 # --- CONFIGURATION BASE DE DONNÉES ---
 CHROMA_PATH = os.getenv("CHROMA_PATH")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "legal_algeria")

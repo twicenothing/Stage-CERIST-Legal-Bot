@@ -6,6 +6,13 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL : str
     LLM_MODEL: str
     OLLAMA_HOST: str
+    RERANKER_MODEL: str
+    SQLALCHEMY_DATABASE_URL : str
+    SECRET_KEY : str
+    ALGORITHM : str
+    ACCESS_TOKEN_EXPIRE_MINUTES : int
+    PDF_PATH : str
+    PDF_OLD_PATH : str
     class Config:
         env_file = "../.env"
 
