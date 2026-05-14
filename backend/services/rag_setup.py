@@ -31,7 +31,7 @@ async def init_rag():
     global collection, bi_encoder, reranker
     print("Loading RAG pipeline...")
 
-    chroma_path = os.path.join("..", settings.CHROMA_PATH)
+    chroma_path = os.path.join(PROJECT_ROOT, settings.CHROMA_PATH)
     client = chromadb.PersistentClient(chroma_path)
     collection = client.get_collection(settings.COLLECTION_NAME)
     
@@ -54,7 +54,8 @@ async def init_rag():
 
 def _format_llm_prompt(query, best_docs):
     """
-    Constructs the prompt using your exact system prompt logic.
+    Constructs the prompt using your exact system prompt logic,
+    now including page numbers for both the frontend and the LLM.
     """
     formatted_context = ""
     formatted_sources = []
@@ -68,35 +69,54 @@ def _format_llm_prompt(query, best_docs):
         source_title = source_title.replace('.json', '.pdf')
         article = meta.get('document_type', 'Extrait')
         
+        # 🎯 RÉCUPÉRATION DE LA PAGE DEPUIS LES MÉTADONNÉES
+        page_num = meta.get('page', 'Inconnu')
+        
         # Convert rerank score to % using sigmoid
+        SCALING_FACTOR = 2.5
         raw_score = doc.get('rerank_score', 0)
-        percentage_score = min(100, int((1 / (1 + math.exp(-raw_score))) * 100))
+        calibrated_score = raw_score * SCALING_FACTOR
+        percentage_score = min(100, int((1 / (1 + math.exp(-calibrated_score))) * 100))
         
         formatted_sources.append({
             "doc_id": str(doc.get("id", i)),
             "score": percentage_score,
             "text": text,
             "title": source_title,
+            "page": page_num,  # 👈 AJOUT POUR LE FRONTEND
         })
         
-        formatted_context += f"--- SOURCE : {source_title} ({article}) ---\n"
+        # 👈 AJOUT DE LA PAGE DANS LE CONTEXTE TEXTUEL POUR LE LLM
+        formatted_context += f"--- SOURCE : {source_title} | PAGE : {page_num} ({article}) ---\n"
         formatted_context += f"{text}\n\n"
 
-    system_prompt = """Tu es un assistant juridique expert en droit administratif algérien. Ta seule et unique mission est de répondre aux questions de l'utilisateur en te basant STRICTEMENT et EXCLUSIVEMENT sur les documents de référence fournis.
+    # 🔥 Prompt système mis à jour pour EXIGER la citation de la page
+    system_prompt = """Tu es un assistant juridique strict. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
 
-MÉTHODOLOGIE OBLIGATOIRE :
-Tu es un modèle de raisonnement. Tu vas automatiquement utiliser ta balise <think> pour réfléchir avant de répondre. 
-Dans cette réflexion :
-1. Identifie les concepts clés de la question.
-2. Cherche attentivement ces concepts dans les documents fournis.
-3. Détermine si l'information s'y trouve réellement.
+RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
+1. INTERDICTION FORMELLE d'utiliser des phrases d'introduction ou de conclusion. Ne dis JAMAIS "En vertu des instructions", "Après examen", "Je vais analyser", etc.
+2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
+3. Commence DIRECTEMENT ta réponse.
 
-RÈGLES POUR LA RÉPONSE FINALE (Après la balise <think>) :
-1. RÈGLE CRITIQUE : Si ton analyse conclut que la réponse ne figure pas dans les documents, ta réponse finale DOIT être EXACTEMENT : "Les documents fournis ne contiennent pas cette information."
-2. Si la réponse s'y trouve, réponds de manière directe, factuelle et précise.
-3. Cite toujours le numéro de l'Article ou l'intitulé du texte de loi justifiant ta réponse."""
+RÈGLE CRITIQUE DE REJET :
+Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
+"Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
+N'ajoute AUCUN préfixe. Juste cette phrase unique.
 
-    user_prompt = f"Voici les documents de référence :\n\n{formatted_context}\nQuestion : {query}\n\nRéponse :"
+FORMAT SI LA RÉPONSE EST TROUVÉE :
+- Réponds de manière directe, factuelle et concise.
+- Utilise des listes à puces si nécessaire.
+- Cite obligatoirement tes sources ET LA PAGE à la fin de l'affirmation (ex: [Source : F2002002.pdf, Page 3, Art. 4])."""
+
+    user_prompt = f"""<documents>
+{formatted_context}
+</documents>
+
+<question>
+{query}
+</question>
+
+Réponse directe :"""
     
     return system_prompt, user_prompt, formatted_sources
 
@@ -115,7 +135,7 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         bi_encoder, 
         reranker,
         top_k_retrieve=20, 
-        top_k_rerank=3
+        top_k_rerank=8
     )
 
     if not best_docs:
@@ -138,7 +158,8 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
             {'role': 'user', 'content': user_prompt}
         ],
         stream=True,
-        options={"temperature": 0.0}
+        options={"temperature": 0.0,
+        "num_ctx": 8192}
     ):
         token = part["message"]["content"]
         if token:

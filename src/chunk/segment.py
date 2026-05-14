@@ -4,8 +4,8 @@ import json
 
 # --- CONFIGURATION ---
 INPUT_FOLDER = "../../data/txt"
-
 OUTPUT_FOLDER = "../../data/json"
+
 def clean_text(text):
     # 1. Normalize newlines (Crucial for regex anchors)
     text = re.sub(r'\r\n', '\n', text) 
@@ -14,20 +14,43 @@ def clean_text(text):
     text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF\n]+', ' ', text)
     return text.strip()
 
+def extract_page_mapping(text):
+    """Construit la carte des pages et nettoie les balises injectées par le script PDF."""
+    page_map = []
+    clean_text_no_markers = ""
+    last_idx = 0
+    
+    for match in re.finditer(r'<<<PAGE_(\d+)>>>\s*', text):
+        chunk = text[last_idx:match.start()]
+        clean_text_no_markers += chunk
+        page_map.append((len(clean_text_no_markers), int(match.group(1))))
+        last_idx = match.end()
+        
+    clean_text_no_markers += text[last_idx:]
+    return clean_text_no_markers, page_map
+
+def get_page_for_index(char_index, page_map):
+    """Trouve la page correspondante à un index de caractère."""
+    current_page = "Inconnu"
+    for marker_idx, page_num in page_map:
+        if char_index >= marker_idx:
+            current_page = page_num
+        else:
+            break
+    return current_page
+
 def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
     """
     Splits the decree body into a list of full article strings.
     doc_type détermine la souplesse de l'extraction.
+    (TA LOGIQUE ORIGINALE INTACTE)
     """
-    # 1. FIND ARTICLE HEADERS SELON LE TYPE DE DOCUMENT
     if doc_type == "type2":
-        # TYPE 2 
         article_header_pattern = re.compile(
             r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
             re.IGNORECASE
         )
     else:
-        # TYPE 1 
         article_header_pattern = re.compile(
             r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)\.?\s*[-—–]+', 
             re.IGNORECASE
@@ -35,8 +58,6 @@ def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
 
     matches = list(article_header_pattern.finditer(decree_body))
     
-    # 🔥 SAFE FALLBACK : Si aucun Article n'est trouvé, on tente de découper par "Chapitres"
-    # MAIS UNIQUEMENT pour les documents de type 2 (Conventions, Accords) !
     if not matches and doc_type == "type2":
         chap_pattern = re.compile(
             r'(?:^|\n)\s*Chapitre\s+(\d+|premier|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
@@ -49,7 +70,6 @@ def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
 
     articles_list = []
 
-    # 2. SLICING LOOP
     for i in range(len(matches)):
         current_match = matches[i]
         start_pos = current_match.start()
@@ -74,8 +94,8 @@ def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
 
     return articles_list
 
-def extract_documents_and_articles(text: str):
-    # --- DOUBLE DOCUMENT TITLE REGEX ---
+def extract_documents_and_articles(text: str, page_map: list):
+    # --- DOUBLE DOCUMENT TITLE REGEX (TA REGEX ORIGINALE INTACTE) ---
     title_pattern = re.compile(
         r"""
         (?:^|\n)                                
@@ -116,7 +136,6 @@ def extract_documents_and_articles(text: str):
               |
               # Conventions internationales sans "Entre/Et"
               (?:
-                # 🔥 CHANGEMENT ICI : Le numéro (?:\s+\d+)? est devenu optionnel
                 (?:Convention|CONVENTION)(?:\s+\d+)?\s+(?:concernant|sur|CONCERNANT|SUR)\b
                 (?:(?!\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d))).)*?
                 (?=\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d)))
@@ -137,16 +156,16 @@ def extract_documents_and_articles(text: str):
     for i in range(len(matches)):
         match = matches[i]
         
-        # Détection du type de document et nettoyage de base du titre
+        # 🎯 CALCUL DE LA PAGE (L'AJOUT EST ICI)
+        doc_page = get_page_for_index(match.start(), page_map)
+        
         if match.group('type1'):
             doc_type = "type1"
-            # On retire la ligne de séparation (---) du titre pour que ce soit plus propre
             raw_title = re.sub(r'\s*[-—–_H]{3,}$', '', match.group('type1')).strip()
         else:
             doc_type = "type2"
             raw_title = match.group('type2').strip()
         
-        # Security Filter
         if "Article" in raw_title or "Art." in raw_title or "Chapitre" in raw_title:
             continue
         
@@ -160,12 +179,8 @@ def extract_documents_and_articles(text: str):
             
         body_text = text[start_body:end_body].strip()
         
-        # On passe le type de document à la fonction d'extraction
         simple_articles = extract_articles_simple(body_text, doc_type)
         
-        # =========================================================
-        # 🔥 LOGIQUE D'EXTRACTION DU CONTEXTE (S'ADAPTE AU TYPE)
-        # =========================================================
         if doc_type == "type1":
             preamble_end_pattern = re.compile(
                 r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent|.*?adopte.*?suit|.*?promulgue.*?suit|.*?adopte les dispositions suivantes.*?)\s*[:;]\s*(?:\n|$)', 
@@ -182,7 +197,6 @@ def extract_documents_and_articles(text: str):
                 else:
                     preamble = body_text.strip()
         else:
-            # Pour TYPE 2 (Accords, Conventions), le mot clé de fin de préambule change souvent
             preamble_end_pattern = re.compile(
                 r'(?:^|\n)\s*(?:sont convenus|ont convenu|sont convenues|ont convenues)(?:\s+de)?\s+ce\s+qui\s+suit\s*:\s*(?:\n|$)', 
                 re.IGNORECASE
@@ -199,9 +213,10 @@ def extract_documents_and_articles(text: str):
                     preamble = body_text.strip()
                     
         context_text = f"{clean_title_str}\n\n{preamble}"
-        # =========================================================
         
+        # 🎯 INJECTION DE LA PAGE DANS LA STRUCTURE DE DONNÉES
         documents.append({
+            "page": doc_page,
             "title": clean_title_str,
             "articles": simple_articles,
             "context": context_text
@@ -210,12 +225,10 @@ def extract_documents_and_articles(text: str):
     return documents
     
 def process_all_files():
-    # 1. Create Output Directory if it doesn't exist
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
         print(f"📁 Created output folder: {OUTPUT_FOLDER}")
 
-    # 2. List all .txt files
     files = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith('.txt')]
     
     if not files:
@@ -224,11 +237,8 @@ def process_all_files():
 
     print(f"🚀 Starting batch processing for {len(files)} files...\n")
 
-    # 3. Process Loop
     for index, filename in enumerate(files):
         input_path = os.path.join(INPUT_FOLDER, filename)
-        
-        # Create output filename (replace .txt with .json)
         output_filename = os.path.splitext(filename)[0] + ".json"
         output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
@@ -239,7 +249,10 @@ def process_all_files():
                 content = f.read()
             
             cleaned_content = clean_text(content)
-            data = extract_documents_and_articles(cleaned_content)
+            
+            # 🎯 APPEL DES NOUVELLES FONCTIONS DE MAPPING
+            final_text, page_map = extract_page_mapping(cleaned_content)
+            data = extract_documents_and_articles(final_text, page_map)
             
             final_output = {
                 "source_file": filename,

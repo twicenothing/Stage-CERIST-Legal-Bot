@@ -244,7 +244,7 @@ def main():
                     page_text = remove_arabic(page_text)
                     
                     # Ajout au texte global
-                    full_doc_text += page_text + "\n\n"
+                    full_doc_text += f"\n\n<<<PAGE_{page_num+1}>>>\n{page_text}\n\n"
 
                 # Sauvegarde dans le dossier /data
                 with open(txt_path, "w", encoding="utf-8") as f:

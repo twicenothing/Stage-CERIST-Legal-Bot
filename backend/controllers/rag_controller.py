@@ -112,7 +112,8 @@ async def chat_completion_handler(
         if sources:
             sources_suffix = "\n\n**Documents pertinents :**\n"
             for s in sources:
-                sources_suffix += f"- {s['title']} (Pertinence : {s['score']}%)\n"
+                page = s.get('page', 'Inconnu')
+                sources_suffix += f"- {s['title']} - Page {page} (Pertinence : {s['score']}%)\n"
             
             full_text += sources_suffix
             yield sse_text_delta(part_id, sources_suffix)

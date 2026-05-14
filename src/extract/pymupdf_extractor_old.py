@@ -237,7 +237,7 @@ def main():
                     # ✅ 4. Nettoyage Arabe
                     page_text = remove_arabic(page_text)
                     
-                    full_doc_text += page_text + "\n"
+                    full_doc_text += f"\n\n<<<PAGE_{page_num+1}>>>\n{page_text}\n\n"
 
                 # Sauvegarde
                 with open(txt_path, "w", encoding="utf-8") as f:

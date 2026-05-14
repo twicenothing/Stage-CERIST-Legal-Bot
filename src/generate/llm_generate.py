@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import math  # Ajouté pour le calcul de la sigmoïde
 from ollama import Client
 import chromadb
 from sentence_transformers import SentenceTransformer, CrossEncoder
@@ -10,16 +11,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ==============================================================================
-# 🔐 SÉCURITÉ DES CHEMINS (Adapté à ./src/generate/llm_generate.py)
+# 🔐 SÉCURITÉ DES CHEMINS
 # ==============================================================================
-# current_dir  = src/generate/
-# src_dir      = src/
-# project_root = / (racine du projet)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.dirname(current_dir)
 project_root = os.path.dirname(src_dir)
 
-# On ajoute src/ au PYTHONPATH pour pouvoir importer rerank.rerank
 sys.path.append(src_dir) 
 
 try:
@@ -33,10 +30,8 @@ except ImportError:
     from query_parse import rewrite_query
 
 # --- CONFIGURATION DEPUIS .ENV ---
-# On convertit le chemin relatif de l'environnement en chemin absolu strict
 ENV_CHROMA_PATH = os.getenv("CHROMA_PATH", "./data/chroma_db")
 if not os.path.isabs(ENV_CHROMA_PATH):
-    # Enlève le "./" si présent pour concaténer proprement
     clean_path = ENV_CHROMA_PATH[2:] if ENV_CHROMA_PATH.startswith("./") else ENV_CHROMA_PATH
     ABSOLUTE_CHROMA_PATH = os.path.join(project_root, clean_path)
 else:
@@ -51,24 +46,22 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
 ollama_client = Client(host=OLLAMA_HOST)
 
 # ==============================================================================
-# 🛠️ INITIALISATION DU PIPELINE RAG (MODE LECTURE SEULE STRICTE)
+# 🛠️ INITIALISATION DU PIPELINE RAG
 # ==============================================================================
 def init_rag_pipeline():
     print(f"⏳ Connexion à la base ChromaDB existante : {ABSOLUTE_CHROMA_PATH}")
     
     if not os.path.exists(ABSOLUTE_CHROMA_PATH):
-        print(f"❌ ERREUR CRITIQUE : Le dossier de la base de données est introuvable à l'adresse {ABSOLUTE_CHROMA_PATH}.")
+        print(f"❌ ERREUR CRITIQUE : Le dossier de la base est introuvable à {ABSOLUTE_CHROMA_PATH}.")
         sys.exit(1)
         
     db_client = chromadb.PersistentClient(path=ABSOLUTE_CHROMA_PATH)
     
-    # 🔥 STRICTEMENT 'get_collection' : On ne crée RIEN de nouveau.
     try:
         collection = db_client.get_collection(name=COLLECTION_NAME)
-        print(f"✅ Collection '{COLLECTION_NAME}' trouvée avec succès.")
+        print(f"✅ Collection '{COLLECTION_NAME}' trouvée.")
     except Exception as e:
-        print(f"❌ ERREUR CRITIQUE : Impossible de trouver la collection '{COLLECTION_NAME}' dans la base.")
-        print(f"Détail de l'erreur : {e}")
+        print(f"❌ ERREUR CRITIQUE : Impossible de trouver la collection '{COLLECTION_NAME}'.\n{e}")
         sys.exit(1)
     
     print(f"⏳ Chargement du Bi-Encoder ({EMBEDDING_MODEL})...")
@@ -92,30 +85,25 @@ def generate_legal_response(question, retrieved_docs, model_name=LLM_MODEL):
         formatted_context += f"--- SOURCE : {source} ({article}) ---\n"
         formatted_context += f"{doc['text']}\n\n"
 
-    system_prompt = """Tu es un assistant juridique strict et expert en droit administratif algérien. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
+    # 🔥 Prompt strict pour empêcher le LLM de discuter ou d'inventer
+    system_prompt = """Tu es un assistant juridique strict. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
 
-DIRECTIVES ABSOLUES (TOLÉRANCE ZÉRO POUR L'INVENTION) :
-1. Tu ne possèdes aucune connaissance externe. Si l'information n'est pas explicitement écrite dans les <documents>, tu l'ignores.
-2. Ne fais aucune déduction logique au-delà de ce qui est strictement écrit.
-3. Si les documents ne contiennent pas la réponse complète, fournis uniquement ce qui est disponible et précise ce qui manque.
-
-MÉTHODOLOGIE DE RÉPONSE :
-Étape 1 : Analyse silencieusement la question et cherche les correspondances exactes dans le texte fourni.
-Étape 2 : Si aucune correspondance n'est trouvée, arrête-toi immédiatement et applique la RÈGLE CRITIQUE ci-dessous.
-Étape 3 : Si l'information est présente, rédige ta réponse de manière formelle, concise et objective.
-
-FORMAT DE SORTIE EXIGÉ :
-- Utilise des listes à puces pour énumérer les conditions ou les articles si nécessaire.
-- Tu DOIS citer tes sources à la fin de chaque affirmation importante (ex: [Source : Loi n° 90-11, Art. 4]).
+RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
+1. INTERDICTION FORMELLE d'utiliser des phrases d'introduction ou de conclusion. Ne dis JAMAIS "En vertu des instructions", "Après examen", "Je vais analyser", etc.
+2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
+3. Commence DIRECTEMENT ta réponse.
 
 RÈGLE CRITIQUE DE REJET :
-Si la réponse ne se trouve pas de manière évidente dans les documents, ta réponse finale DOIT être EXACTEMENT et UNIQUEMENT cette phrase :
+Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
 "Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
-Ne rajoute aucune explication à cette phrase."""
+N'ajoute AUCUN préfixe. Juste cette phrase unique.
 
-user_prompt = f"""Veuillez analyser les documents de référence suivants pour répondre à la question.
+FORMAT SI LA RÉPONSE EST TROUVÉE :
+- Réponds de manière directe, factuelle et concise.
+- Utilise des listes à puces si nécessaire.
+- Cite obligatoirement tes sources à la fin de l'affirmation (ex: [Source : Loi n° 90-11, Art. 4])."""
 
-<documents>
+    user_prompt = f"""<documents>
 {formatted_context}
 </documents>
 
@@ -123,7 +111,7 @@ user_prompt = f"""Veuillez analyser les documents de référence suivants pour r
 {question}
 </question>
 
-Réponse (Rappel : cite tes sources et n'invente rien) :"""
+Réponse directe :"""
 
     try:
         response = ollama_client.chat(
@@ -133,7 +121,8 @@ Réponse (Rappel : cite tes sources et n'invente rien) :"""
                 {'role': 'user', 'content': user_prompt}
             ],
             options={
-                "temperature": 0.0 
+                "temperature": 0.0,
+                "num_ctx": 8192  # 👈 Fenêtre de contexte augmentée pour gérer 8+ documents
             }
         )
         return response['message']['content']
@@ -159,36 +148,50 @@ def main():
 
         start_time = time.time()
 
+        print("🪄  Optimisation de la requête pour la base de données...")
         optimized_question = rewrite_query(original_question)
+        print("optimized_question", optimized_question)
 
         print("🔍 Recherche et reclassement des documents en cours...")
-        best_docs = get_best_documents_for_llm(optimized_question, collection, bi_encoder, reranker)
+        # 👈 On aligne sur la prod : top_k_rerank = 8
+        best_docs = get_best_documents_for_llm(
+            optimized_question, 
+            collection, 
+            bi_encoder, 
+            reranker, 
+            top_k_retrieve=20, 
+            top_k_rerank=8
+        )
 
         if not best_docs:
             print("\n🤖 Réponse : Les documents fournis ne contiennent pas cette information.")
             continue
 
-        # --- DEBUG DES DOCUMENTS ---
+        # --- DEBUG DES DOCUMENTS (Ajusté avec Sigmoïde) ---
         print("\n" + "="*80)
-        print("🛠️ DEBUG : TOP 3 DOCUMENTS ENVOYÉS AU LLM")
+        print(f"🛠️ DEBUG : TOP {len(best_docs)} DOCUMENTS ENVOYÉS AU LLM")
         print("="*80)
         for i, doc in enumerate(best_docs):
             meta = doc.get('meta', {})
             source = meta.get('source_file', 'Inconnu')
             method = meta.get('chunking_method', 'N/A')
-            score = doc.get('rerank_score', 'N/A')
+            raw_score = doc.get('rerank_score', 0.0)
             
-            if isinstance(score, float):
-                print(f"🥇 DOC [{i+1}] | Score Cross-Encoder: {score:.4f} | Source: {source} ({method})")
+            # Application de la même logique sigmoïde que ta version prod
+            if isinstance(raw_score, (float, int)):
+                SCALING_FACTOR = 2.5
+                calibrated_score = raw_score * SCALING_FACTOR
+                percentage = min(100, int((1 / (1 + math.exp(-calibrated_score))) * 100))
+                print(f"🥇 DOC [{i+1}] | Pertinence: {percentage}% (Logit: {raw_score:.2f}) | Source: {source} ({method})")
             else:
                 print(f"🥇 DOC [{i+1}] | Source: {source} ({method})")
                 
             print("-" * 80)
             texte = doc.get('text', '')
-            print(texte[:400] + "..." if len(texte) > 400 else texte)
+            print(texte)
             print("\n")
         print("="*80 + "\n")
-        # ---------------------------
+        # ------------------------------------------------
 
         print(f"🤖 Analyse juridique en cours par {LLM_MODEL}...")
         reponse_llm = generate_legal_response(original_question, best_docs)
