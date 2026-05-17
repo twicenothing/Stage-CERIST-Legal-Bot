@@ -55,7 +55,7 @@ async def init_rag():
 def _format_llm_prompt(query, best_docs):
     """
     Constructs the prompt using your exact system prompt logic,
-    now including page numbers for both the frontend and the LLM.
+    now including page numbers and natural legal titles for the LLM.
     """
     formatted_context = ""
     formatted_sources = []
@@ -64,12 +64,13 @@ def _format_llm_prompt(query, best_docs):
         meta = doc.get('meta', {})
         text = doc.get('text', '')
         
-        # Prepare source info for frontend and LLM context
-        source_title = meta.get('source_file', f'Document inconnu {i+1}')
-        source_title = source_title.replace('.json', '.pdf')
-        article = meta.get('document_type', 'Extrait')
+        # 1. Frontend info (We keep the PDF filename for the /pdf endpoint routing)
+        source_file = meta.get('source_file', f'Document inconnu {i+1}')
+        source_file = source_file.replace('.json', '.pdf')
         
-        # 🎯 RÉCUPÉRATION DE LA PAGE DEPUIS LES MÉTADONNÉES
+        # 2. LLM Info (We extract the natural legal title for reading)
+        titre_juridique = meta.get('parent_title', 'Texte de loi inconnu')
+        article = meta.get('document_type', 'Extrait')
         page_num = meta.get('page', 'Inconnu')
         
         # Convert rerank score to % using sigmoid
@@ -78,19 +79,22 @@ def _format_llm_prompt(query, best_docs):
         calibrated_score = raw_score * SCALING_FACTOR
         percentage_score = min(100, int((1 / (1 + math.exp(-calibrated_score))) * 100))
         
+        # Le frontend reçoit le nom du fichier PDF dans "title" pour faire fonctionner les liens
+        # Mais je passe aussi le "parent_title" si jamais vous voulez l'afficher joliment dans l'UI
         formatted_sources.append({
             "doc_id": str(doc.get("id", i)),
             "score": percentage_score,
             "text": text,
-            "title": source_title,
-            "page": page_num,  # 👈 AJOUT POUR LE FRONTEND
+            "title": source_file,       # 👈 Reste le nom du fichier PDF pour le routeur
+            "parent_title": titre_juridique, 
+            "page": page_num,
         })
         
-        # 👈 AJOUT DE LA PAGE DANS LE CONTEXTE TEXTUEL POUR LE LLM
-        formatted_context += f"--- SOURCE : {source_title} | PAGE : {page_num} ({article}) ---\n"
+        # 👈 AJOUT DE LA PAGE ET DU TITRE NATUREL DANS LE CONTEXTE TEXTUEL POUR LE LLM
+        formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page_num} ({article}) ---\n"
         formatted_context += f"{text}\n\n"
 
-    # 🔥 Prompt système mis à jour pour EXIGER la citation de la page
+    # 🔥 Prompt système mis à jour avec les exemples Few-Shot naturels
     system_prompt = """Tu es un assistant juridique strict. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
 
 RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
@@ -106,7 +110,29 @@ N'ajoute AUCUN préfixe. Juste cette phrase unique.
 FORMAT SI LA RÉPONSE EST TROUVÉE :
 - Réponds de manière directe, factuelle et concise.
 - Utilise des listes à puces si nécessaire.
-- Cite obligatoirement tes sources ET LA PAGE à la fin de l'affirmation (ex: [Source : F2002002.pdf, Page 3, Art. 4])."""
+- Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article).
+
+=== EXEMPLES DE COMPORTEMENT ATTENDU ===
+
+Exemple 1 (Information présente) :
+<documents>
+--- SOURCE : Décret exécutif n° 23-64 du 14 Rajab 1444 correspondant au 5 février 2023 | PAGE : 3 (Décret) ---
+Contenu : Art. 2. — La réalisation et l'exploitation d'un aérodrome destiné à l'usage privé, sont soumises à l'autorisation de l'autorité chargée de l'aviation civile.
+</documents>
+<question>Qui autorise la création d'un aérodrome privé ?</question>
+Réponse directe :
+La réalisation et l'exploitation d'un aérodrome à usage privé nécessitent l'autorisation de l'autorité chargée de l'aviation civile.
+- [Source : Décret exécutif n° 23-64, Page 3, Art. 2]
+
+Exemple 2 (Information absente) :
+<documents>
+--- SOURCE : Arrêté interministériel du 5 Rajab 1429 | PAGE : 5 (Arrêté) ---
+Contenu : Art. 1. — Le présent arrêté fixe le tarif des redevances.
+</documents>
+<question>Quelle est la durée du congé maternité ?</question>
+Réponse directe :
+Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.
+"""
 
     user_prompt = f"""<documents>
 {formatted_context}
@@ -134,8 +160,8 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         collection, 
         bi_encoder, 
         reranker,
-        top_k_retrieve=20, 
-        top_k_rerank=8
+        top_k_retrieve=8, 
+        top_k_rerank=3
     )
 
     if not best_docs:
@@ -158,8 +184,10 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
             {'role': 'user', 'content': user_prompt}
         ],
         stream=True,
-        options={"temperature": 0.0,
-        "num_ctx": 8192}
+        options={
+            "temperature": 0.0,
+            "num_ctx": 8192
+        }
     ):
         token = part["message"]["content"]
         if token:

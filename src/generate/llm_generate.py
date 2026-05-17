@@ -79,10 +79,13 @@ def init_rag_pipeline():
 def generate_legal_response(question, retrieved_docs, model_name=LLM_MODEL):
     formatted_context = ""
     for i, doc in enumerate(retrieved_docs):
-        source = doc['meta'].get('source_file', f'Document inconnu {i+1}')
-        article = doc['meta'].get('document_type', 'Extrait')
+        # 🔥 RÉCUPÉRATION DU VRAI TITRE JURIDIQUE AU LIEU DU PDF
+        titre_juridique = doc['meta'].get('parent_title', 'Texte de loi inconnu')
+        doc_type = doc['meta'].get('document_type', 'Extrait')
+        page = doc['meta'].get('page', 'Inconnu')
         
-        formatted_context += f"--- SOURCE : {source} ({article}) ---\n"
+        # 👈 Le LLM lit maintenant un texte 100% naturel
+        formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page} ({doc_type}) ---\n"
         formatted_context += f"{doc['text']}\n\n"
 
     # 🔥 Prompt strict pour empêcher le LLM de discuter ou d'inventer
@@ -101,7 +104,32 @@ N'ajoute AUCUN préfixe. Juste cette phrase unique.
 FORMAT SI LA RÉPONSE EST TROUVÉE :
 - Réponds de manière directe, factuelle et concise.
 - Utilise des listes à puces si nécessaire.
-- Cite obligatoirement tes sources à la fin de l'affirmation (ex: [Source : Loi n° 90-11, Art. 4])."""
+- Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article).
+
+=== EXEMPLES DE COMPORTEMENT ATTENDU ===
+
+Exemple 1 (Information présente) :
+<documents>
+--- SOURCE : Décret exécutif n° 23-64 du 14 Rajab 1444 correspondant au 5 février 2023 | PAGE : 3 (Décret) ---
+Contenu : Art. 2. — La réalisation et l'exploitation d'un aérodrome destiné à l'usage privé, sont soumises à l'autorisation de l'autorité chargée de l'aviation civile.
+</documents>
+<question>Qui autorise la création d'un aérodrome privé ?</question>
+Réponse directe :
+La réalisation et l'exploitation d'un aérodrome à usage privé nécessitent l'autorisation de l'autorité chargée de l'aviation civile.
+- [Source : Décret exécutif n° 23-64, Page 3, Art. 2]
+
+Exemple 2 (Information absente) :
+<documents>
+--- SOURCE : Arrêté interministériel du 5 Rajab 1429 | PAGE : 5 (Arrêté) ---
+Contenu : Art. 1. — Le présent arrêté fixe le tarif des redevances.
+</documents>
+<question>Quelle est la durée du congé maternité ?</question>
+Réponse directe :
+Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.
+"""
+
+
+
 
     user_prompt = f"""<documents>
 {formatted_context}
@@ -112,6 +140,19 @@ FORMAT SI LA RÉPONSE EST TROUVÉE :
 </question>
 
 Réponse directe :"""
+
+    # ==================================================================
+    # 🕵️ DEBUG : VOIR EXACTEMENT CE QUE LE LLM REÇOIT
+    # ==================================================================
+    print("\n" + "👁️"*40)
+    print("👁️  DEBUG : PROMPT COMPLET ENVOYÉ AU LLM")
+    print("👁️"*40)
+    print("\n[--- SYSTEM PROMPT ---]")
+    print(system_prompt)
+    print("\n[--- USER PROMPT ---]")
+    print(user_prompt)
+    print("👁️"*40 + "\n")
+    # ==================================================================
 
     try:
         response = ollama_client.chat(
@@ -153,47 +194,22 @@ def main():
         print("optimized_question", optimized_question)
 
         print("🔍 Recherche et reclassement des documents en cours...")
-        # 👈 On aligne sur la prod : top_k_rerank = 8
         best_docs = get_best_documents_for_llm(
             optimized_question, 
             collection, 
             bi_encoder, 
             reranker, 
-            top_k_retrieve=20, 
-            top_k_rerank=8
+            top_k_retrieve=8, 
+            top_k_rerank=3
         )
 
         if not best_docs:
             print("\n🤖 Réponse : Les documents fournis ne contiennent pas cette information.")
             continue
 
-        # --- DEBUG DES DOCUMENTS (Ajusté avec Sigmoïde) ---
-        print("\n" + "="*80)
-        print(f"🛠️ DEBUG : TOP {len(best_docs)} DOCUMENTS ENVOYÉS AU LLM")
-        print("="*80)
-        for i, doc in enumerate(best_docs):
-            meta = doc.get('meta', {})
-            source = meta.get('source_file', 'Inconnu')
-            method = meta.get('chunking_method', 'N/A')
-            raw_score = doc.get('rerank_score', 0.0)
-            
-            # Application de la même logique sigmoïde que ta version prod
-            if isinstance(raw_score, (float, int)):
-                SCALING_FACTOR = 2.5
-                calibrated_score = raw_score * SCALING_FACTOR
-                percentage = min(100, int((1 / (1 + math.exp(-calibrated_score))) * 100))
-                print(f"🥇 DOC [{i+1}] | Pertinence: {percentage}% (Logit: {raw_score:.2f}) | Source: {source} ({method})")
-            else:
-                print(f"🥇 DOC [{i+1}] | Source: {source} ({method})")
-                
-            print("-" * 80)
-            texte = doc.get('text', '')
-            print(texte)
-            print("\n")
-        print("="*80 + "\n")
-        # ------------------------------------------------
-
         print(f"🤖 Analyse juridique en cours par {LLM_MODEL}...")
+        
+        # C'est ici que l'affichage du Prompt Complet va se déclencher
         reponse_llm = generate_legal_response(original_question, best_docs)
 
         end_time = time.time()
