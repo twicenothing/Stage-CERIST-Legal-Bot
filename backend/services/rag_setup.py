@@ -110,11 +110,11 @@ N'ajoute AUCUN préfixe. Juste cette phrase unique.
 FORMAT SI LA RÉPONSE EST TROUVÉE :
 - Réponds de manière directe, factuelle et concise.
 - Utilise des listes à puces si nécessaire.
-- Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article).
+- Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article). Si la source indique "Texte de loi inconnu", utilise cette mention exacte suivie de la page et de l'article si disponible.
 
 === EXEMPLES DE COMPORTEMENT ATTENDU ===
 
-Exemple 1 (Information présente) :
+Exemple 1 (Information présente avec source complète) :
 <documents>
 --- SOURCE : Décret exécutif n° 23-64 du 14 Rajab 1444 correspondant au 5 février 2023 | PAGE : 3 (Décret) ---
 Contenu : Art. 2. — La réalisation et l'exploitation d'un aérodrome destiné à l'usage privé, sont soumises à l'autorisation de l'autorité chargée de l'aviation civile.
@@ -132,6 +132,16 @@ Contenu : Art. 1. — Le présent arrêté fixe le tarif des redevances.
 <question>Quelle est la durée du congé maternité ?</question>
 Réponse directe :
 Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.
+
+Exemple 3 (Information présente avec source inconnue) :
+<documents>
+--- SOURCE : Texte de loi inconnu | PAGE : 17 (Extrait) ---
+Article 1er. — En application des dispositions de l'article 2 du décret exécutif n° 03-297 du 13 Rajab 1424 correspondant au 10 septembre 2003, modifié et complété, fixant les conditions et les modalités d'organisation des festivals culturels, est institutionnalisé à Adrar, le festival culturel international annuel du théâtre du Sahara.
+</documents>
+<question>Quelle ville a été choisie pour accueillir le festival culturel international annuel du théâtre du Sahara ?</question>
+Réponse directe :
+La ville choisie pour accueillir le festival culturel international annuel du théâtre du Sahara est Adrar.
+- [Source : Texte de loi inconnu, Page 17, Art. 1er]
 """
 
     user_prompt = f"""<documents>
