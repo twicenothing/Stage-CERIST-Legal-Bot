@@ -95,6 +95,7 @@ async def chat_completion_handler(
     async def generate():
         full_text = ""
         sources = []
+        final_title = query[:100]  # 👈 Titre par défaut (requête brute)
         part_id = str(uuid.uuid4())
 
         yield sse_start()
@@ -102,7 +103,10 @@ async def chat_completion_handler(
         yield sse_text_start(part_id)
 
         async for event in stream_legal_answer(query):
-            if event["type"] == "sources":
+            # 👈 NOUVEAU : Capture de la requête parsée
+            if event["type"] == "optimized_query":
+                final_title = event["text"]
+            elif event["type"] == "sources":
                 sources = event["sources"]
             elif event["type"] == "chunk":
                 token = event["text"]
@@ -123,6 +127,9 @@ async def chat_completion_handler(
         yield sse_finish("stop")
         yield sse_done()
 
+        # ==========================================
+        # SAUVEGARDE EN BASE DE DONNÉES
+        # ==========================================
         gen_db = SessionLocal()
         try:
             assistant_parts = [{"type": "text", "text": full_text}]
@@ -137,6 +144,13 @@ async def chat_completion_handler(
                 parts=assistant_parts
             )
             gen_db.add(new_assistant_msg)
+
+            # 👈 NOUVEAU : Mise à jour silencieuse du titre de la session
+            if body.isNewChat:
+                session_to_update = gen_db.query(ChatSession).filter(ChatSession.id == session_id).first()
+                if session_to_update:
+                    session_to_update.title = final_title[:100]
+
             gen_db.commit()
         except Exception as e:
             print(f"[STREAM DB ERROR] {e}")

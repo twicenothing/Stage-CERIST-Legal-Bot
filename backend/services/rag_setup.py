@@ -154,6 +154,7 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
 
     optimized_query = rewrite_query(query)
 
+    yield {"type": "optimized_query", "text": optimized_query}
     # 1. Modular Retrieval & Reranking using workstation src
     best_docs = get_best_documents_for_llm(
         optimized_query, 
