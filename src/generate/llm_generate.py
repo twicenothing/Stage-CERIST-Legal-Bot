@@ -150,18 +150,18 @@ La ville choisie pour accueillir le festival culturel international annuel du th
 
 Réponse directe :"""
 
-    # ==================================================================
-    # 🕵️ DEBUG : VOIR EXACTEMENT CE QUE LE LLM REÇOIT
-    # ==================================================================
-    print("\n" + "👁️"*40)
-    print("👁️  DEBUG : PROMPT COMPLET ENVOYÉ AU LLM")
-    print(f"👁️  Date du jour (pour le LLM): {date_du_jour}")
-    print("👁️"*40)
-    print("\n[--- SYSTEM PROMPT ---]")
-    print(system_prompt)
-    print("\n[--- USER PROMPT ---]")
-    print(user_prompt)
-    print("👁️"*40 + "\n")
+    # # ==================================================================
+    # # 🕵️ DEBUG : VOIR EXACTEMENT CE QUE LE LLM REÇOIT
+    # # ==================================================================
+    # print("\n" + "👁️"*40)
+    # print("👁️  DEBUG : PROMPT COMPLET ENVOYÉ AU LLM")
+    # print(f"👁️  Date du jour (pour le LLM): {date_du_jour}")
+    # print("👁️"*40)
+    # print("\n[--- SYSTEM PROMPT ---]")
+    # print(system_prompt)
+    # print("\n[--- USER PROMPT ---]")
+    # print(user_prompt)
+    # print("👁️"*40 + "\n")
     # ==================================================================
 
     try:

@@ -23,7 +23,7 @@ def rerank_documents(query, retrieved_docs, reranker_model, top_k=3):
     cross_inp = [[query, doc["text"]] for doc in retrieved_docs]
 
     # 2. Predict the relevance scores
-    scores = reranker_model.predict(cross_inp)
+    scores = reranker_model.predict(cross_inp, batch_size=2)
 
     # 3. Attach the new scores to our documents
     for i in range(len(retrieved_docs)):
