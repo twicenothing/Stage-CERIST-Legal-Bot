@@ -7,7 +7,7 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 from typing import AsyncGenerator
 from ollama import AsyncClient
 from core.config import settings
-
+from datetime import datetime
 # 1. Path Setup: Ensure the backend can see the 'src' directory
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "../../"))
@@ -95,12 +95,13 @@ def _format_llm_prompt(query, best_docs):
         formatted_context += f"{text}\n\n"
 
     # 🔥 Prompt système mis à jour avec les exemples Few-Shot naturels
-    system_prompt = """Tu es un assistant juridique strict. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
+    system_prompt = f"""Tu es un assistant juridique strict. Aujourd'hui, nous sommes le {date_du_jour}. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
 
 RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 1. INTERDICTION FORMELLE d'utiliser des phrases d'introduction ou de conclusion. Ne dis JAMAIS "En vertu des instructions", "Après examen", "Je vais analyser", etc.
 2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
 3. Commence DIRECTEMENT ta réponse.
+4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :

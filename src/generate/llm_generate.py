@@ -6,7 +6,7 @@ from ollama import Client
 import chromadb
 from sentence_transformers import SentenceTransformer, CrossEncoder
 from dotenv import load_dotenv
-
+from datetime import datetime
 # Chargement des variables d'environnement
 load_dotenv()
 
@@ -88,13 +88,15 @@ def generate_legal_response(question, retrieved_docs, model_name=LLM_MODEL):
         formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page} ({doc_type}) ---\n"
         formatted_context += f"{doc['text']}\n\n"
 
+    date_du_jour = datetime.now().strftime("%d/%m/%Y")
     # 🔥 Prompt strict pour empêcher le LLM de discuter ou d'inventer
-    system_prompt = """Tu es un assistant juridique strict. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
+    system_prompt = f"""Tu es un assistant juridique strict. Aujourd'hui, nous sommes le {date_du_jour}. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
 
 RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 1. INTERDICTION FORMELLE d'utiliser des phrases d'introduction ou de conclusion. Ne dis JAMAIS "En vertu des instructions", "Après examen", "Je vais analyser", etc.
 2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
 3. Commence DIRECTEMENT ta réponse.
+4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
@@ -153,6 +155,7 @@ Réponse directe :"""
     # ==================================================================
     print("\n" + "👁️"*40)
     print("👁️  DEBUG : PROMPT COMPLET ENVOYÉ AU LLM")
+    print(f"👁️  Date du jour (pour le LLM): {date_du_jour}")
     print("👁️"*40)
     print("\n[--- SYSTEM PROMPT ---]")
     print(system_prompt)
