@@ -73,11 +73,15 @@ def _format_llm_prompt(query, best_docs):
         article = meta.get('document_type', 'Extrait')
         page_num = meta.get('page', 'Inconnu')
         
-        # Convert rerank score to % using sigmoid
-        SCALING_FACTOR = 2.5
+      # Convert BAAI/bge-reranker-v2-m3 scores to percentage
+        # This model outputs probabilities (~0.0 to ~1.0)
         raw_score = doc.get('rerank_score', 0)
-        calibrated_score = raw_score * SCALING_FACTOR
-        percentage_score = min(100, int((1 / (1 + math.exp(-calibrated_score))) * 100))
+        
+        # Scale directly to 100
+        scaled_score = float(raw_score) * 100
+        
+        # Clamp between 0 and 100 to handle any edge cases
+        percentage_score = max(0, min(100, int(scaled_score)))
         
         # Le frontend reçoit le nom du fichier PDF dans "title" pour faire fonctionner les liens
         # Mais je passe aussi le "parent_title" si jamais vous voulez l'afficher joliment dans l'UI
@@ -90,6 +94,7 @@ def _format_llm_prompt(query, best_docs):
             "page": page_num,
         })
         
+        date_du_jour = datetime.now().strftime("%d/%m/%Y")
         # 👈 AJOUT DE LA PAGE ET DU TITRE NATUREL DANS LE CONTEXTE TEXTUEL POUR LE LLM
         formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page_num} ({article}) ---\n"
         formatted_context += f"{text}\n\n"
@@ -102,6 +107,8 @@ RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
 3. Commence DIRECTEMENT ta réponse.
 4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
+5. Si la réponse implique une liste d'éléments, tu dois être EXHAUSTIF et n'omettre aucun élément mentionné dans la source.
+6. Si la réponse contien plusieurs éléments, tu dois les citer tous n'omettre aucun élément mentionné dans la source.
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
