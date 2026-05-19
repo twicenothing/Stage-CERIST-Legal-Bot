@@ -1,0 +1,420 @@
+{
+    "erreurs_exactitude": [
+        {
+            "question": "Quelles sont les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages ?",
+            "prediction": " Les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages sont réparties en quatre (4) tranches de consommation trimestrielle.\n- [Source : Décret exécutif n° 05-13, Page 3, Art. 9]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction est partielle car elle ne donne pas les limites exactes des tranches de consommation, mais elle contient une partie des informations de la réponse de référence. La prédiction contient également un blabla conversationnel (les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages sont réparties en quatre) qui n'est pas nécessaire."
+            }
+        },
+        {
+            "question": "Quelles sont les spécialités professionnelles de l'INSFP de Bir Mourad Raïs ?",
+            "prediction": " Les branches professionnelles des instituts nationaux spécialisés de formation professionnelle (INSFP) à Bir Mourad Raïs comprennent :\n- réalisation d'études et de recherches pédagogiques ;\n- assistance technique et conseil en ingénierie pédagogique ;\n- élaboration et conception de documents et outils didactiques ;\n- organisation de cycles de formation, de perfectionnement et de recyclage.\n- [Source : Arrêté interministériel du 14 Ramadhan 1425 correspondant au 28 octobre 2004 fixant les branches professionnelles des instituts nationaux spécialisés de formation professionnelle (INSFP), Page 21, Art. 1er]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La réponse ne contient pas toutes les informations factuelles de la référence (l'INSFP de Bir Mourad Raïs est spécialisé dans les Arts et industries graphiques et le Froid industriel, mais la prédiction n'en mentionne que quelques-unes). La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quelles wilayas sont incluses dans la zone tarifaire territoriale de Chlef pour les services d'eau ?",
+            "prediction": " Les wilayas incluses dans la zone tarifaire territoriale de Chlef pour les services d'eau comprennent Chlef.\n- [Source : Décret exécutif n° 05-13, Page 3, Art. 12]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (Chlef), mais manque d'autres wilayas mentionnées dans la réponse de référence."
+            }
+        },
+        {
+            "question": "Quel est le tarif de base de l'assainissement pour la zone Alger-Oran-Constantine ?",
+            "prediction": " Le tarif de base de l'assainissement pour la zone Alger-Oran-Constantine n'est pas spécifié dans les documents fournis.",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction est fausse puisque le tarif de base est spécifié dans les documents fournis."
+            }
+        },
+        {
+            "question": "Quel est le pourcentage du salaire national minimum garanti (SNMG) accordé à un détenu pour un travail « spécialisé » ?",
+            "prediction": " Le pourcentage du salaire national minimum garanti (SNMG) accordé à un détenu pour un travail \"spécialisé\" varie de 20% à 60%, en fonction du degré de qualification conformément au barème annexé à l'Arrêté interministériel du 10 Dhou El Kaada 1426 correspondant au 12 décembre 2005 fixant le barème de la rémunération accordée à la main-d’œuvre pénale.\n- [Source : Arrêté interministériel, Page 28]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (60% du SNMG pour un travail spécialisé), mais elle est plus précise en indiquant que le taux peut varier entre 20% et 60%, conformément à un barème."
+            }
+        },
+        {
+            "question": "Quels sont les diamètres des canalisations approuvés pour l'alimentation en gaz naturel des villes de Chekfa et d'El Ouricia ?",
+            "prediction": " Les canalisations approuvées pour l'alimentation en gaz naturel des villes de Chekfa et d'El Ouricia ont un diamètre de 4\" (pouces) et une pression de 70 bars.\n- [Source : Arrêté du 23 Dhou El Kaada 1426, Page 28, Article 1er]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient les informations factuelles correctes sur les diamètres des canalisations pour Chekfa et El Ouricia, mais elle ajoute une information inutile sur la pression de gaz."
+            }
+        },
+        {
+            "question": "Comment est organisé l'institut national de perfectionnement de l'équipement (INPE) sous l'autorité du directeur général ?",
+            "prediction": " L'institut national de perfectionnement de l'équipement (INPE) est organisé sous l'autorité du directeur général en trois directions : la direction de l'ingénierie de formation, la direction de l'administration et des moyens. La direction de l'administration et des moyens comprend le service des ressources humaines et du budget, le service de la maintenance et le service de l'hebergement et de la restauration.\n- [Source : Arrêté interministériel du 28 Ramadhan 1426 correspondant au 31 octobre 2005 fixant l’organisation administrative de l’institut national de perfectionnement de l’équipement (INPE), Page 29, Art. 2, 4]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (2 directions) mais manque d'une direction (la direction de l'ingénierie de formation a été divisée en trois services). La prédiction contient également un blabla conversationnel (L'institut national de perfectionnement de l'équipement (INPE) est organisé sous l'autorité du directeur général), ce qui nuit au critère de formattage."
+            }
+        },
+        {
+            "question": "Quels sont les deux types de formulaires prévus pour la collecte des signatures des candidats à l'élection présidentielle ?",
+            "prediction": " Les deux types de formulaires prévus pour la collecte des signatures des candidats à l'élection présidentielle sont le formulaire de souscription de signatures individuelles pour les membres des assemblées élues et le formulaire de souscription de signatures individuelles pour les électeurs inscrits sur une liste électorale.\n- [Source : Arrêté du 8 Moharram 1430 correspondant au 5 janvier 2009 déterminant les caractéristiques techniques du formulaire de souscription de signatures individuelles pour les candidats à l'élection à la Présidence de la République, Page 25 (Arrêté)]\n- [Source : Arrêté du 29 Moharram 1428 correspondant au 17 février 2007 déterminant les caractéristiques techniques du formulaire de souscription de signatures individuelles prévu pour les listes de candidats indépendants à l’élection des membres de l’Assemblée populaire nationale, Page 13 (Arrêté)]\n- [Source : Arrêté du 2 Joumada El Oula 1438 correspondant au 30 janvier 2017 fixant les caractéristiques techniques du formulaire de souscription de signatures individuelles pour les listes de candidats à l'élection des membres de l'Assemblée Populaire Nationale, Page 5 (Arrêté)]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction ne contient pas toutes les informations factuelles de la réponse de référence. Elle mentionne deux types de formulaires différents (membres élus et électeurs inscrits) alors que seuls deux modèles sont cités dans la réponse de référence (rose et beige). La prédiction contient également des phrases d'introduction."
+            }
+        },
+        {
+            "question": "Qui est autorisé à légaliser les signatures sur les formulaires de souscription pour un candidat à la présidence ?",
+            "prediction": " Le présent décret sera publié au Journal officiel de la République algérienne démocratique et populaire. [Source : Décret exécutif n° 19-53, Page 17, Art. 10]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction ne contient pas les informations factuelles de la réponse de référence et est hors sujet car elle n'explique pas qui peut légaliser les signatures sur les formulaires de souscription pour un candidat à la présidence."
+            }
+        },
+        {
+            "question": "Quelle est la composition d'une commission locale de recours préalable en matière de sécurité sociale ?",
+            "prediction": " La composition d'une commission locale de recours préalable qualifiée en matière de sécurité sociale n'est pas spécifiée dans les documents fournis. Cependant, il est mentionné que chaque organisme de sécurité sociale doit créer une telle commission (Loi n° 08-08 du 16 Safar 1429, Art. 10) et qu'un décret exécutif fixe son organisation et son fonctionnement (Décret exécutif n° 08-415 du 26 Dhou El Hidja 1429). Cependant, aucun document ne fournit de détail sur la composition spécifique de ces commissions.",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La réponse ne contient pas toutes les informations factuelles de la référence car elle n'indique pas le nombre et les professions des représentants de chaque groupe. Elle est cependant directe."
+            }
+        },
+        {
+            "question": "Quelle condition est nécessaire pour qu'un établissement de présentation au public détienne des espèces menacées de disparition ?",
+            "prediction": " Les installations destinées à la détention des espèces animales menacées de disparition doivent être conformes aux normes fixées par la réglementation en vigueur.\n- [Source : Décret exécutif n° 08-414, Page 16, Art. 7]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (la détention est autorisée uniquement pour les espèces issues de la reproduction en captivité), mais manque de précision en ne spécifiant pas que seules ces espèces peuvent être détenues. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quel est le quota annuel (en tonnes) pour l'importation de margarine tunisienne (hors liquide) en Algérie ?",
+            "prediction": " Je n'ai pas trouvé de réponse précise à votre question dans les documents fournis. Cependant, il est possible que le quota annuel pour l'importation de margarine tunisienne (hors liquide) en Algérie puisse être déterminé par un accord commercial entre les deux pays ou par des lois et règlements locaux algériens. Il serait donc nécessaire de consulter ces sources pour obtenir une réponse précise.",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction ne contient pas les informations factuelles de la réponse de référence. Elle n'a pas fourni le quota annuel exact."
+            }
+        },
+        {
+            "question": "Quel est l'effectif total d'agents contractuels prévu pour l'institut national des télécommunications (INTTIC) ?",
+            "prediction": " L'arrêté interministériel du 25 Chaoual 1430 correspondant au 14 octobre 2009 fixant les effectifs par emploi, leur classification et la durée du contrat des agents exerçant des activités d'entretien, de maintenance ou de service au titre de l'institut national des télécommunications et des technologies de l'information et de la communication ne fournit pas de données sur l'effectif total d'agents contractuels prévu pour l'INTTIC. Il est donc impossible de répondre à votre question avec précision en se basant uniquement sur les informations fournies dans le document.",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction ne contient pas toutes les informations factuelles de la réponse de référence car elle ne fournit pas l'effectif total d'agents contractuels pour l'INTTIC."
+            }
+        },
+        {
+            "question": "Quelles sont les six structures principales qui composent l'administration centrale du ministère du commerce selon le décret 11-04 ?",
+            "prediction": " Les six structures principales de l'administration centrale du ministère du commerce, selon le décret 11-04, sont les suivantes :\n- Le secrétaire général (sans changement) ;\n- Le chef de cabinet (sans changement) ;\n- L'inspection générale (sans changement) ;\n- La direction générale du commerce extérieur ;\n- La direction générale de la régulation et de l'organisation des activités ;\n- La direction générale du contrôle économique et de la répression des fraudes.",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence mais manque de précision car elle omet les directions générales de ressources humaines et des nouvelles TIC, des finances et des moyens généraux, ainsi que la direction de la réglementation et des affaires juridiques. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quels sont les trois représentants d'entreprises économiques cités comme membres du conseil national de la recherche scientifique et technique ?",
+            "prediction": " Les trois représentants d'entreprises économiques cités comme membres du conseil national de la recherche scientifique et technique sont :\n- un représentant des grands établissements publics (Sonatrach, Sonelgaz, Algérie Télécom, Algérie Poste, Algérienne des Eaux, Algérienne des Autoroutes, Société Nationale des Transports Ferroviaires (SNTF), Centre National du Registre de Commerce)\n- un représentant des patrons des PME-PMI (Petite et Moyenne Entreprise-Petite et Moyenne Industrie, TPE (Très Petite Entreprise) et Start-up)\n- un représentant du secteur agricole",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La réponse ne contient pas les trois membres cités dans la référence."
+            }
+        },
+        {
+            "question": "Quel est le plafond des frais de gestion pour les opérations confiées aux établissements sous tutelle de la culture via le Fonds national du patrimoine culturel ?",
+            "prediction": " Le plafond des frais de gestion pour les opérations confiées aux établissements sous tutelle de la culture via le Fonds national du patrimoine culturel n'est pas spécifié dans les documents fournis. Il est nécessaire de consulter d'autres sources pour obtenir cette information.",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction ne contient pas les informations factuelles de la réponse de référence. En effet, elle indique que le plafond des frais de gestion n'est pas spécifié dans les documents fournis alors que la réponse de référence précise qu'il ne peut excéder 10 % du montant de la dotation allouée pour la réalisation des opérations de sauvegarde ou de restauration."
+            }
+        },
+        {
+            "question": "Quel est le montant forfaitaire de l'indemnité de documentation pour un ingénieur de recherche expert ?",
+            "prediction": " L'indemnité de documentation pour un ingénieur de recherche expert est de 2.000 DA, en vertu de l'article 7 du Décret exécutif n° 12-22 du 23 Safar 1433 correspondant au 17 janvier 2012 instituant le régime indemnitaire des fonctionnaires appartenant aux corps des personnels de soutien à la recherche.\n- [Source : Décret exécutif n° 12-22, Page 21, Art. 7]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Qui a été désigné par le Conseil constitutionnel pour remplacer le député démissionnaire Rahmani Otmane dans la circonscription d'El Bayadh ?",
+            "prediction": " Le député Naimi Lazhari a été désigné par le Conseil constitutionnel pour remplacer le député démissionnaire Rahmani Otmane dans la circonscription d'El Bayadh.\n- [Source : Décision n° 385/D.CC/12, Page 29]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quelle rectification a été apportée à l'article 86 de la loi de finances pour 2012 concernant les dépenses ?",
+            "prediction": " Les dispositions de l'article 76 de la loi n° 11-16 du 3 Safar 1433 correspondant au 28 décembre 2011 portant loi de finances pour 2012 ont été modifiées et rédigées comme suit : « Art. 76. — Il est ouvert, pour 2012, pour le financement des charges définitives du budget général de l'Etat : 1) Un crédit de quatre mille neuf cent vingt-cinq milliards cent dix millions quatre-cent soixante-quinze mille dinars (4925 110 475 000 DA), pour les dépenses de fonctionnement, réparti par département ministériel conformément à l'état « B » annexé à la présente loi. 2) Un crédit de deux mille huit cent-vingts milliards quatre cent seize millions cinq cent-quatre-vingts et un mille dinars ( 2 820 416 581 000 DA), pour les dépenses d'équipement à caractère définitif, réparti par secteur conformément à l'état « C » annexé à la présente loi.\n- [Source : Ordonnance n° 12-03 du 20 Rabie El Aouel 1433 correspondant au 13 février 2012 portant loi de finances complémentaire pour 2012, Page 10, Art. 3]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (le montant maximal de dépense a été rectifié), mais manque de précision en ce que le montant est différent et qu'il s'agit de l'article 76 plutôt que 86. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quel est le montant de l'indemnité de documentation pour un ingénieur de recherche conseil ?",
+            "prediction": " L'indemnité de documentation pour un ingénieur de recherche conseil est forfaitaire et n'est pas spécifiée dans le document le plus récent.\n- [Source : Décret exécutif n° 23-66, Page 7, Art. 2]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction est fausse car elle contredit la référence en affirmant que le montant n'est pas spécifié alors qu'il est indiqué à 8.000 DA dans la réponse de référence."
+            }
+        },
+        {
+            "question": "Combien de sites d'affichage sont réservés pour les élections dans les communes comptant plus de 180.000 habitants ?",
+            "prediction": " Les communes comptant plus de 180.000 habitants ont deux (2) sites supplémentaires pour chaque tranche de 10.000 habitants pour les élections, selon le décret exécutif n° 14-25 du Aouel Rabie Ethani 1435 correspondant au 1er février 2014 fixant les modalités de publicité des candidatures à l’élection à la Présidence de la République.\n- [Source : Décret exécutif n° 14-25, Page 18, Art. 5]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (le nombre de sites supplémentaires pour chaque tranche de 10.000 habitants), mais manque d'indiquer le nombre total de sites dans les communes comptant plus de 180.000 habitants."
+            }
+        },
+        {
+            "question": "Dans quel délai la période d'établissement des procurations de vote pour les Algériens résidant à l'étranger prend-elle fin ?",
+            "prediction": " La période d'établissement des procurations de vote pour les Algériens résidant à l'étranger prend fin trois (3) jours avant la date du scrutin.\n- [Source : Décret exécutif n° 19-74, Page 7, Art. 15]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse car elle indique que la période prend fin trois jours avant le scrutin alors que la réponse de référence indique huit jours."
+            }
+        },
+        {
+            "question": "Quel est le quorum nécessaire pour que la commission nationale de supervision des élections puisse délibérer valablement ?",
+            "prediction": " Le quorum nécessaire pour que la commission nationale de supervision des élections puisse délibérer valablement est constitué de dix huit (18) membres présents parmi les membres ayant voix délibérative.\n- [Source : Décret présidentiel n° 02-47, Page 3, Art. 15]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quel tribunal est spécifiquement désigné par l'appellation « Le tribunal d'Alger » dans le cadre de la lutte contre le blanchiment d'argent ?",
+            "prediction": " Le texte ne mentionne pas explicitement un tribunal spécifiquement désigné par l'appellation \"Le tribunal d'Alger\" dans le cadre de la lutte contre le blanchiment d'argent.\n- [Source : Loi n° 05-01 du 27 Dhou El Hidja 1425 correspondant au 6 février 2005 relative à la prévention et à la lutte contre le blanchiment d'argent et le financement du terrorisme, Page 3]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 1,
+                "raisonnement": "La prédiction ne contient pas toutes les informations factuelles de la réponse de référence car elle n'indique pas le nom du tribunal spécifiquement désigné par l'appellation 'Le tribunal d'Alger'. La prédiction est directe."
+            }
+        },
+        {
+            "question": "Quels sont les éléments exclus du calcul du salaire national minimum garanti (SNMG) ?",
+            "prediction": " Les éléments exclus du calcul du salaire national minimum garanti (SNMG) comprennent les primes, les indemnités, les avantages en nature et les allocations familiales.",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (indemnités et avantages en nature), mais manque de précision en omettant les éléments spécifiques comme les remboursements de frais, l'ancienneté, le travail posté ou de nuit, les heures supplémentaires, les conditions d'isolement, ainsi que les primes de rendement ou d'intéressement."
+            }
+        }
+    ],
+    "erreurs_formatage": [
+        {
+            "question": "Quelles sont les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages ?",
+            "prediction": " Les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages sont réparties en quatre (4) tranches de consommation trimestrielle.\n- [Source : Décret exécutif n° 05-13, Page 3, Art. 9]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction est partielle car elle ne donne pas les limites exactes des tranches de consommation, mais elle contient une partie des informations de la réponse de référence. La prédiction contient également un blabla conversationnel (les tranches de consommation trimestrielle d'eau potable pour la catégorie des ménages sont réparties en quatre) qui n'est pas nécessaire."
+            }
+        },
+        {
+            "question": "Quelles sont les spécialités professionnelles de l'INSFP de Bir Mourad Raïs ?",
+            "prediction": " Les branches professionnelles des instituts nationaux spécialisés de formation professionnelle (INSFP) à Bir Mourad Raïs comprennent :\n- réalisation d'études et de recherches pédagogiques ;\n- assistance technique et conseil en ingénierie pédagogique ;\n- élaboration et conception de documents et outils didactiques ;\n- organisation de cycles de formation, de perfectionnement et de recyclage.\n- [Source : Arrêté interministériel du 14 Ramadhan 1425 correspondant au 28 octobre 2004 fixant les branches professionnelles des instituts nationaux spécialisés de formation professionnelle (INSFP), Page 21, Art. 1er]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La réponse ne contient pas toutes les informations factuelles de la référence (l'INSFP de Bir Mourad Raïs est spécialisé dans les Arts et industries graphiques et le Froid industriel, mais la prédiction n'en mentionne que quelques-unes). La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quelles wilayas sont incluses dans la zone tarifaire territoriale de Chlef pour les services d'eau ?",
+            "prediction": " Les wilayas incluses dans la zone tarifaire territoriale de Chlef pour les services d'eau comprennent Chlef.\n- [Source : Décret exécutif n° 05-13, Page 3, Art. 12]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (Chlef), mais manque d'autres wilayas mentionnées dans la réponse de référence."
+            }
+        },
+        {
+            "question": "Quel est le pourcentage du salaire national minimum garanti (SNMG) accordé à un détenu pour un travail « spécialisé » ?",
+            "prediction": " Le pourcentage du salaire national minimum garanti (SNMG) accordé à un détenu pour un travail \"spécialisé\" varie de 20% à 60%, en fonction du degré de qualification conformément au barème annexé à l'Arrêté interministériel du 10 Dhou El Kaada 1426 correspondant au 12 décembre 2005 fixant le barème de la rémunération accordée à la main-d’œuvre pénale.\n- [Source : Arrêté interministériel, Page 28]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (60% du SNMG pour un travail spécialisé), mais elle est plus précise en indiquant que le taux peut varier entre 20% et 60%, conformément à un barème."
+            }
+        },
+        {
+            "question": "Quels sont les diamètres des canalisations approuvés pour l'alimentation en gaz naturel des villes de Chekfa et d'El Ouricia ?",
+            "prediction": " Les canalisations approuvées pour l'alimentation en gaz naturel des villes de Chekfa et d'El Ouricia ont un diamètre de 4\" (pouces) et une pression de 70 bars.\n- [Source : Arrêté du 23 Dhou El Kaada 1426, Page 28, Article 1er]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient les informations factuelles correctes sur les diamètres des canalisations pour Chekfa et El Ouricia, mais elle ajoute une information inutile sur la pression de gaz."
+            }
+        },
+        {
+            "question": "Comment est organisé l'institut national de perfectionnement de l'équipement (INPE) sous l'autorité du directeur général ?",
+            "prediction": " L'institut national de perfectionnement de l'équipement (INPE) est organisé sous l'autorité du directeur général en trois directions : la direction de l'ingénierie de formation, la direction de l'administration et des moyens. La direction de l'administration et des moyens comprend le service des ressources humaines et du budget, le service de la maintenance et le service de l'hebergement et de la restauration.\n- [Source : Arrêté interministériel du 28 Ramadhan 1426 correspondant au 31 octobre 2005 fixant l’organisation administrative de l’institut national de perfectionnement de l’équipement (INPE), Page 29, Art. 2, 4]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (2 directions) mais manque d'une direction (la direction de l'ingénierie de formation a été divisée en trois services). La prédiction contient également un blabla conversationnel (L'institut national de perfectionnement de l'équipement (INPE) est organisé sous l'autorité du directeur général), ce qui nuit au critère de formattage."
+            }
+        },
+        {
+            "question": "Quelles sont les limites de capacité définies pour les services de taxi aérien ?",
+            "prediction": " Les dispositions de l'article 125 de la loi n° 98-06 du 27 juin 1998, modifiée et complétée en 2008, sont modifiées et rédigées comme suit : \"Art. 125. — Les services de transport aérien dits taxis aériens sont autorisés à utiliser des aéronefs d'une capacité égale ou inférieure à vingt (20) sièges ou à deux milles (2000) kilogrammes de fret\".\n- [Source : Loi n° 08-02 du 15 Moharram 1429 correspondant au 23 janvier 2008 modifiant et complétant la loi n° 98-06 du 3 Rabie El Aouel 1419 correspondant au 27 juin 1998 fixant les règles générales relatives à l'aviation civile, Page 5, Art. 5]",
+            "evaluation": {
+                "exactitude": 2,
+                "formatage": 0,
+                "raisonnement": "La prédiction est exacte et contient toutes les informations factuelles de la réponse de référence. Cependant, elle contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quels projets de canalisations de gaz naturel ont été approuvés pour la wilaya de Tamenghasset ?",
+            "prediction": " Deux stations de stockage de propane liquide, d'une capacité de 800 m3 chacune et d'une pression de 20 bars, dénommées Tamenghasset 1 et Tamenghasset 2 dans la wilaya de Tamenghasset ont été approuvés.\n- [Source : Arrêté du 15 Dhou El Hidja 1428 correspondant au 25 décembre 2007 portant approbation de projets de construction de canalisations destinées à l’alimentation en gaz naturel d’un projet de construction de deux stations de stockage de propane liquide dans la wilaya de Tamenghasset et de plusieurs villes dans différentes wilayas, Page 20, Article 1er]",
+            "evaluation": {
+                "exactitude": 2,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient toutes les informations factuelles de la réponse de référence (les noms des stations, leur capacité et leur localisation). Cependant, elle ajoute inutilement la pression de 20 bars qui n'est pas mentionnée dans la réponse de référence."
+            }
+        },
+        {
+            "question": "Quels sont les deux types de formulaires prévus pour la collecte des signatures des candidats à l'élection présidentielle ?",
+            "prediction": " Les deux types de formulaires prévus pour la collecte des signatures des candidats à l'élection présidentielle sont le formulaire de souscription de signatures individuelles pour les membres des assemblées élues et le formulaire de souscription de signatures individuelles pour les électeurs inscrits sur une liste électorale.\n- [Source : Arrêté du 8 Moharram 1430 correspondant au 5 janvier 2009 déterminant les caractéristiques techniques du formulaire de souscription de signatures individuelles pour les candidats à l'élection à la Présidence de la République, Page 25 (Arrêté)]\n- [Source : Arrêté du 29 Moharram 1428 correspondant au 17 février 2007 déterminant les caractéristiques techniques du formulaire de souscription de signatures individuelles prévu pour les listes de candidats indépendants à l’élection des membres de l’Assemblée populaire nationale, Page 13 (Arrêté)]\n- [Source : Arrêté du 2 Joumada El Oula 1438 correspondant au 30 janvier 2017 fixant les caractéristiques techniques du formulaire de souscription de signatures individuelles pour les listes de candidats à l'élection des membres de l'Assemblée Populaire Nationale, Page 5 (Arrêté)]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction ne contient pas toutes les informations factuelles de la réponse de référence. Elle mentionne deux types de formulaires différents (membres élus et électeurs inscrits) alors que seuls deux modèles sont cités dans la réponse de référence (rose et beige). La prédiction contient également des phrases d'introduction."
+            }
+        },
+        {
+            "question": "Qui est autorisé à légaliser les signatures sur les formulaires de souscription pour un candidat à la présidence ?",
+            "prediction": " Le présent décret sera publié au Journal officiel de la République algérienne démocratique et populaire. [Source : Décret exécutif n° 19-53, Page 17, Art. 10]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction ne contient pas les informations factuelles de la réponse de référence et est hors sujet car elle n'explique pas qui peut légaliser les signatures sur les formulaires de souscription pour un candidat à la présidence."
+            }
+        },
+        {
+            "question": "Quelle condition est nécessaire pour qu'un établissement de présentation au public détienne des espèces menacées de disparition ?",
+            "prediction": " Les installations destinées à la détention des espèces animales menacées de disparition doivent être conformes aux normes fixées par la réglementation en vigueur.\n- [Source : Décret exécutif n° 08-414, Page 16, Art. 7]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (la détention est autorisée uniquement pour les espèces issues de la reproduction en captivité), mais manque de précision en ne spécifiant pas que seules ces espèces peuvent être détenues. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quel est le montant de l'indemnité de présence par dossier traité pour les membres des commissions de recours de sécurité sociale ?",
+            "prediction": " Les membres des commissions nationales, locales et de wilaya de recours préalable qualifiées en matière de sécurité sociale perçoivent une indemnité de présence dont le montant est fixé à cent dinars (100 DA) par dossier traité, sans que le montant global de l’indemnité ne dépasse deux mille dinars (2000 DA) par séance.\n- [Source : Décret exécutif n° 08-416 du 26 Dhou El Hidja 1429 correspondant au 24 décembre 2008, Page 19, Art. 10 ; Décret exécutif n° 08-415 du 26 Dhou El Hidja 1429 correspondant au 24 décembre 2008, Page 17, Art. 10 ; Décret exécutif n° 09-73 du 11 Safar 1430 correspondant au 7 février 2009, Page 15, Art. 9]",
+            "evaluation": {
+                "exactitude": 2,
+                "formatage": 0,
+                "raisonnement": "La prédiction est exacte et contient toutes les informations factuelles de la réponse de référence. Cependant, elle contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quelles sont les six structures principales qui composent l'administration centrale du ministère du commerce selon le décret 11-04 ?",
+            "prediction": " Les six structures principales de l'administration centrale du ministère du commerce, selon le décret 11-04, sont les suivantes :\n- Le secrétaire général (sans changement) ;\n- Le chef de cabinet (sans changement) ;\n- L'inspection générale (sans changement) ;\n- La direction générale du commerce extérieur ;\n- La direction générale de la régulation et de l'organisation des activités ;\n- La direction générale du contrôle économique et de la répression des fraudes.",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence mais manque de précision car elle omet les directions générales de ressources humaines et des nouvelles TIC, des finances et des moyens généraux, ainsi que la direction de la réglementation et des affaires juridiques. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Quel est le montant forfaitaire de l'indemnité de documentation pour un ingénieur de recherche expert ?",
+            "prediction": " L'indemnité de documentation pour un ingénieur de recherche expert est de 2.000 DA, en vertu de l'article 7 du Décret exécutif n° 12-22 du 23 Safar 1433 correspondant au 17 janvier 2012 instituant le régime indemnitaire des fonctionnaires appartenant aux corps des personnels de soutien à la recherche.\n- [Source : Décret exécutif n° 12-22, Page 21, Art. 7]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Qui a été désigné par le Conseil constitutionnel pour remplacer le député démissionnaire Rahmani Otmane dans la circonscription d'El Bayadh ?",
+            "prediction": " Le député Naimi Lazhari a été désigné par le Conseil constitutionnel pour remplacer le député démissionnaire Rahmani Otmane dans la circonscription d'El Bayadh.\n- [Source : Décision n° 385/D.CC/12, Page 29]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quelle rectification a été apportée à l'article 86 de la loi de finances pour 2012 concernant les dépenses ?",
+            "prediction": " Les dispositions de l'article 76 de la loi n° 11-16 du 3 Safar 1433 correspondant au 28 décembre 2011 portant loi de finances pour 2012 ont été modifiées et rédigées comme suit : « Art. 76. — Il est ouvert, pour 2012, pour le financement des charges définitives du budget général de l'Etat : 1) Un crédit de quatre mille neuf cent vingt-cinq milliards cent dix millions quatre-cent soixante-quinze mille dinars (4925 110 475 000 DA), pour les dépenses de fonctionnement, réparti par département ministériel conformément à l'état « B » annexé à la présente loi. 2) Un crédit de deux mille huit cent-vingts milliards quatre cent seize millions cinq cent-quatre-vingts et un mille dinars ( 2 820 416 581 000 DA), pour les dépenses d'équipement à caractère définitif, réparti par secteur conformément à l'état « C » annexé à la présente loi.\n- [Source : Ordonnance n° 12-03 du 20 Rabie El Aouel 1433 correspondant au 13 février 2012 portant loi de finances complémentaire pour 2012, Page 10, Art. 3]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (le montant maximal de dépense a été rectifié), mais manque de précision en ce que le montant est différent et qu'il s'agit de l'article 76 plutôt que 86. La prédiction contient également une introduction inutile."
+            }
+        },
+        {
+            "question": "Combien de sites d'affichage sont réservés pour les élections dans les communes comptant plus de 180.000 habitants ?",
+            "prediction": " Les communes comptant plus de 180.000 habitants ont deux (2) sites supplémentaires pour chaque tranche de 10.000 habitants pour les élections, selon le décret exécutif n° 14-25 du Aouel Rabie Ethani 1435 correspondant au 1er février 2014 fixant les modalités de publicité des candidatures à l’élection à la Présidence de la République.\n- [Source : Décret exécutif n° 14-25, Page 18, Art. 5]",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (le nombre de sites supplémentaires pour chaque tranche de 10.000 habitants), mais manque d'indiquer le nombre total de sites dans les communes comptant plus de 180.000 habitants."
+            }
+        },
+        {
+            "question": "Quelles sont les quatre directions qui composent la direction générale des enseignements et de la formation supérieurs ?",
+            "prediction": " Les quatre directions qui composent la direction générale des enseignements et de la formation supérieurs sont :\n1. La sous-direction du suivi pédagogique et de l’évaluation, chargée de fixer les critères d'admission propres à chaque filière et de concevoir les politiques d'orientation des étudiants, etc.\n2. La sous-direction des sciences sociales, des lettres et des langues.\n3. La sous-direction des sciences exactes, des technologies et des sciences de la nature et de la vie, chargées chacune dans son domaine de compétence : — de fixer les critères d'ouverture et de fermeture des filières de formation, etc.\n4. La sous-direction des agréments, de contrôle et des équivalences, chargée : — de procéder à l'agrément des établissements privés de formation supérieure et d'assurer le contrôle et le suivi du fonctionnement, etc.\n- [Source : Décret exécutif n° 03-01 du 2 Dhou El Kaada 1423 correspondant au 4 janvier 2003 portant organisation de l’administration centrale du ministère de l’enseignement supérieur et de la recherche scientifique. Page : 8, Art. 4]",
+            "evaluation": {
+                "exactitude": 2,
+                "formatage": 0,
+                "raisonnement": "La prédiction est exacte et contient toutes les informations factuelles de la réponse de référence. Cependant, elle contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Dans quel délai la période d'établissement des procurations de vote pour les Algériens résidant à l'étranger prend-elle fin ?",
+            "prediction": " La période d'établissement des procurations de vote pour les Algériens résidant à l'étranger prend fin trois (3) jours avant la date du scrutin.\n- [Source : Décret exécutif n° 19-74, Page 7, Art. 15]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse car elle indique que la période prend fin trois jours avant le scrutin alors que la réponse de référence indique huit jours."
+            }
+        },
+        {
+            "question": "Quel est le quorum nécessaire pour que la commission nationale de supervision des élections puisse délibérer valablement ?",
+            "prediction": " Le quorum nécessaire pour que la commission nationale de supervision des élections puisse délibérer valablement est constitué de dix huit (18) membres présents parmi les membres ayant voix délibérative.\n- [Source : Décret présidentiel n° 02-47, Page 3, Art. 15]",
+            "evaluation": {
+                "exactitude": 0,
+                "formatage": 0,
+                "raisonnement": "La prédiction est fausse et contient une introduction inutile."
+            }
+        },
+        {
+            "question": "Quels sont les éléments exclus du calcul du salaire national minimum garanti (SNMG) ?",
+            "prediction": " Les éléments exclus du calcul du salaire national minimum garanti (SNMG) comprennent les primes, les indemnités, les avantages en nature et les allocations familiales.",
+            "evaluation": {
+                "exactitude": 1,
+                "formatage": 0,
+                "raisonnement": "La prédiction contient une partie des informations de la réponse de référence (indemnités et avantages en nature), mais manque de précision en omettant les éléments spécifiques comme les remboursements de frais, l'ancienneté, le travail posté ou de nuit, les heures supplémentaires, les conditions d'isolement, ainsi que les primes de rendement ou d'intéressement."
+            }
+        }
+    ]
+}
