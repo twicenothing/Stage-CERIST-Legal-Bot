@@ -31,7 +31,7 @@ class Message(Base):
     feedback = Column(String, nullable=True)
 
     session = relationship("ChatSession", back_populates="messages")
-
+    reports = relationship("Report", back_populates="message", cascade="all, delete-orphan")
 
 
 class User(Base):
@@ -44,3 +44,18 @@ class User(Base):
     role = Column(String, default="utilisateur")
     created_at = Column(DateTime, default=datetime.utcnow)
     sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+    reports = relationship("Report", back_populates="user", cascade="all, delete-orphan")
+class Report(Base):
+    __tablename__ = "reports"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    message_id = Column(String, ForeignKey("messages.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    reason = Column(String, nullable=False)      # Ex: "hallucination", "loi_obsolete", "contexte_invalide"
+    details = Column(Text, nullable=True)        # Commentaire libre soumis par l'utilisateur
+    status = Column(String, default="en_attente") # "en_attente", "traite", "rejete"
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    message = relationship("Message", back_populates="reports")
+    user = relationship("User", back_populates="reports")
