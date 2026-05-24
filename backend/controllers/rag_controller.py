@@ -184,10 +184,14 @@ async def get_user_sessions(
         .all()
     )
     return [
-        {"id": s.id, "title": s.title, "createdAt": s.created_at.isoformat()}
+        {
+            "id": s.id, 
+            "title": s.title, 
+            "createdAt": s.created_at.isoformat(),
+            "archived": s.archived  
+        }
         for s in sessions
     ]
-
 @router.get("/session/{session_id}")
 async def get_chat_session(
     session_id: str,
@@ -207,6 +211,7 @@ async def get_chat_session(
         "id": session.id,
         "title": session.title,
         "createdAt": session.created_at.isoformat(),
+        "archived": session.archived,
         "chatMessages": [
             {
                 "id": m.id,
@@ -331,3 +336,20 @@ async def report_message_handler(
         raise HTTPException(status_code=500, detail="Erreur lors de l'enregistrement du signalement")
         
     return {"status": "success", "message": "Le signalement a été enregistré avec succès"}
+
+@router.post("/session/{session_id}/archive")
+async def archive_chat_session(
+        session_id: str,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+    ):
+        session = db.query(ChatSession).filter(
+            ChatSession.id == session_id, 
+            ChatSession.user_id == current_user.id
+        ).first()
+        if not session:
+            raise HTTPException(status_code=404, detail="Session introuvable")
+
+        session.archived = True
+        db.commit()
+        return {"message": "Session archivée", "id": session_id}

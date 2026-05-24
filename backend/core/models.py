@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey,JSON
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, JSON, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -13,6 +13,7 @@ class ChatSession(Base):
     title = Column(String, default="Nouvelle Conversation")
     created_at = Column(DateTime, default=datetime.utcnow)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    archived = Column(Boolean, default=False)
 
     user = relationship("User", back_populates="sessions")
     messages = relationship("Message", back_populates="session", cascade="all, delete-orphan")
