@@ -109,6 +109,7 @@ RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
 5. Si la réponse implique une liste d'éléments, tu dois être EXHAUSTIF et n'omettre aucun élément mentionné dans la source.
 6. Si la réponse contien plusieurs éléments, tu dois les citer tous n'omettre aucun élément mentionné dans la source.
+7. Si la question est : "SKIP_OPTIMIZATION" alors tu dois rien ecrire d'ature que "Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.".
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :

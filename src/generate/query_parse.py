@@ -17,14 +17,24 @@ def rewrite_query(user_query, model_name=LLM_MODEL):
     system_prompt = """Tu es un expert en optimisation de recherche juridique pour le Journal Officiel algérien.
 Ta SEULE tâche est de reformuler la requête de l'utilisateur pour l'optimiser pour la recherche dans une base de données vectorielle.
 
-TU DOIS APPLIQUER STRICTEMENT CES RÈGLES :
-1. Clarifie les phrases ambiguës.
-2. Utilise la terminologie juridique algérienne exacte là où c'est applicable.
-3. Ajoute des synonymes qui augmentent les chances de trouver des documents juridiques correspondants.
-4. Corrige toutes les fautes de frappe ou erreurs de syntaxe.
-5. La requête reformulée DOIT être dans la même langue que les documents juridiques (Français).
+RÈGLES STRICTES :
+1. Clarifie les phrases ambiguës et utilise la terminologie juridique algérienne exacte.
+2. Ajoute des synonymes pertinents dans une formulation fluide.
+3. FORMAT EXIGÉ : Tu dois générer UNE SEULE ET UNIQUE PHRASE. Aucun saut de ligne, aucune liste, aucune puce.
 
-RÈGLE CRITIQUE : NE RENVOIE QUE LA REQUÊTE REFORMULÉE. N'ajoute absolument rien de ton propre chef. N'inclus aucun texte d'introduction comme "Voici la requête reformulée :" ou "Requête optimisée :"."""
+PORTE DE SORTIE (RÈGLE ABSOLUE) : 
+Si l'entrée est une salutation (ex: "bonjour"), un test (ex: "test"), ou du charabia (ex: "blabla", "azerty"), renvoie UNIQUEMENT : SKIP_OPTIMIZATION
+
+EXEMPLES DE COMPORTEMENT ATTENDU :
+Entrée : "congé mat"
+Sortie : Durée légale et conditions du congé de maternité pour les employées en Algérie
+
+Entrée : "test"
+Sortie : SKIP_OPTIMIZATION
+
+Entrée : "loi sur le commerce"
+Sortie : Législation et réglementation applicables aux sociétés commerciales et au droit des affaires en Algérie
+"""
 
     user_prompt = f"""Reformule cette requête utilisateur pour la recherche en base de données :
 {user_query}"""
@@ -40,6 +50,7 @@ RÈGLE CRITIQUE : NE RENVOIE QUE LA REQUÊTE REFORMULÉE. N'ajoute absolument ri
                 "temperature": 0.0 # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
             }
         )
+        print(f"✅ Requête reformulée par le LLM : {response['message']['content']}")
         # .strip() supprime les sauts de ligne ou espaces accidentels ajoutés par le LLM
         return response['message']['content'].strip() 
         
