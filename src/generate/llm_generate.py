@@ -25,8 +25,10 @@ except ImportError:
     from rerank import get_best_documents_for_llm
 
 try:
-    from query_parse import rewrite_query
+    # Quand on lance depuis le dossier src/ (comme avec ragas_evaluate.py)
+    from generate.query_parse import rewrite_query
 except ImportError:
+    # Quand on lance directement llm_generate.py depuis son propre dossier
     from query_parse import rewrite_query
 
 # --- CONFIGURATION DEPUIS .ENV ---
