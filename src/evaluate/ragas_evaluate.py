@@ -43,7 +43,7 @@ from langchain_community.chat_models import ChatOllama
 from langchain_community.embeddings import OllamaEmbeddings
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
-JUDGE_MODEL = "llama3:8b"
+JUDGE_MODEL = "llama3:70b"
 
 judge_llm = LangchainLLMWrapper(ChatOllama(model=JUDGE_MODEL, base_url=OLLAMA_HOST))
 judge_embeddings = LangchainEmbeddingsWrapper(
@@ -72,7 +72,7 @@ def run_evaluation(testset_path: str):
 
         best_docs = get_best_documents_for_llm(
             opt_query, collection, bi_encoder, reranker,
-            top_k_retrieve=8, top_k_rerank=3
+            top_k_retrieve=8, top_k_rerank=2
         )
 
         contexts = [doc["text"] for doc in best_docs] if best_docs else ["Aucun contexte trouvé."]
