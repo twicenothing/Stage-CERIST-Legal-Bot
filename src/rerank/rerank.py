@@ -11,7 +11,7 @@ sys.path.append(parent_dir)
 # Import the retrieval function we built previously
 from retrieve.retrieve import get_retrieved_documents
 
-def rerank_documents(query, retrieved_docs, reranker_model, top_k=3):
+def rerank_documents(query, retrieved_docs, reranker_model, top_k=4):
     """
     Takes the loosely retrieved documents from ChromaDB and scores them 
     using a Cross-Encoder for pinpoint accuracy.
@@ -35,19 +35,29 @@ def rerank_documents(query, retrieved_docs, reranker_model, top_k=3):
     # 5. Return only the absolute best documents for the LLM
     return reranked_docs[:top_k]
 
+def get_best_documents_for_llm(query, collection, bi_encoder, reranker, top_k_retrieve=30, top_k_rerank=4):
+    """
+    Exécute le pipeline complet:
+    regex + table retrieval -> optional recursive fallback -> reranking.
+    """
 
-def get_best_documents_for_llm(query, collection, bi_encoder, reranker, top_k_retrieve=20, top_k_rerank=3):
-    """
-    Exécute le pipeline complet (Retrieval -> Fallback -> Reranking).
-    Retourne uniquement la liste finale des Top K documents pertinents.
-    """
-    # 1. Dégrossissage rapide avec le Bi-Encoder (et routage interne)
-    initial_docs, _ = get_retrieved_documents(query, bi_encoder, collection, top_k=top_k_retrieve)
-    
+    initial_docs, strategy_used = get_retrieved_documents(
+        query,
+        bi_encoder,
+        collection,
+        top_k=top_k_retrieve
+    )
+
+    print(f"🔎 Retrieval strategy used: {strategy_used}")
+
     if not initial_docs:
         return []
-        
-    # 2. Analyse profonde avec le Cross-Encoder
-    final_docs = rerank_documents(query, initial_docs, reranker, top_k=top_k_rerank)
-    
+
+    final_docs = rerank_documents(
+        query,
+        initial_docs,
+        reranker,
+        top_k=top_k_rerank
+    )
+
     return final_docs

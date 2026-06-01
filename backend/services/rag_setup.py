@@ -52,50 +52,94 @@ async def init_rag():
     print("Orchestrator: Pipeline ready.")
 
 
+
+def normalize_source_file_to_pdf(source_file: str) -> str:
+    """
+    Converts internal chunk source filenames to the real PDF filename
+    used by the frontend PDF route.
+
+    Examples:
+    - F2017006.json -> F2017006.pdf
+    - F2017006.txt -> F2017006.pdf
+    - F2017006_recursive.json -> F2017006.pdf
+    - F2017006.pdf -> F2017006.pdf
+    """
+    if not source_file:
+        return "document_inconnu.pdf"
+
+    source_file = str(source_file)
+
+    # Recursive chunks can come from files like F2017006_recursive.json
+    source_file = source_file.replace("_recursive.json", ".pdf")
+
+    # Regex chunks can come from files like F2017006.json
+    source_file = source_file.replace(".json", ".pdf")
+
+    # Regex/recursive metadata can also come from TXT source files
+    source_file = source_file.replace(".txt", ".pdf")
+
+    return source_file
+
+
 def _format_llm_prompt(query, best_docs):
     """
     Constructs the prompt using your exact system prompt logic,
-    now including page numbers and natural legal titles for the LLM.
+    now including page numbers, table metadata, and natural legal titles for the LLM.
     """
+    # Must be defined before system_prompt, even if best_docs is empty or loop changes.
+    date_du_jour = datetime.now().strftime("%d/%m/%Y")
+
     formatted_context = ""
     formatted_sources = []
-    
+
     for i, doc in enumerate(best_docs):
-        meta = doc.get('meta', {})
-        text = doc.get('text', '')
-        
-        # 1. Frontend info (We keep the PDF filename for the /pdf endpoint routing)
-        source_file = meta.get('source_file', f'Document inconnu {i+1}')
-        source_file = source_file.replace('.json', '.pdf')
-        
-        # 2. LLM Info (We extract the natural legal title for reading)
-        titre_juridique = meta.get('parent_title', 'Texte de loi inconnu')
-        article = meta.get('document_type', 'Extrait')
-        page_num = meta.get('page', 'Inconnu')
-        
-      # Convert BAAI/bge-reranker-v2-m3 scores to percentage
-        # This model outputs probabilities (~0.0 to ~1.0)
-        raw_score = doc.get('rerank_score', 0)
-        
-        # Scale directly to 100
+        meta = doc.get("meta", {})
+        text = doc.get("text", "")
+
+        # 1. Frontend info:
+        # Keep the real PDF filename for the /pdf endpoint routing.
+        source_file = meta.get("source_file", f"Document inconnu {i+1}")
+        source_file = normalize_source_file_to_pdf(source_file)
+
+        # 2. Common metadata
+        chunking_method = meta.get("chunking_method", "")
+        chunk_format = meta.get("chunk_format", "")
+        page_num = meta.get("page", "Inconnu")
+
+        # 3. LLM-readable source label
+        # Table chunks usually do not have parent_title/document_type,
+        # so we expose table_id/table_kind instead of "Texte de loi inconnu".
+        if chunking_method in ["table_row", "table_full"]:
+            table_id = meta.get("table_id", "Tableau inconnu")
+            table_kind = meta.get("table_kind", "Tableau")
+            titre_juridique = meta.get("parent_title") or table_id
+            article = f"{table_kind} / {chunk_format}"
+        else:
+            titre_juridique = meta.get("parent_title", "Texte de loi inconnu")
+            article = meta.get("document_type", "Extrait")
+
+        # Convert BAAI/bge-reranker-v2-m3 scores to percentage.
+        # This model often outputs probabilities (~0.0 to ~1.0).
+        raw_score = doc.get("rerank_score", 0)
         scaled_score = float(raw_score) * 100
-        
-        # Clamp between 0 and 100 to handle any edge cases
         percentage_score = max(0, min(100, int(scaled_score)))
-        
-        # Le frontend reçoit le nom du fichier PDF dans "title" pour faire fonctionner les liens
-        # Mais je passe aussi le "parent_title" si jamais vous voulez l'afficher joliment dans l'UI
+
+        # The frontend receives the PDF filename in "title" for PDF routing.
+        # parent_title stays available for prettier display.
         formatted_sources.append({
             "doc_id": str(doc.get("id", i)),
             "score": percentage_score,
             "text": text,
-            "title": source_file,       # 👈 Reste le nom du fichier PDF pour le routeur
-            "parent_title": titre_juridique, 
+            "title": source_file,  # Must stay PDF filename for the frontend router.
+            "parent_title": titre_juridique,
             "page": page_num,
+            "chunking_method": chunking_method,
+            "chunk_format": chunk_format,
+            "table_id": meta.get("table_id", ""),
+            "table_kind": meta.get("table_kind", ""),
         })
-        
-        date_du_jour = datetime.now().strftime("%d/%m/%Y")
-        # 👈 AJOUT DE LA PAGE ET DU TITRE NATUREL DANS LE CONTEXTE TEXTUEL POUR LE LLM
+
+        # Context passed to the LLM.
         formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page_num} ({article}) ---\n"
         formatted_context += f"{text}\n\n"
 
@@ -120,6 +164,7 @@ FORMAT SI LA RÉPONSE EST TROUVÉE :
 - Réponds de manière directe, factuelle et concise.
 - Utilise des listes à puces si nécessaire.
 - Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article). Si la source indique "Texte de loi inconnu", utilise cette mention exacte suivie de la page et de l'article si disponible.
+- Si la source est un tableau, cite le fichier, la page et le tableau ou la ligne concernée si elle est disponible.
 
 === EXEMPLES DE COMPORTEMENT ATTENDU ===
 
@@ -162,7 +207,7 @@ La ville choisie pour accueillir le festival culturel international annuel du th
 </question>
 
 Réponse directe :"""
-    
+
     return system_prompt, user_prompt, formatted_sources
 
 
@@ -180,8 +225,8 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         collection, 
         bi_encoder, 
         reranker,
-        top_k_retrieve=8, 
-        top_k_rerank=3
+        top_k_retrieve=30, 
+        top_k_rerank=4
     )
 
     if not best_docs:
@@ -197,6 +242,7 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
 
     # 4. Stream tokens from Ollama
     client = AsyncClient(host=settings.OLLAMA_HOST)
+    print(settings.LLM_MODEL)
     async for part in await client.chat(
         model=settings.LLM_MODEL,
         messages=[
