@@ -250,10 +250,11 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
             {'role': 'user', 'content': user_prompt}
         ],
         stream=True,
-        options={
-            "temperature": 0.0,
-            "num_ctx": 8192
-        }
+        think=False,
+            options={
+                "temperature": 0.0, # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
+                "num_ctx": 32768
+            }
     ):
         token = part["message"]["content"]
         if token:

@@ -201,9 +201,10 @@ Réponse directe :"""
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            think=False,
             options={
-                "temperature": 0.0,
-                "num_ctx": 8192,
+                "temperature": 0.0, # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
+                "num_ctx": 32768,
             },
         )
         return response["message"]["content"]
