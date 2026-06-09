@@ -139,6 +139,8 @@ RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
 5. Si la réponse implique une liste d'éléments, tu dois être EXHAUSTIF et n'omettre aucun élément mentionné dans la source.
 6. Si la source est un tableau, exploite précisément la ligne ou le tableau fourni. Ne transforme pas les valeurs, les codes, les taux ou les libellés.
+7. Si la question demande plusieurs éléments, conditions, délais, procédures, exceptions ou montants, structure la réponse en couvrant chaque élément demandé. Ne laisse aucune partie de la question sans réponse si elle est présente dans les documents.
+8. Si les documents permettent de répondre seulement à une partie de la question, réponds à cette partie et précise clairement que le reste n'est pas indiqué dans les documents. N'utilise la phrase de rejet complète que si aucun élément utile de réponse n'est présent dans les documents.
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :

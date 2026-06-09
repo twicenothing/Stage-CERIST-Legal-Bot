@@ -152,19 +152,21 @@ RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
 3. Commence DIRECTEMENT ta réponse.
 4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
 5. Si la réponse implique une liste d'éléments, tu dois être EXHAUSTIF et n'omettre aucun élément mentionné dans la source.
-6. Si la réponse contien plusieurs éléments, tu dois les citer tous n'omettre aucun élément mentionné dans la source.
-7. Si la question est : "SKIP_OPTIMIZATION" alors tu dois rien ecrire d'ature que "Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.".
+6. Si la source est un tableau, exploite précisément la ligne ou le tableau fourni. Ne transforme pas les valeurs, les codes, les taux ou les libellés.
+7. Si la question demande plusieurs éléments, conditions, délais, procédures, exceptions ou montants, structure la réponse en couvrant chaque élément demandé. Ne laisse aucune partie de la question sans réponse si elle est présente dans les documents.
+8. Si les documents permettent de répondre seulement à une partie de la question, réponds à cette partie et précise clairement que le reste n'est pas indiqué dans les documents. N'utilise la phrase de rejet complète que si aucun élément utile de réponse n'est présent dans les documents.
 
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
 "Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
 N'ajoute AUCUN préfixe. Juste cette phrase unique.
+Ne tente pas de deviner ou de déduire. Si les documents fournis parlent d'un sujet connexe mais ne répondent pas EXACTEMENT et FACTUELLEMENT à la question posée, applique la RÈGLE CRITIQUE DE REJET.
 
 FORMAT SI LA RÉPONSE EST TROUVÉE :
 - Réponds de manière directe, factuelle et concise.
 - Utilise des listes à puces si nécessaire.
 - Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article). Si la source indique "Texte de loi inconnu", utilise cette mention exacte suivie de la page et de l'article si disponible.
-- Si la source est un tableau, cite le fichier, la page et le tableau ou la ligne concernée si elle est disponible.
+- Si la source est un tableau, cite le fichier ou l'identifiant du tableau, la page, et la ligne si elle est disponible.
 
 === EXEMPLES DE COMPORTEMENT ATTENDU ===
 
@@ -216,45 +218,66 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
     The main generator called by the FastAPI router.
     """
 
+    refusal_message = (
+        "Je suis désolé, je n'ai pas la réponse à cette question car la base de données "
+        "ne contient pas cette information."
+    )
+
     optimized_query = rewrite_query(query)
 
     yield {"type": "optimized_query", "text": optimized_query}
+
+    # ------------------------------------------------------------
+    # SHORT-CIRCUIT:
+    # If query rewriting says the user input is a greeting/test/gibberish,
+    # do NOT retrieve docs and do NOT call the LLM.
+    # ------------------------------------------------------------
+    if not optimized_query or optimized_query.strip().upper() == "SKIP_OPTIMIZATION":
+        print("⛔ SKIP_OPTIMIZATION detected. Skipping retrieval and LLM generation.")
+        yield {"type": "sources", "sources": []}
+        yield {"type": "chunk", "text": refusal_message}
+        return
+
     # 1. Modular Retrieval & Reranking using workstation src
     best_docs = get_best_documents_for_llm(
-        optimized_query, 
-        collection, 
-        bi_encoder, 
+        optimized_query,
+        collection,
+        bi_encoder,
         reranker,
-        top_k_retrieve=30, 
-        top_k_rerank=4
+        top_k_retrieve=settings.RAG_TOP_K_RETRIEVE,
+        top_k_rerank=settings.RAG_TOP_K_RERANK,
+        rerank_query=query,
     )
 
     if not best_docs:
         yield {"type": "sources", "sources": []}
-        yield {"type": "chunk", "text": "Les documents fournis ne contiennent pas cette information."}
+        yield {"type": "chunk", "text": refusal_message}
         return
 
     # 2. Build the exact prompts
     system_prompt, user_prompt, sources = _format_llm_prompt(query, best_docs)
 
-    # 3. Emit sources first (Frontend requirement)
+    # 3. Emit sources first
     yield {"type": "sources", "sources": sources}
 
     # 4. Stream tokens from Ollama
     client = AsyncClient(host=settings.OLLAMA_HOST)
+
     print(settings.LLM_MODEL)
+
     async for part in await client.chat(
         model=settings.LLM_MODEL,
         messages=[
-            {'role': 'system', 'content': system_prompt},
-            {'role': 'user', 'content': user_prompt}
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
         ],
         stream=True,
-        think=False,
-            options={
-                "temperature": 0.0, # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
-                "num_ctx": 32768
-            }
+        think=settings.RAG_THINK,
+        options={
+            "temperature": settings.RAG_TEMPERATURE,
+            "num_ctx": settings.RAG_NUM_CTX,
+            "num_predict": settings.RAG_NUM_PREDICT,
+        },
     ):
         token = part["message"]["content"]
         if token:
