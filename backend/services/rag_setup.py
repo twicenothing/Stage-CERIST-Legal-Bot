@@ -1,6 +1,5 @@
 import os
 import sys
-import math
 import tempfile
 from pathlib import Path
 from datetime import datetime
@@ -16,6 +15,7 @@ from core.config import settings
 # ==============================================================================
 # 🔐 SÉCURITÉ DES CHEMINS
 # ==============================================================================
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "../../"))
 
@@ -25,13 +25,14 @@ if PROJECT_ROOT not in sys.path:
 # ==============================================================================
 # 📦 IMPORTS RAG
 # ==============================================================================
+
 from src.rerank.rerank import get_best_documents_for_llm
 from src.generate.query_parse import rewrite_query
-from src.retrieve.retrieve import is_table_query
 
 # ==============================================================================
 # GLOBALS
 # ==============================================================================
+
 collection = None
 bi_encoder = None
 reranker = None
@@ -40,16 +41,13 @@ reranker = None
 # ==============================================================================
 # ⚙️ SETTINGS HELPERS
 # ==============================================================================
+
 def _get_setting(name: str, default=None):
-    """
-    Safe settings getter.
-    Uses settings.NAME if it exists, otherwise os.getenv(NAME), otherwise default.
-    This avoids breaking production if your Settings class does not yet define
-    the new vision variables.
-    """
     value = getattr(settings, name, None)
+
     if value is not None:
         return value
+
     return os.getenv(name, default)
 
 
@@ -81,10 +79,16 @@ def _get_float_setting(name: str, default: float) -> float:
 
 
 # ==============================================================================
-# 👁️ PDF VISION CONFIG
+# 👁️ FULL PDF VISION CONFIG
 # ==============================================================================
-VISION_TABLE_MODEL = str(_get_setting("VISION_TABLE_MODEL", _get_setting("LLM_MODEL", settings.LLM_MODEL)))
-USE_PDF_VISION_FOR_TABLES = _get_bool_setting("USE_PDF_VISION_FOR_TABLES", True)
+
+VISION_MODEL = str(
+    _get_setting(
+        "VISION_MODEL",
+        _get_setting("VISION_TABLE_MODEL", _get_setting("LLM_MODEL", settings.LLM_MODEL)),
+    )
+)
+
 VISION_MAX_PAGES = _get_int_setting("VISION_MAX_PAGES", 3)
 VISION_PAGE_ZOOM = _get_float_setting("VISION_PAGE_ZOOM", 3.0)
 VISION_NUM_CTX = _get_int_setting("VISION_NUM_CTX", getattr(settings, "RAG_NUM_CTX", 32768))
@@ -115,10 +119,10 @@ def _resolve_backend_path(path_value: str) -> Path:
 
     for candidate in candidates:
         candidate = candidate.resolve()
+
         if candidate.exists():
             return candidate
 
-    # Return the most likely path even if it does not exist, for debug output.
     return (Path(PROJECT_ROOT) / raw).resolve()
 
 
@@ -131,6 +135,7 @@ PDF_BASE_DIRS = [
 # ==============================================================================
 # 🛠️ INITIALISATION DU PIPELINE RAG
 # ==============================================================================
+
 async def init_rag():
     """
     Initializes the RAG pipeline components: DB, Bi-Encoder, and Cross-Encoder.
@@ -149,19 +154,24 @@ async def init_rag():
 
     print("Loading Bi-Encoder...")
     bi_encoder = SentenceTransformer(settings.EMBEDDING_MODEL, device=device)
+    bi_encoder.max_seq_length = _get_int_setting("EMBEDDING_MAX_SEQ_LENGTH", 8192)
 
     print("Loading Cross-Encoder Reranker...")
     reranker_model_name = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
+
     reranker = CrossEncoder(
         reranker_model_name,
         device=device,
-        model_kwargs={"torch_dtype": torch.float16 if device == "cuda" else torch.float32},
+        model_kwargs={
+            "torch_dtype": torch.float16 if device == "cuda" else torch.float32
+        },
     )
 
     print("Orchestrator: Pipeline ready.")
-    print(f"PDF vision enabled: {USE_PDF_VISION_FOR_TABLES}")
-    print(f"PDF vision model: {VISION_TABLE_MODEL}")
+    print("PDF full-vision mode: enabled")
+    print(f"PDF vision model: {VISION_MODEL}")
     print("PDF search dirs:")
+
     for directory in PDF_BASE_DIRS:
         print(f"  - {directory}")
 
@@ -169,6 +179,7 @@ async def init_rag():
 # ==============================================================================
 # 📄 SOURCE / PDF NAME HELPERS
 # ==============================================================================
+
 def normalize_source_file_to_pdf(source_file: str) -> str:
     """
     Converts internal chunk source filenames to the real PDF filename
@@ -178,6 +189,7 @@ def normalize_source_file_to_pdf(source_file: str) -> str:
     - F2017006.json -> F2017006.pdf
     - F2017006.txt -> F2017006.pdf
     - F2017006_recursive.json -> F2017006.pdf
+    - F2017006_pages.json -> F2017006.pdf
     - F2017006.pdf -> F2017006.pdf
     """
     if not source_file:
@@ -186,6 +198,7 @@ def normalize_source_file_to_pdf(source_file: str) -> str:
     source_file = os.path.basename(str(source_file))
 
     source_file = source_file.replace("_recursive.json", ".pdf")
+    source_file = source_file.replace("_pages.json", ".pdf")
     source_file = source_file.replace(".json", ".pdf")
     source_file = source_file.replace(".txt", ".pdf")
 
@@ -196,14 +209,28 @@ def normalize_source_file_to_pdf(source_file: str) -> str:
 
 
 def normalize_source_stem(source_file: str) -> str:
-    """
-    Examples:
-    - F202009.txt -> f202009
-    - F202009.pdf -> f202009
-    - F202009_recursive.json -> f202009
-    """
     pdf_name = normalize_source_file_to_pdf(source_file)
     return Path(pdf_name).stem.lower()
+
+
+def candidate_source_stems(source_file: str):
+    """
+    Allows matching duplicate exported names like:
+    F2017006_2017.pdf -> F2017006.pdf
+    """
+    stem = normalize_source_stem(source_file)
+
+    if not stem:
+        return []
+
+    candidates = [stem]
+
+    parts = stem.rsplit("_", 1)
+
+    if len(parts) == 2 and parts[1].isdigit() and len(parts[1]) == 4:
+        candidates.append(parts[0])
+
+    return list(dict.fromkeys(candidates))
 
 
 def find_pdf_for_source(source_file: str):
@@ -216,9 +243,9 @@ def find_pdf_for_source(source_file: str):
 
     The year folders are ignored. It matches by filename stem.
     """
-    expected_stem = normalize_source_stem(source_file)
+    expected_stems = candidate_source_stems(source_file)
 
-    if not expected_stem:
+    if not expected_stems:
         return None
 
     for directory in PDF_BASE_DIRS:
@@ -226,14 +253,8 @@ def find_pdf_for_source(source_file: str):
             print(f"⚠️ PDF directory does not exist: {directory}")
             continue
 
-        for pdf_path in directory.rglob("*"):
-            if not pdf_path.is_file():
-                continue
-
-            if pdf_path.suffix.lower() != ".pdf":
-                continue
-
-            if pdf_path.stem.lower() == expected_stem:
+        for pdf_path in directory.rglob("*.pdf"):
+            if pdf_path.stem.lower() in expected_stems:
                 return pdf_path
 
     return None
@@ -280,6 +301,7 @@ def get_unique_source_pages_from_docs(docs, max_pages: int = 3):
 
     for doc in docs:
         meta = doc.get("meta", {}) or {}
+
         source_file = meta.get("source_file", "")
         page = meta.get("page", "")
 
@@ -294,10 +316,14 @@ def get_unique_source_pages_from_docs(docs, max_pages: int = 3):
             continue
 
         seen.add(key)
+
         pages.append({
             "source_file": source_file,
             "page": page_int,
             "chunking_method": meta.get("chunking_method", ""),
+            "page_id": meta.get("page_id", ""),
+            "rerank_score": doc.get("rerank_score", ""),
+            "distance": doc.get("distance", ""),
         })
 
         if len(pages) >= max_pages:
@@ -306,75 +332,125 @@ def get_unique_source_pages_from_docs(docs, max_pages: int = 3):
     return pages
 
 
-def should_use_pdf_vision_route(query: str, optimized_query: str, best_docs) -> bool:
-    """
-    Uses PDF-page vision only for table-like questions or table-like final docs.
-    Normal legal questions keep the existing text-generation logic.
-    """
-    if not USE_PDF_VISION_FOR_TABLES:
-        return False
-
-    combined_query = f"{query} {optimized_query}"
-
-    if is_table_query(combined_query):
-        return True
-
-    for doc in best_docs:
-        meta = doc.get("meta", {}) or {}
-        method = meta.get("chunking_method", "")
-
-        if method in ["table_row", "table_full"]:
-            return True
-
-        if doc.get("is_huge_tabular_regex", False):
-            return True
-
-        text = (doc.get("text", "") or "").lower()
-        if "|---" in text or "tableau annexe" in text or "crédits ouverts" in text or "credits ouverts" in text:
-            return True
-
-    return False
-
-
 # ==============================================================================
-# 🧠 FORMATAGE DES PROMPTS TEXTUELS EXISTANTS
+# 🧠 SYSTEM PROMPT
 # ==============================================================================
-def _format_llm_prompt(query, best_docs):
-    """
-    Constructs the prompt using your exact system prompt logic,
-    including page numbers, table metadata, and natural legal titles for the LLM.
 
-    IMPORTANT:
-    This function still returns formatted_sources for the frontend.
-    """
+def _build_system_prompt():
     date_du_jour = datetime.now().strftime("%d/%m/%Y")
 
+    return f"""Tu es un assistant juridique strict. Aujourd'hui, nous sommes le {date_du_jour}. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
+
+RÈGLES DE FORMATAGE STRICTES :
+1. Ne fais aucune introduction.
+2. N'explique pas ton raisonnement.
+3. Commence directement la réponse.
+4. Si plusieurs documents répondent à la même question, privilégie le document le plus récent.
+5. Si la réponse implique une liste, sois exhaustif et n'omets aucun élément visible dans la source.
+6. Si la source est un tableau, respecte exactement les valeurs, codes, montants, taux, unités et libellés.
+7. Si les documents ne répondent qu'à une partie de la question, réponds à cette partie et précise clairement que le reste n'est pas indiqué.
+
+RÈGLE CRITIQUE DE REJET :
+Si l'information exacte ne se trouve pas dans les documents fournis, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
+"Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
+
+RÈGLE CRITIQUE DE CITATION :
+Tu dois TOUJOURS citer l'acte juridique utilisé au début de la réponse ou au début de chaque point important.
+
+Utilise obligatoirement ces formes :
+
+- "D'après le décret exécutif n° ... du ..., ..."
+- "D'après le décret présidentiel n° ... du ..., ..."
+- "D'après le décret exécutif du ..., ..."
+- "D'après le décret présidentiel du ..., ..."
+- "D'après la loi n° ... du ..., ..."
+- "D'après la loi organique n° ... du ..., ..."
+- "D'après l'arrêté du ..., ..."
+- "D'après la décision n° ... du ..., ..."
+- "D'après l'article ... du/de la ..., ..."
+
+Si le numéro de l'acte est visible, cite-le.
+Si l'article est visible et pertinent, cite-le.
+Si le numéro n'est pas visible, cite seulement le type d'acte et la date.
+N'invente jamais un numéro, une date ou un article.
+
+INTERDIT :
+- "Selon le document"
+- "Selon les sources"
+- "Le texte indique"
+- "Dans le document fourni"
+- "D'après le contexte"
+
+EXEMPLES DE STYLE :
+
+Question : Que fixe le décret exécutif n° 25-60 ?
+Réponse correcte :
+D'après le décret exécutif n° 25-60 du 28 Rajab 1446 correspondant au 28 janvier 2025, ce texte fixe les modalités d’élaboration et d’exécution des plans de confortement priorisés visant à préserver les infrastructures et les bâtiments à valeur stratégique ou patrimoniale contre les risques de catastrophes.
+
+Question : Qui préside la commission nationale ?
+Réponse correcte :
+D'après l'article 10 du décret exécutif n° 25-60 du 28 Rajab 1446 correspondant au 28 janvier 2025, la commission nationale est présidée par le ministre chargé de l'habitat ou son représentant.
+
+Question : Quelles sont les conditions pour bénéficier de la VAEP ?
+Réponse correcte :
+D'après l'article 4 de l'arrêté du 6 Joumada Ethania 1446 correspondant au 8 décembre 2024, tout candidat à la validation des acquis de l’expérience professionnelle doit être inscrit maritime et avoir exercé une navigation effective à bord des navires de commerce et/ou des navires auxiliaires.
+
+Question : Quelle banque est agréée ?
+Réponse correcte :
+D'après la décision n° 25-02 du 16 Rajab 1446 correspondant au 16 janvier 2025, « T.C Ziraat Bankasi-Algeria » est agréée en qualité de succursale de banque.
+
+Question : Qui a été nommé à une fonction ?
+Réponse correcte :
+D'après le décret présidentiel du 29 Rajab 1446 correspondant au 29 janvier 2025, M. Djamal Younsi est nommé délégué national à la sécurité routière.
+
+FORMAT FINAL :
+- Réponse directe.
+- Citation juridique dès le début.
+- Pas d'introduction.
+- Pas de raisonnement.
+- Pas d'information hors documents.
+"""
+
+
+# ==============================================================================
+# 🧠 FORMATAGE DES SOURCES POUR FRONTEND
+# ==============================================================================
+
+def _format_llm_prompt(query, best_docs):
+    """
+    Builds:
+    - system prompt
+    - fallback text prompt
+    - formatted_sources for the frontend
+
+    IMPORTANT:
+    In the new full-vision version, formatted_sources is still required
+    for the frontend. The LLM itself receives only rendered PDF pages.
+    """
     formatted_context = ""
     formatted_sources = []
 
     for i, doc in enumerate(best_docs):
-        meta = doc.get("meta", {})
-        text = doc.get("text", "")
+        meta = doc.get("meta", {}) or {}
+        text = doc.get("text", "") or ""
 
-        source_file = meta.get("source_file", f"Document inconnu {i+1}")
+        source_file = meta.get("source_file", f"Document inconnu {i + 1}")
         source_file = normalize_source_file_to_pdf(source_file)
 
         chunking_method = meta.get("chunking_method", "")
         chunk_format = meta.get("chunk_format", "")
         page_num = meta.get("page", "Inconnu")
 
-        if chunking_method in ["table_row", "table_full"]:
-            table_id = meta.get("table_id", "Tableau inconnu")
-            table_kind = meta.get("table_kind", "Tableau")
-            titre_juridique = meta.get("parent_title") or table_id
-            article = f"{table_kind} / {chunk_format}"
-        else:
-            titre_juridique = meta.get("parent_title", "Texte de loi inconnu")
-            article = meta.get("document_type", "Extrait")
+        titre_juridique = meta.get("parent_title") or meta.get("page_id") or "Page du Journal Officiel"
+        article = meta.get("document_type") or chunking_method or "Extrait"
 
         raw_score = doc.get("rerank_score", 0)
-        scaled_score = float(raw_score) * 100
-        percentage_score = max(0, min(100, int(scaled_score)))
+
+        try:
+            scaled_score = float(raw_score) * 100
+            percentage_score = max(0, min(100, int(scaled_score)))
+        except Exception:
+            percentage_score = 0
 
         formatted_sources.append({
             "doc_id": str(doc.get("id", i)),
@@ -392,61 +468,7 @@ def _format_llm_prompt(query, best_docs):
         formatted_context += f"--- SOURCE : {titre_juridique} | PAGE : {page_num} ({article}) ---\n"
         formatted_context += f"{text}\n\n"
 
-    system_prompt = f"""Tu es un assistant juridique strict. Aujourd'hui, nous sommes le {date_du_jour}. Ta mission exclusive est de répondre aux questions en te basant UNIQUEMENT sur les documents fournis dans la balise <documents>.
-
-RÈGLES DE FORMATAGE STRICTES (À RESPECTER ABSOLUMENT) :
-1. INTERDICTION FORMELLE d'utiliser des phrases d'introduction ou de conclusion. Ne dis JAMAIS "En vertu des instructions", "Après examen", "Je vais analyser", etc.
-2. INTERDICTION d'expliquer ton raisonnement. Ne décris pas ce que tu as trouvé avant de répondre.
-3. Commence DIRECTEMENT ta réponse.
-4. Si plusieurs documents contiennent des réponses possibles ou contradictoires pour la même question, tu DOIS privilégier et formuler ta réponse en te basant EXCLUSIVEMENT sur le document le plus récent (en te fiant aux dates mentionnées dans les titres des sources).
-5. Si la réponse implique une liste d'éléments, tu dois être EXHAUSTIF et n'omettre aucun élément mentionné dans la source.
-6. Si la source est un tableau, exploite précisément la ligne ou le tableau fourni. Ne transforme pas les valeurs, les codes, les taux ou les libellés.
-7. Si la question demande plusieurs éléments, conditions, délais, procédures, exceptions ou montants, structure la réponse en couvrant chaque élément demandé. Ne laisse aucune partie de la question sans réponse si elle est présente dans les documents.
-8. Si les documents permettent de répondre seulement à une partie de la question, réponds à cette partie et précise clairement que le reste n'est pas indiqué dans les documents. N'utilise la phrase de rejet complète que si aucun élément utile de réponse n'est présent dans les documents.
-
-RÈGLE CRITIQUE DE REJET :
-Si l'information exacte ne se trouve pas dans les documents, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
-"Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
-N'ajoute AUCUN préfixe. Juste cette phrase unique.
-Ne tente pas de deviner ou de déduire. Si les documents fournis parlent d'un sujet connexe mais ne répondent pas EXACTEMENT et FACTUELLEMENT à la question posée, applique la RÈGLE CRITIQUE DE REJET.
-
-FORMAT SI LA RÉPONSE EST TROUVÉE :
-- Réponds de manière directe, factuelle et concise.
-- Utilise des listes à puces si nécessaire.
-- Cite obligatoirement tes sources de manière naturelle (Type de texte, Numéro, Page, Article). Si la source indique "Texte de loi inconnu", utilise cette mention exacte suivie de la page et de l'article si disponible.
-- Si la source est un tableau, cite le fichier ou l'identifiant du tableau, la page, et la ligne si elle est disponible.
-
-=== EXEMPLES DE COMPORTEMENT ATTENDU ===
-
-Exemple 1 (Information présente avec source complète) :
-<documents>
---- SOURCE : Décret exécutif n° 23-64 du 14 Rajab 1444 correspondant au 5 février 2023 | PAGE : 3 (Décret) ---
-Contenu : Art. 2. — La réalisation et l'exploitation d'un aérodrome destiné à l'usage privé, sont soumises à l'autorisation de l'autorité chargée de l'aviation civile.
-</documents>
-<question>Qui autorise la création d'un aérodrome privé ?</question>
-Réponse directe :
-La réalisation et l'exploitation d'un aérodrome à usage privé nécessitent l'autorisation de l'autorité chargée de l'aviation civile.
-- [Source : Décret exécutif n° 23-64, Page 3, Art. 2]
-
-Exemple 2 (Information absente) :
-<documents>
---- SOURCE : Arrêté interministériel du 5 Rajab 1429 | PAGE : 5 (Arrêté) ---
-Contenu : Art. 1. — Le présent arrêté fixe le tarif des redevances.
-</documents>
-<question>Quelle est la durée du congé maternité ?</question>
-Réponse directe :
-Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information.
-
-Exemple 3 (Information présente avec source inconnue) :
-<documents>
---- SOURCE : Texte de loi inconnu | PAGE : 17 (Extrait) ---
-Article 1er. — En application des dispositions de l'article 2 du décret exécutif n° 03-297 du 13 Rajab 1424 correspondant au 10 septembre 2003, modifié et complété, fixant les conditions et les modalités d'organisation des festivals culturels, est institutionnalisé à Adrar, le festival culturel international annuel du théâtre du Sahara.
-</documents>
-<question>Quelle ville a été choisie pour accueillir le festival culturel international annuel du théâtre du Sahara ?</question>
-Réponse directe :
-La ville choisie pour accueillir le festival culturel international annuel du théâtre du Sahara est Adrar.
-- [Source : Texte de loi inconnu, Page 17, Art. 1er]
-"""
+    system_prompt = _build_system_prompt()
 
     user_prompt = f"""<documents>
 {formatted_context}
@@ -463,70 +485,56 @@ Réponse directe :"""
 
 def _format_pdf_vision_prompt(query: str, page_labels: list[str]):
     """
-    Prompt used only for the PDF-page vision route.
-    Does not modify the normal text-generation prompt.
+    Prompt used for the full PDF-page vision route.
     """
     page_context = "\n".join(page_labels)
 
-    system_prompt = """Tu es un assistant juridique strict spécialisé dans la lecture de tableaux du Journal Officiel algérien.
+    system_prompt = _build_system_prompt()
 
-Tu dois répondre uniquement à partir des images fournies.
+    user_prompt = f"""<documents>
+Les documents fournis sont uniquement les images des pages originales du Journal Officiel algérien.
 
-Règles :
-1. Lis attentivement les tableaux, les lignes, les colonnes, les en-têtes, les titres et les notes.
-2. Préserve exactement les nombres, montants, taux, unités, dates, noms, codes, libellés et signes.
-3. Si plusieurs pages sont fournies, cherche la réponse dans toutes les pages, mais ne mélange pas deux lignes différentes.
-4. Si la réponse est visible, donne une réponse directe et cite le fichier et la page.
-5. Si l'information n'est pas visible dans les images fournies, réponds exactement :
-"Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
-6. N'explique pas ton raisonnement. Commence directement la réponse.
-7. Site le décret ou la loi ou la décision ou l'arrêté en citant le numéro, la page, et l'article si possible. Si c'est un tableau, cite le nom du tableau, la page, et la ligne si possible.
-"""
-
-    user_prompt = f"""Les images suivantes sont des pages originales du Journal Officiel :
-
+Pages fournies :
 {page_context}
+</documents>
 
-Question :
+<question>
 {query}
+</question>
 
 Réponse directe :"""
 
     return system_prompt, user_prompt
 
 
+# ==============================================================================
+# 👁️ STREAM PDF VISION ANSWER
+# ==============================================================================
+
 async def _stream_pdf_vision_answer(query: str, best_docs, client: AsyncClient) -> AsyncGenerator[dict, None]:
     """
-    Uses retrieved docs only to locate source pages.
+    Uses retrieved/reranked chunks only to locate source pages.
     Then streams an answer from rendered original PDF page images.
+
+    The LLM receives only:
+    - system prompt
+    - page labels
+    - rendered PDF page images
+    - user question
     """
+    refusal_message = (
+        "Je suis désolé, je n'ai pas la réponse à cette question car la base de données "
+        "ne contient pas cette information."
+    )
+
     source_pages = get_unique_source_pages_from_docs(
         best_docs,
         max_pages=VISION_MAX_PAGES,
     )
 
     if not source_pages:
-        print("⚠️ Vision route selected, but no source pages found. Falling back to text route.")
-        system_prompt, user_prompt, _ = _format_llm_prompt(query, best_docs)
-
-        async for part in await client.chat(
-            model=settings.LLM_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            stream=True,
-            think=settings.RAG_THINK,
-            options={
-                "temperature": settings.RAG_TEMPERATURE,
-                "num_ctx": settings.RAG_NUM_CTX,
-                "num_predict": settings.RAG_NUM_PREDICT,
-            },
-        ):
-            token = part["message"]["content"]
-            if token:
-                yield {"type": "chunk", "text": token}
-
+        print("⚠️ No source pages found for full-vision route.")
+        yield {"type": "chunk", "text": refusal_message}
         return
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -560,37 +568,21 @@ async def _stream_pdf_vision_answer(query: str, best_docs, client: AsyncClient) 
             page_labels.append(f"- Image {len(image_paths)} : {pdf_path.name}, page {page_num}")
 
         if not image_paths:
-            print("⚠️ Vision route selected, but no images generated. Falling back to text route.")
-            system_prompt, user_prompt, _ = _format_llm_prompt(query, best_docs)
-
-            async for part in await client.chat(
-                model=settings.LLM_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                stream=True,
-                think=settings.RAG_THINK,
-                options={
-                    "temperature": settings.RAG_TEMPERATURE,
-                    "num_ctx": settings.RAG_NUM_CTX,
-                    "num_predict": settings.RAG_NUM_PREDICT,
-                },
-            ):
-                token = part["message"]["content"]
-                if token:
-                    yield {"type": "chunk", "text": token}
-
+            print("⚠️ No images generated for full-vision route.")
+            yield {"type": "chunk", "text": refusal_message}
             return
 
         system_prompt, user_prompt = _format_pdf_vision_prompt(query, page_labels)
 
-        print(f"👁️ PDF vision route active. Sending {len(image_paths)} page image(s) to {VISION_TABLE_MODEL}.")
+        print(f"👁️ Full PDF vision route active. Sending {len(image_paths)} page image(s) to {VISION_MODEL}.")
 
         async for part in await client.chat(
-            model=VISION_TABLE_MODEL,
+            model=VISION_MODEL,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {
+                    "role": "system",
+                    "content": system_prompt,
+                },
                 {
                     "role": "user",
                     "content": user_prompt,
@@ -606,6 +598,7 @@ async def _stream_pdf_vision_answer(query: str, best_docs, client: AsyncClient) 
             },
         ):
             token = part["message"]["content"]
+
             if token:
                 yield {"type": "chunk", "text": token}
 
@@ -613,6 +606,7 @@ async def _stream_pdf_vision_answer(query: str, best_docs, client: AsyncClient) 
 # ==============================================================================
 # 🚀 STREAM MAIN
 # ==============================================================================
+
 async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
     """
     The main generator called by the FastAPI router.
@@ -639,10 +633,10 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         return
 
     best_docs = get_best_documents_for_llm(
-        optimized_query,
-        collection,
-        bi_encoder,
-        reranker,
+        retrieval_query=optimized_query,
+        collection=collection,
+        bi_encoder=bi_encoder,
+        reranker=reranker,
         top_k_retrieve=settings.RAG_TOP_K_RETRIEVE,
         top_k_rerank=settings.RAG_TOP_K_RERANK,
         rerank_query=query,
@@ -653,41 +647,14 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         yield {"type": "chunk", "text": refusal_message}
         return
 
-    # Always build sources the same way for the frontend.
-    system_prompt, user_prompt, sources = _format_llm_prompt(query, best_docs)
+    # Still build sources the same way for the frontend.
+    # The LLM will NOT receive this text in the full-vision route.
+    _, _, sources = _format_llm_prompt(query, best_docs)
 
     # Emit sources first, exactly like before.
     yield {"type": "sources", "sources": sources}
 
     client = AsyncClient(host=settings.OLLAMA_HOST)
 
-    use_pdf_vision = should_use_pdf_vision_route(
-        query=query,
-        optimized_query=optimized_query,
-        best_docs=best_docs,
-    )
-
-    if use_pdf_vision:
-        async for event in _stream_pdf_vision_answer(query, best_docs, client):
-            yield event
-        return
-
-    print(settings.LLM_MODEL)
-
-    async for part in await client.chat(
-        model=settings.LLM_MODEL,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        stream=True,
-        think=settings.RAG_THINK,
-        options={
-            "temperature": settings.RAG_TEMPERATURE,
-            "num_ctx": settings.RAG_NUM_CTX,
-            "num_predict": settings.RAG_NUM_PREDICT,
-        },
-    ):
-        token = part["message"]["content"]
-        if token:
-            yield {"type": "chunk", "text": token}
+    async for event in _stream_pdf_vision_answer(query, best_docs, client):
+        yield event
