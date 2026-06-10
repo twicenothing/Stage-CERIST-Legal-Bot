@@ -1,66 +1,338 @@
 import os
-
-# 🔥 CRITICAL: Hide the blocked GPU 0, expose empty GPUs 1, 2, and 3
-# Change/remove this line if you are testing on CPU or on another machine.
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
-
 import json
+from pathlib import Path
+
 import torch
 import chromadb
-from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
+from sentence_transformers import SentenceTransformer
 
-load_dotenv()
 
-# --- CONFIGURATION ---
-REGEX_JSON_DIR = "../../data/json"
-RECURSIVE_JSON_DIR = "../../data/json_recursive"
-TABLE_CHUNKS_JSON_DIR = "../../data/table_chunks"  # NEW: table side-car chunks
+# ==============================================================================
+# PROJECT ROOT / ENV
+# ==============================================================================
 
-CHROMA_PATH = "../../data/chroma_db"
-COLLECTION_NAME = "legal_algeria"
+def find_project_root() -> Path:
+    """
+    Find the real project root, not src/embed.
+
+    Expected project root contains things like:
+    - requirements.txt
+    - backend/
+    - src/
+    - data/
+    """
+    current = Path(__file__).resolve()
+
+    for parent in current.parents:
+        if (
+            (parent / "requirements.txt").exists()
+            and (parent / "backend").exists()
+            and (parent / "src").exists()
+        ):
+            return parent
+
+    for parent in current.parents:
+        if (parent / ".git").exists():
+            return parent
+
+    for parent in current.parents:
+        if (parent / "data").exists() and (parent / "src").exists():
+            return parent
+
+    return Path(__file__).resolve().parents[2]
+
+
+BASE_DIR = find_project_root()
+
+# Load .env from the real root
+load_dotenv(BASE_DIR / ".env")
+
+
+def resolve_project_path(env_name: str, default_relative_path: str) -> Path:
+    """
+    Allows:
+      PAGE_JSON_DIR=data/json_pages
+    or:
+      PAGE_JSON_DIR=/absolute/path/to/json_pages
+    """
+    value = os.getenv(env_name)
+
+    if value:
+        path = Path(value)
+        if path.is_absolute():
+            return path
+        return BASE_DIR / path
+
+    return BASE_DIR / default_relative_path
+
+
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+PAGE_JSON_DIR = resolve_project_path(
+    "PAGE_JSON_DIR",
+    "data/json_pages",
+)
+
+CHROMA_PATH = resolve_project_path(
+    "CHROMA_PATH",
+    "data/chroma_db",
+)
+
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "legal_algeria")
 MODEL_NAME = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
 
-# Outer batch = how many chunks we send to encode/add at once.
-# This prevents RAM spikes on big corpora.
-ADD_BATCH_SIZE = 512
+ADD_BATCH_SIZE = int(os.getenv("ADD_BATCH_SIZE", "512"))
+ENCODE_BATCH_SIZE = int(os.getenv("PAGE_ENCODE_BATCH_SIZE", "8"))
+MODEL_MAX_SEQ_LENGTH = int(os.getenv("EMBEDDING_MAX_SEQ_LENGTH", "8192"))
 
-# Inner SentenceTransformer batch sizes. Keep recursive smaller because chunks are longer.
-REGEX_ENCODE_BATCH_SIZE = 16
-RECURSIVE_ENCODE_BATCH_SIZE = 4
-TABLE_ENCODE_BATCH_SIZE = 32
+RESET_COLLECTION = os.getenv("RESET_CHROMA_COLLECTION", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+    "y",
+}
 
+
+# ==============================================================================
+# METADATA HELPERS
+# ==============================================================================
 
 def safe_metadata_value(value):
-    """Chroma metadata must be str/int/float/bool or None-free."""
+    """
+    Chroma metadata values must be:
+    str, int, float, bool.
+    No None, lists, or dicts.
+    """
     if value is None:
         return ""
+
     if isinstance(value, (str, int, float, bool)):
         return value
+
     return json.dumps(value, ensure_ascii=False)
 
 
 def clean_metadata(metadata):
-    return {str(k): safe_metadata_value(v) for k, v in (metadata or {}).items()}
+    return {
+        str(k): safe_metadata_value(v)
+        for k, v in (metadata or {}).items()
+    }
 
 
-def add_encoded_batches(collection, model, pool, ids, documents, metadatas, encode_batch_size, label):
-    """Encode and add in smaller batches to avoid memory spikes."""
+def normalize_source_file(source_file: str) -> str:
+    """
+    Ensures source_file always points to a PDF filename.
+    """
+    source_file = str(source_file or "").strip()
+
+    if not source_file:
+        return ""
+
+    base = os.path.basename(source_file)
+
+    if base.lower().endswith(".txt"):
+        base = os.path.splitext(base)[0] + ".pdf"
+
+    if not base.lower().endswith(".pdf"):
+        base += ".pdf"
+
+    return base
+
+
+def make_safe_chroma_id(raw_id: str) -> str:
+    raw_id = str(raw_id or "").strip()
+    raw_id = raw_id.replace(" ", "_")
+    raw_id = raw_id.replace("/", "_")
+    raw_id = raw_id.replace("\\", "_")
+    return raw_id
+
+
+# ==============================================================================
+# MODEL HELPERS
+# ==============================================================================
+
+def get_available_devices():
+    if not torch.cuda.is_available():
+        return []
+
+    return [f"cuda:{i}" for i in range(torch.cuda.device_count())]
+
+
+def load_embedding_model():
+    print(f"🤖 Loading embedding model: {MODEL_NAME}")
+
+    devices = get_available_devices()
+
+    if devices:
+        print(f"✅ CUDA available. Visible devices: {devices}")
+
+        model = SentenceTransformer(
+            MODEL_NAME,
+            model_kwargs={
+                "torch_dtype": torch.float16,
+                "attn_implementation": "sdpa",
+            },
+        )
+    else:
+        print("⚠️ CUDA not available. Using CPU.")
+        model = SentenceTransformer(MODEL_NAME)
+
+    model.max_seq_length = MODEL_MAX_SEQ_LENGTH
+
+    print(f"📏 Model max sequence length: {model.max_seq_length}")
+
+    return model, devices
+
+
+# ==============================================================================
+# PAGE JSON LOADING
+# ==============================================================================
+
+def load_page_chunks_from_file(file_path: Path):
+    """
+    Loads JSON files generated by chunk_pages_for_vision.py.
+
+    Expected structure:
+    {
+      "source_file": "F202009.pdf",
+      "chunks": [
+        {
+          "id": "...",
+          "text": "...",
+          "metadata": {
+            "source_file": "F202009.pdf",
+            "page": 9,
+            "page_id": "F202009_p9",
+            "chunking_method": "page_full" or "page_window"
+          }
+        }
+      ]
+    }
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if "chunks" not in data:
+        print(f"   ⚠️ Skipped {file_path.name}: no 'chunks' key")
+        return [], [], []
+
+    source_file = normalize_source_file(data.get("source_file", file_path.name))
+
+    ids = []
+    documents = []
+    metadatas = []
+
+    for idx, chunk in enumerate(data.get("chunks", []), start=1):
+        text = str(chunk.get("text", "")).strip()
+
+        if not text:
+            continue
+
+        metadata = dict(chunk.get("metadata", {}))
+
+        metadata["source_file"] = normalize_source_file(
+            metadata.get("source_file", source_file)
+        )
+
+        metadata.setdefault("source_json", file_path.name)
+        metadata.setdefault("page", "Inconnu")
+        metadata.setdefault("page_id", "")
+        metadata.setdefault("chunking_method", "page_window")
+        metadata.setdefault("chunk_format", "page_text")
+        metadata.setdefault("chunk_index", chunk.get("chunk_index", idx))
+        metadata.setdefault("embedding_strategy", "page_full_plus_page_window")
+
+        chunk_id = chunk.get("id")
+
+        if not chunk_id:
+            page_id = metadata.get("page_id") or Path(source_file).stem
+            chunk_method = metadata.get("chunking_method", "page_chunk")
+            chunk_id = f"{page_id}_{chunk_method}_{idx}"
+
+        chunk_id = make_safe_chroma_id(chunk_id)
+
+        ids.append(chunk_id)
+        documents.append(text)
+        metadatas.append(clean_metadata(metadata))
+
+    return ids, documents, metadatas
+
+
+def collect_json_files():
+    if not PAGE_JSON_DIR.exists():
+        print(f"❌ PAGE_JSON_DIR not found: {PAGE_JSON_DIR}")
+        return []
+
+    json_files = sorted([
+        p for p in PAGE_JSON_DIR.iterdir()
+        if p.is_file() and p.suffix.lower() == ".json"
+    ])
+
+    if not json_files:
+        print(f"⚠️ No JSON files found in: {PAGE_JSON_DIR}")
+        return []
+
+    return json_files
+
+
+# ==============================================================================
+# CHROMA
+# ==============================================================================
+
+def create_or_reset_collection():
+    print(f"🔄 Initializing ChromaDB at: {CHROMA_PATH}")
+
+    CHROMA_PATH.mkdir(parents=True, exist_ok=True)
+
+    client = chromadb.PersistentClient(path=str(CHROMA_PATH))
+
+    if RESET_COLLECTION:
+        try:
+            client.delete_collection(COLLECTION_NAME)
+            print(f"🗑️ Deleted old collection: {COLLECTION_NAME}")
+        except Exception:
+            print(f"ℹ️ No existing collection to delete: {COLLECTION_NAME}")
+
+    collection = client.get_or_create_collection(name=COLLECTION_NAME)
+
+    print(f"📚 Using collection: {COLLECTION_NAME}")
+
+    return collection
+
+
+def add_encoded_batches(collection, model, pool, ids, documents, metadatas, label="chunks"):
     if not documents:
         return 0
 
     total_added = 0
+
     for start in range(0, len(documents), ADD_BATCH_SIZE):
-        end = start + ADD_BATCH_SIZE
+        end = min(start + ADD_BATCH_SIZE, len(documents))
+
         batch_ids = ids[start:end]
         batch_docs = documents[start:end]
         batch_metas = metadatas[start:end]
 
-        embeddings_array = model.encode(
-            batch_docs,
-            pool=pool,
-            batch_size=encode_batch_size,
+        print(
+            f"🧠 Encoding {label} batch "
+            f"{start + 1}-{end}/{len(documents)}..."
         )
+
+        if pool is not None:
+            embeddings_array = model.encode(
+                batch_docs,
+                pool=pool,
+                batch_size=ENCODE_BATCH_SIZE,
+            )
+        else:
+            embeddings_array = model.encode(
+                batch_docs,
+                batch_size=ENCODE_BATCH_SIZE,
+                show_progress_bar=False,
+            )
 
         collection.add(
             ids=batch_ids,
@@ -68,223 +340,114 @@ def add_encoded_batches(collection, model, pool, ids, documents, metadatas, enco
             embeddings=embeddings_array.tolist(),
             metadatas=batch_metas,
         )
+
         total_added += len(batch_docs)
-        print(f"      ➕ Added {total_added}/{len(documents)} {label} chunks")
+
+        print(f"   ➕ Added {total_added}/{len(documents)} {label}")
 
     return total_added
 
 
-def process_regex_file(file_path, filename, collection, model, pool):
-    """Processes JSONs generated by the Regex chunker using Multi-GPU."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    if "documents" not in data:
-        return 0
-
-    ids, documents, metadatas = [], [], []
-
-    # Prefer the original TXT/PDF-ish source name inside the JSON when available.
-    source_file = data.get("source_file", filename)
-
-    for doc_idx, doc in enumerate(data["documents"]):
-        parent_title = doc.get("title", "Sans titre")
-        document_context = doc.get("context", parent_title)
-        articles = doc.get("articles", [])
-        page_numero = doc.get("page", "Inconnu")
-
-        parent_id = f"{source_file}_regex_doc_{doc_idx}"
-
-        title_lower = parent_title.lower()
-        if "décret" in title_lower or "decret" in title_lower:
-            doc_type = "Décret"
-        elif "arrêté" in title_lower or "arrete" in title_lower:
-            doc_type = "Arrêté"
-        elif "décision" in title_lower or "decision" in title_lower:
-            doc_type = "Décision"
-        elif "loi" in title_lower:
-            doc_type = "Loi"
-        elif "ordonnance" in title_lower:
-            doc_type = "Ordonnance"
-        elif "convention" in title_lower:
-            doc_type = "Convention"
-        elif "accord" in title_lower:
-            doc_type = "Accord"
-        else:
-            doc_type = "Autre"
-
-        if not articles:
-            if document_context:
-                ids.append(f"{parent_id}_full_context")
-                documents.append(document_context)
-                metadatas.append(clean_metadata({
-                    "source_file": source_file,
-                    "page": page_numero,
-                    "document_type": doc_type,
-                    "chunk_format": "full_context",
-                    "chunking_method": "regex",
-                    "parent_title": parent_title,
-                    "parent_id": parent_id,
-                }))
-        else:
-            for art_idx, article_text in enumerate(articles):
-                child_id = f"{parent_id}_art_{art_idx}"
-                contextualized_text = f"Source: {parent_title}\nContenu: {article_text}"
-
-                ids.append(child_id)
-                documents.append(contextualized_text)
-                metadatas.append(clean_metadata({
-                    "source_file": source_file,
-                    "page": page_numero,
-                    "document_type": doc_type,
-                    "chunk_format": "article",
-                    "chunking_method": "regex",
-                    "parent_title": parent_title,
-                    "parent_id": parent_id,
-                }))
-
-    return add_encoded_batches(
-        collection, model, pool, ids, documents, metadatas,
-        encode_batch_size=REGEX_ENCODE_BATCH_SIZE,
-        label="regex",
-    )
-
-
-def process_recursive_file(file_path, filename, collection, model, pool):
-    """Processes JSONs generated by the Recursive chunker using Multi-GPU."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    if "chunks" not in data:
-        return 0
-
-    ids, documents, metadatas = [], [], []
-    source_file = data.get("source_file", filename)
-
-    for chunk in data["chunks"]:
-        chunk_idx = chunk.get("chunk_index")
-        text = chunk.get("text", "")
-        if not text.strip():
-            continue
-
-        metadata_dict = chunk.get("metadata", {})
-        page_numero = metadata_dict.get("page", "Inconnu")
-
-        ids.append(f"{source_file}_recursive_chunk_{chunk_idx}")
-        documents.append(text)
-        metadatas.append(clean_metadata({
-            "source_file": source_file,
-            "page": page_numero,
-            "chunking_method": "recursive",
-            "chunk_index": chunk_idx,
-            "chunk_format": "raw_text",
-        }))
-
-    return add_encoded_batches(
-        collection, model, pool, ids, documents, metadatas,
-        encode_batch_size=RECURSIVE_ENCODE_BATCH_SIZE,
-        label="recursive",
-    )
-
-
-def process_table_chunks_file(file_path, filename, collection, model, pool):
-    """Processes JSONs generated by the table side-car extractor."""
-    with open(file_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    if "chunks" not in data:
-        return 0
-
-    ids, documents, metadatas = [], [], []
-    source_file = data.get("source_file", filename)
-
-    for idx, chunk in enumerate(data["chunks"]):
-        text = chunk.get("text", "")
-        if not text.strip():
-            continue
-
-        chunk_id = chunk.get("id") or f"{source_file}_table_chunk_{idx + 1}"
-        metadata_dict = chunk.get("metadata", {})
-
-        # Keep the extractor metadata, but enforce standard fields.
-        meta = dict(metadata_dict)
-        meta.setdefault("source_file", source_file)
-        meta.setdefault("page", metadata_dict.get("page", "Inconnu"))
-        meta.setdefault("chunking_method", metadata_dict.get("chunking_method", "table_row"))
-        meta.setdefault("chunk_format", metadata_dict.get("chunk_format", "table_row"))
-
-        ids.append(str(chunk_id))
-        documents.append(text)
-        metadatas.append(clean_metadata(meta))
-
-    return add_encoded_batches(
-        collection, model, pool, ids, documents, metadatas,
-        encode_batch_size=TABLE_ENCODE_BATCH_SIZE,
-        label="table",
-    )
-
-
-def process_directory(label, directory, processor, collection, model, pool):
-    total = 0
-    print(f"\n--- Processing {label} Chunks ---")
-    if not os.path.exists(directory):
-        print(f"⚠️ {label} directory not found: {directory}")
-        return 0
-
-    json_files = [f for f in os.listdir(directory) if f.lower().endswith(".json")]
-    if not json_files:
-        print(f"⚠️ No JSON files found in: {directory}")
-        return 0
-
-    for filename in sorted(json_files):
-        print(f"   📄 Processing {filename}...")
-        total += processor(os.path.join(directory, filename), filename, collection, model, pool)
-    return total
-
+# ==============================================================================
+# MAIN INDEXING
+# ==============================================================================
 
 def main():
-    print(f"🔄 Initializing ChromaDB at: {CHROMA_PATH}...")
-    client = chromadb.PersistentClient(path=CHROMA_PATH)
+    print("=" * 100)
+    print("🚀 PAGE-BASED EMBEDDING FOR FULL-VISION LEGAL RAG")
+    print("=" * 100)
+    print(f"Project root:       {BASE_DIR}")
+    print(f"Input JSON folder:  {PAGE_JSON_DIR}")
+    print(f"Chroma path:        {CHROMA_PATH}")
+    print(f"Collection name:    {COLLECTION_NAME}")
+    print(f"Embedding model:    {MODEL_NAME}")
+    print(f"Reset collection:   {RESET_COLLECTION}")
+    print("=" * 100)
+
+    json_files = collect_json_files()
+
+    if not json_files:
+        print("❌ No chunks to embed. Stopping.")
+        return
+
+    print(f"📁 Found {len(json_files)} page JSON files.")
+
+    collection = create_or_reset_collection()
+    model, devices = load_embedding_model()
+
+    pool = None
+    global_total_added = 0
+    global_page_full = 0
+    global_page_window = 0
+    errors = 0
 
     try:
-        client.delete_collection(COLLECTION_NAME)
-        print("🗑️  Old collection deleted (Starting fresh).")
-    except Exception:
-        pass
+        if len(devices) >= 2:
+            print("🚀 Starting multi-GPU worker pool...")
+            pool = model.start_multi_process_pool()
+            print("✅ Multi-GPU pool started.")
+        else:
+            print("ℹ️ Using single-device encoding.")
 
-    collection = client.get_or_create_collection(name=COLLECTION_NAME)
+        for index, file_path in enumerate(json_files, start=1):
+            print("-" * 100)
+            print(f"[{index}/{len(json_files)}] Loading {file_path.name}...")
 
-    print(f"🤖 Loading Model: {MODEL_NAME} in FP16 with Max Context...")
-    model = SentenceTransformer(
-        MODEL_NAME,
-        model_kwargs={
-            "torch_dtype": torch.float16,
-            "attn_implementation": "sdpa",
-        },
-    )
-    model.max_seq_length = 8192
+            try:
+                ids, documents, metadatas = load_page_chunks_from_file(file_path)
 
-    print("🚀 Spawning Multi-GPU Worker Pool on available GPUs...")
-    pool = model.start_multi_process_pool()
+                if not documents:
+                    print(f"   ⚠️ No valid chunks in {file_path.name}")
+                    continue
 
-    global_total_chunks = 0
-    try:
-        global_total_chunks += process_directory(
-            "Regex", REGEX_JSON_DIR, process_regex_file, collection, model, pool
-        )
-        global_total_chunks += process_directory(
-            "Table", TABLE_CHUNKS_JSON_DIR, process_table_chunks_file, collection, model, pool
-        )
-        global_total_chunks += process_directory(
-            "Recursive", RECURSIVE_JSON_DIR, process_recursive_file, collection, model, pool
-        )
+                page_full_count = sum(
+                    1 for m in metadatas
+                    if m.get("chunking_method") == "page_full"
+                )
+
+                page_window_count = sum(
+                    1 for m in metadatas
+                    if m.get("chunking_method") == "page_window"
+                )
+
+                print(
+                    f"   ✅ loaded={len(documents)} "
+                    f"| full={page_full_count} "
+                    f"| windows={page_window_count}"
+                )
+
+                added = add_encoded_batches(
+                    collection=collection,
+                    model=model,
+                    pool=pool,
+                    ids=ids,
+                    documents=documents,
+                    metadatas=metadatas,
+                    label=file_path.name,
+                )
+
+                global_total_added += added
+                global_page_full += page_full_count
+                global_page_window += page_window_count
+
+            except Exception as e:
+                errors += 1
+                print(f"   ❌ ERROR in {file_path.name}: {e}")
+
     finally:
-        model.stop_multi_process_pool(pool)
-        print("🛑 Multi-GPU Pool successfully shut down.")
+        if pool is not None:
+            model.stop_multi_process_pool(pool)
+            print("🛑 Multi-GPU pool shut down.")
 
-    print("\n" + "=" * 60)
-    print(f"🎉 INDEXING COMPLETE! Total Vectors: {global_total_chunks}")
-    print("=" * 60)
+    print("\n" + "=" * 100)
+    print("🎉 INDEXING COMPLETE")
+    print(f"Total vectors added: {global_total_added}")
+    print(f"Page full chunks:    {global_page_full}")
+    print(f"Page window chunks:  {global_page_window}")
+    print(f"Errors:              {errors}")
+    print(f"Collection name:     {COLLECTION_NAME}")
+    print(f"Chroma path:         {CHROMA_PATH}")
+    print("=" * 100)
 
 
 if __name__ == "__main__":

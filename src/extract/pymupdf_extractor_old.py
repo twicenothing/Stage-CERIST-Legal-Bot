@@ -1,491 +1,405 @@
-import fitz  # PyMuPDF
-import re
 import os
-import json
+import re
+from pathlib import Path
 
-# --- CONFIGURATION ---
-# Mettez vos dossiers (ex: 2002, 2003, 2004) dans ce dossier principal
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-BASE_PDF_DIR = os.path.join(BASE_DIR, "data", "pdf_old")
-OUTPUT_TXT_DIR =  os.path.join(BASE_DIR, "data", "txt")
-OUTPUT_TABLES_DIR = os.path.join(BASE_DIR, "data", "tables")
-OUTPUT_TABLE_CHUNKS_DIR = os.path.join(BASE_DIR, "data", "table_chunks")
+import fitz  # PyMuPDF
 
 
-def remove_arabic(text):
-    """Supprime les caractères arabes via Regex"""
-    return re.sub(r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+', '', text)
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
 
-def is_sommaire_page(text_blocks):
-    if not text_blocks: return False
-    valid_blocks = [b for b in text_blocks if b[6] == 0 and b[4].strip()]
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+# This script is for old PDFs only.
+BASE_PDF_DIR = BASE_DIR / "data" / "pdf_old"
+
+# Output for the new full-vision pipeline.
+# Same folder as the new page-based extractor.
+OUTPUT_TXT_DIR = Path(
+    os.getenv("PAGE_TXT_DIR", str(BASE_DIR / "data" / "txt_pages"))
+)
+
+
+# ==============================================================================
+# CLEANING HELPERS
+# ==============================================================================
+
+def remove_arabic(text: str) -> str:
+    """Supprime les caractères arabes via Regex."""
+    return re.sub(
+        r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+",
+        "",
+        text or "",
+    )
+
+
+def normalize_text(text: str) -> str:
+    """
+    Light cleanup while preserving page and line structure.
+    """
+    text = str(text or "")
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def is_sommaire_page(text_blocks) -> bool:
+    """
+    Détecte les pages de sommaire.
+    Gère aussi les cas où 'sommaire' est écrit avec des espaces.
+    """
+    if not text_blocks:
+        return False
+
+    valid_blocks = [
+        b for b in text_blocks
+        if len(b) >= 7 and b[6] == 0 and str(b[4]).strip()
+    ]
+
     valid_blocks.sort(key=lambda b: b[1])
-    header_text = " ".join([b[4] for b in valid_blocks[:15]]).lower()
-    header_text_clean = re.sub(r'\s+', '', header_text)
+
+    header_text = " ".join([str(b[4]) for b in valid_blocks[:15]]).lower()
+    header_text_clean = re.sub(r"\s+", "", header_text)
+
     return "sommaire" in header_text_clean
 
-def is_ignored_title(text):
+
+def is_ignored_title(text: str) -> bool:
     """
     Vérifie si le texte est un titre à ignorer.
-    Gère les lettres espacées comme 'D E C R E T S' en supprimant tous les espaces.
+    Gère les lettres espacées comme 'D E C R E T S'
+    en supprimant tous les espaces.
     """
-    clean_text = text.strip().lower()
-    # On supprime absolument TOUS les espaces
-    clean_text_no_spaces = re.sub(r'\s+', '', clean_text)
-    
-    # Liste sans aucun espace
+    clean_text = str(text or "").strip().lower()
+    clean_text_no_spaces = re.sub(r"\s+", "", clean_text)
+
     exact_matches_no_spaces = [
-        "decisionsetavis", "décisionsetavis",
-        "arretes", "arrêtés", "arrêtes",
-        "arretes,decisionsetavis", "arrêtés,décisionsetavis",
+        "decisionsetavis",
+        "décisionsetavis",
+        "arretes",
+        "arrêtés",
+        "arrêtes",
+        "arretes,decisionsetavis",
+        "arrêtés,décisionsetavis",
         "conventionsetaccordsinternationaux",
-        "decrets", "décrets",
-        "decisionsindividuelles", "décisionsindividuelles",
+        "decrets",
+        "décrets",
+        "decisionsindividuelles",
+        "décisionsindividuelles",
         "annoncesetcommunications",
-        "reglements", "règlements","lois","proclamations",
-        "reglementsinterieurs", "règlementsintérieurs",
-        "arretesetproclamations", "arrêtésétproclamations",
-        "proclamationsetdecisions", "proclamationsetdécisions", "avis","avisetlois",
-        "ordonnances","instructionspresidentielles", "instructionsprésidentielles"
+        "reglements",
+        "règlements",
+        "lois",
+        "proclamations",
+        "reglementsinterieurs",
+        "règlementsintérieurs",
+        "arretesetproclamations",
+        "arrêtésétproclamations",
+        "arrêtésetproclamations",
+        "proclamationsetdecisions",
+        "proclamationsetdécisions",
+        "avis",
+        "avisetlois",
+        "ordonnances",
+        "instructionspresidentielles",
+        "instructionsprésidentielles",
     ]
-    
+
     return clean_text_no_spaces in exact_matches_no_spaces
 
 
-# --- TABLE SIDE-CAR EXTRACTION HELPERS ---
-# These helpers do not change the existing text extraction logic.
-# They only create extra JSON files for tables and table-row chunks.
+# ==============================================================================
+# SPECIAL 2003-2004 EXTRACTION LOGIC
+# ==============================================================================
 
-def ensure_dir(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def one_line(text):
-    return re.sub(r'\s+', ' ', str(text or '')).strip()
-
-
-def clean_table_cell(cell):
-    if cell is None:
-        return ""
-    value = str(cell).replace('\r', '\n')
-    value = remove_arabic(value)
-    value = re.sub(r'\s+', ' ', value).strip()
-    return value
-
-
-def make_unique_headers(header_row, max_cols):
-    """Create stable, non-empty, unique headers for row-level JSON chunks."""
-    headers = []
-    seen = {}
-    for i in range(max_cols):
-        raw = header_row[i] if i < len(header_row) else ""
-        h = one_line(raw)
-        if not h:
-            h = f"COL_{i+1}"
-        # Keep headers readable but short enough for metadata / chunks.
-        h = h[:120]
-        key = h.lower()
-        seen[key] = seen.get(key, 0) + 1
-        if seen[key] > 1:
-            h = f"{h}_{seen[key]}"
-        headers.append(h)
-    return headers
-
-
-def table_to_markdown(rows):
-    """Same Markdown style as the original script: keep table inside TXT flow."""
-    if not rows:
-        return "\n"
-    max_cols = max(len(r) for r in rows)
-    normalized_rows = [list(r) + [""] * (max_cols - len(r)) for r in rows]
-
-    md_table = "\n"
-    for i, row in enumerate(normalized_rows):
-        md_table += "| " + " | ".join(one_line(c) for c in row) + " |\n"
-        if i == 0:
-            md_table += "|" + "|".join(["---"] * max_cols) + "|\n"
-    md_table += "\n"
-    return md_table
-
-
-def find_table_caption(page, bbox):
-    """Light caption extraction: nearby text immediately above the table."""
-    x0, y0, x1, y1 = bbox
-    candidates = []
-    try:
-        for b in page.get_text("blocks"):
-            bx0, by0, bx1, by1, text, block_no, block_type = b
-            if block_type != 0 or not str(text).strip():
-                continue
-            # Only take text slightly above the table, not the whole page header.
-            if by1 < y0 and by1 > max(0, y0 - 110):
-                t = one_line(remove_arabic(text))
-                if not t:
-                    continue
-                low = t.lower()
-                if "journal officiel" in low or "republique algerienne" in low or "république algérienne" in low:
-                    continue
-                candidates.append((by0, t))
-    except Exception:
-        return ""
-    candidates.sort(key=lambda x: x[0])
-    return one_line(" ".join(t for _, t in candidates))
-
-
-def detect_table_kind(headers, rows, caption=""):
-    joined = one_line(" ".join(headers) + " " + caption).upper()
-    if any(k in joined for k in ["POSITION", "SOUS-POSITION", "TARIFAIRE", "TAUX", "D'ORDRE", "D’ORDRE"]):
-        return "tariff_table"
-    if any(k in joined for k in ["NOMS", "PRENOMS", "PRÉNOMS", "ORGANISME", "WILAYAS"]):
-        return "names_list_table"
-    if any(k in joined for k in ["EFFECTIF", "ETABLISSEMENTS", "ÉTABLISSEMENTS", "CATEGORIE", "CATÉGORIE", "POINT INDICIAIRE"]):
-        return "staffing_annex_table"
-    return "generic_table"
-
-
-def row_to_text_generic(source_file, page_num, table_id, caption, headers, row, row_index):
-    bits = [
-        f"Source: {source_file}",
-        f"Page: {page_num}",
-        f"Tableau: {caption or table_id}",
-        f"Ligne: {row_index}",
-    ]
-    for h, v in zip(headers, row):
-        h = one_line(h)
-        v = one_line(v)
-        if v:
-            bits.append(f"{h}: {v}")
-    return "\n".join(bits)
-
-
-def build_table_sidecar(page, tab, source_file, page_num, table_index):
+def get_text_2003_2004(page) -> str:
     """
-    Extract one table into:
-      1) Markdown for the original TXT flow
-      2) structured table JSON
-      3) full-table + row-level chunks for embedding
-    """
-    stem = os.path.splitext(os.path.basename(source_file))[0]
-    table_id = f"{stem}_p{page_num}_t{table_index}"
-    bbox = tuple(float(v) for v in tab.bbox)
+    Méthode spéciale pour les anciens PDF 2003-2004.
 
-    raw_rows = tab.extract()
-    clean_rows = []
-    for row in raw_rows:
-        clean_row = [clean_table_cell(cell) for cell in row]
-        if any(clean_row):
-            clean_rows.append(clean_row)
+    Kept:
+    - strict geometric sorting
+    - double-column reading
+    - separator/wall detection
+    - header removal
 
-    md_table = table_to_markdown(clean_rows)
-    if not clean_rows:
-        return md_table, None, []
+    Removed:
+    - table detection
+    - table Markdown injection
+    - table JSON sidecars
+    - table chunks
 
-    max_cols = max(len(r) for r in clean_rows)
-    clean_rows = [list(r) + [""] * (max_cols - len(r)) for r in clean_rows]
-    headers = make_unique_headers(clean_rows[0], max_cols)
-    caption = find_table_caption(page, bbox)
-    table_kind = detect_table_kind(headers, clean_rows, caption)
-
-    row_records = []
-    for idx, row in enumerate(clean_rows[1:], start=1):
-        if not any(one_line(c) for c in row):
-            continue
-        row_records.append({
-            "row_index": idx,
-            "cells": {headers[i]: one_line(row[i]) for i in range(max_cols)},
-        })
-
-    table_obj = {
-        "table_id": table_id,
-        "source_file": os.path.basename(source_file),
-        "page": page_num,
-        "bbox": list(bbox),
-        "caption": caption,
-        "headers": headers,
-        "rows": row_records,
-        "raw_rows": clean_rows,
-        "markdown": md_table,
-        "table_kind": table_kind,
-        "extractor": "pymupdf.find_tables",
-    }
-
-    chunks = []
-    # Full-table chunk: useful for broad questions like "what does this annex contain?"
-    chunks.append({
-        "id": f"{table_id}_full",
-        "text": f"Source: {os.path.basename(source_file)}\nPage: {page_num}\nTableau: {caption or table_id}\n{md_table.strip()}",
-        "metadata": {
-            "source_file": os.path.basename(source_file),
-            "page": page_num,
-            "table_id": table_id,
-            "table_kind": table_kind,
-            "chunking_method": "table_full",
-            "chunk_format": "full_table_markdown",
-        }
-    })
-
-    # Row chunks: useful for exact lookup inside tables.
-    for rec in row_records:
-        row_index = rec["row_index"]
-        row = [rec["cells"].get(h, "") for h in headers]
-        chunks.append({
-            "id": f"{table_id}_row_{row_index}",
-            "text": row_to_text_generic(os.path.basename(source_file), page_num, table_id, caption, headers, row, row_index),
-            "metadata": {
-                "source_file": os.path.basename(source_file),
-                "page": page_num,
-                "table_id": table_id,
-                "table_kind": table_kind,
-                "row_index": row_index,
-                "chunking_method": "table_row",
-                "chunk_format": "table_row",
-            }
-        })
-
-    return md_table, table_obj, chunks
-
-
-def save_table_outputs(source_file, table_records, table_chunks):
-    stem = os.path.splitext(os.path.basename(source_file))[0]
-    tables_path = os.path.join(OUTPUT_TABLES_DIR, stem + "_tables.json")
-    chunks_path = os.path.join(OUTPUT_TABLE_CHUNKS_DIR, stem + "_table_chunks.json")
-
-    with open(tables_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "source_file": os.path.basename(source_file),
-            "tables_total": len(table_records),
-            "tables": table_records,
-        }, f, ensure_ascii=False, indent=2)
-
-    with open(chunks_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "source_file": os.path.basename(source_file),
-            "chunks_total": len(table_chunks),
-            "chunks": table_chunks,
-        }, f, ensure_ascii=False, indent=2)
-
-    return tables_path, chunks_path
-
-
-def get_text_2003_2004(page, source_file="", page_num=None, table_records=None, table_chunks=None):
-    """
-    Méthode spéciale pour 2003-2004 :
-    Tri géométrique strict + Détection de tableaux avec Bouclier Anti-Hallucination.
+    In the full-vision architecture, the text is only used to find the right page.
+    The final answer will come from the rendered original PDF page.
     """
     page_width = page.rect.width
-    page_height = page.rect.height
     mid_point = page_width / 2
 
-    # --- 1. DÉTECTION INTELLIGENTE DES TABLEAUX ---
-    tables = page.find_tables()
-    table_bboxes = []
-    table_blocks = []
-
-    if tables.tables:
-        for tab in tables.tables:
-            bbox = tab.bbox
-            table_height = bbox[3] - bbox[1]
-            col_count = len(tab.header.names) if tab.header else 0
-            
-            # 🛡️ LE BOUCLIER ANTI-HALLUCINATION
-            if table_height > (page_height * 0.5) and col_count <= 2:
-                continue
-                
-            table_bboxes.append(bbox)
-
-            # Même comportement qu'avant pour le TXT: on injecte un tableau Markdown.
-            # Nouveau comportement en plus: on sauvegarde une version structurée
-            # et des chunks ligne-par-ligne pour l'embedder.
-            actual_page_num = page_num if page_num is not None else 0
-            table_index = len(table_bboxes)
-            md_table, table_obj, chunks = build_table_sidecar(page, tab, source_file, actual_page_num, table_index)
-
-            if table_records is not None and table_obj is not None:
-                table_records.append(table_obj)
-            if table_chunks is not None and chunks:
-                table_chunks.extend(chunks)
-            
-            table_blocks.append((bbox[0], bbox[1], bbox[2], bbox[3], md_table, -1, 0))
-
-    # --- 2. EXTRACTION DU TEXTE ---
     raw_blocks = page.get_text("blocks")
     valid_blocks = []
 
     for b in raw_blocks:
+        if len(b) < 7:
+            continue
+
         x0, y0, x1, y1, text, block_no, block_type = b
-        
-        if block_type != 0 or not text.strip():
+
+        if block_type != 0:
             continue
-            
-        # Ignorer l'en-tête du journal
+
+        text = str(text or "").strip()
+
+        if not text:
+            continue
+
+        # Ignore journal header.
         clean_t = text.lower()
-        if y0 < 80 and ("journal officiel" in clean_t or "republique algerienne" in clean_t or "république algérienne" in clean_t):
+        if y0 < 80 and (
+            "journal officiel" in clean_t
+            or "republique algerienne" in clean_t
+            or "république algérienne" in clean_t
+        ):
             continue
 
-        center_x = (x0 + x1) / 2
-        center_y = (y0 + y1) / 2
-        in_table = False
-        for t_bbox in table_bboxes:
-            tx0, ty0, tx1, ty1 = t_bbox
-            if tx0 <= center_x <= tx1 and ty0 <= center_y <= ty1:
-                in_table = True
-                break
-                
-        if not in_table:
-            valid_blocks.append(b)
+        text = remove_arabic(text).strip()
 
-    # --- 3. FUSION ET TRI VERTICAL ---
-    all_blocks = valid_blocks + table_blocks
-    all_blocks.sort(key=lambda b: b[1])
+        if not text:
+            continue
 
-    # --- 4. LOGIQUE DE BANDES ---
+        valid_blocks.append((x0, y0, x1, y1, text, block_no, block_type))
+
+    valid_blocks.sort(key=lambda b: b[1])
+
     final_text = ""
     current_band_blocks = []
 
     def process_band(band_blocks):
-        if not band_blocks: return ""
+        if not band_blocks:
+            return ""
+
         left_col = []
         right_col = []
-        for b in band_blocks:
-            center_x = (b[0] + b[2]) / 2 
+
+        for block in band_blocks:
+            center_x = (block[0] + block[2]) / 2
+
             if center_x < mid_point:
-                left_col.append(b)
+                left_col.append(block)
             else:
-                right_col.append(b)
-                
-        left_col.sort(key=lambda b: b[1])
-        right_col.sort(key=lambda b: b[1])
-        
+                right_col.append(block)
+
+        left_col.sort(key=lambda block: block[1])
+        right_col.sort(key=lambda block: block[1])
+
         band_text = ""
-        for b in left_col: band_text += b[4].strip() + "\n\n"
-        for b in right_col: band_text += b[4].strip() + "\n\n"
+
+        for block in left_col:
+            band_text += block[4].strip() + "\n\n"
+
+        for block in right_col:
+            band_text += block[4].strip() + "\n\n"
+
         return band_text
 
-    for b in all_blocks:
+    for b in valid_blocks:
         x0, y0, x1, y1, text, block_no, block_type = b
+
         block_width = x1 - x0
         is_separator = False
-        
-        # Un tableau Markdown est toujours un séparateur
-        if block_type == -1:
+
+        if is_ignored_title(text):
             is_separator = True
-        elif is_ignored_title(text):
-            is_separator = True
-        
-        # 🚨 LA CORRECTION EST ICI 🚨
+
         elif block_width > (page_width * 0.40):
-            # Si le bloc déborde sur les deux moitiés de la page (gauche et droite du centre),
-            # c'est physiquement impossible que ce soit une colonne. C'est donc un mur !
+            # If the block crosses the middle of the page, it is probably a wall/title,
+            # not a normal column block.
             if x0 < (mid_point - 15) and x1 > (mid_point + 15):
                 is_separator = True
-                
+
         else:
             center_x = (x0 + x1) / 2
+
             if abs(center_x - mid_point) < (page_width * 0.1) and block_width < (page_width * 0.5):
-                 if "——" in text or "ETAT ANNEXE" in text.upper():
-                     is_separator = True
+                if "——" in text or "ETAT ANNEXE" in text.upper() or "ÉTAT ANNEXE" in text.upper():
+                    is_separator = True
 
         if is_separator:
             final_text += process_band(current_band_blocks)
             current_band_blocks = []
+
             if not is_ignored_title(text):
                 final_text += text.strip() + "\n\n"
+
         else:
             current_band_blocks.append(b)
 
     final_text += process_band(current_band_blocks)
-    return final_text
+
+    return normalize_text(final_text)
+
+
+# ==============================================================================
+# PDF DISCOVERY
+# ==============================================================================
+
+def collect_pdf_files():
+    """
+    Collect all PDFs recursively inside data/pdf_old.
+    Ignores year folders and searches all subfolders.
+    """
+    if not BASE_PDF_DIR.exists():
+        print(f"❌ Erreur: Le dossier '{BASE_PDF_DIR}' n'existe pas.")
+        return []
+
+    pdf_files = []
+
+    for path in BASE_PDF_DIR.rglob("*"):
+        if path.is_file() and path.suffix.lower() == ".pdf":
+            pdf_files.append(path)
+
+    return sorted(pdf_files, key=lambda p: str(p).lower())
+
+
+# ==============================================================================
+# PROCESSING
+# ==============================================================================
+
+def process_pdf_to_txt(pdf_path: Path, output_path: Path):
+    """
+    Converts one old PDF into one TXT file with page markers:
+
+    <<<PAGE_3>>>
+    page text...
+
+    <<<PAGE_4>>>
+    page text...
+    """
+    full_doc_text = ""
+
+    pages_written = 0
+    pages_skipped_first = 0
+    pages_skipped_sommaire = 0
+    pages_empty = 0
+
+    filename = pdf_path.name
+
+    doc = fitz.open(str(pdf_path))
+
+    try:
+        for page_num, page in enumerate(doc):
+            physical_page_num = page_num + 1
+
+            # Special case: F2004004.pdf
+            # Skip page cover + real sommaire only.
+            # Do NOT call is_sommaire_page after that because the cahier des charges
+            # may contain internal "sommaire" pages that should stay.
+            if filename.lower() == "f2004004.pdf":
+                if page_num < 2:
+                    pages_skipped_first += 1
+                    continue
+
+            else:
+                # General old-PDF rule: skip first page.
+                if page_num == 0:
+                    pages_skipped_first += 1
+                    continue
+
+                blocks = page.get_text("blocks")
+
+                if is_sommaire_page(blocks):
+                    pages_skipped_sommaire += 1
+                    print(f"   🚫 {filename} - Page {physical_page_num} ignorée (Sommaire)")
+                    continue
+
+            page_text = get_text_2003_2004(page)
+            page_text = remove_arabic(page_text)
+            page_text = normalize_text(page_text)
+
+            if not page_text:
+                pages_empty += 1
+                continue
+
+            full_doc_text += f"\n\n<<<PAGE_{physical_page_num}>>>\n"
+            full_doc_text += page_text
+            full_doc_text += "\n"
+
+            pages_written += 1
+
+    finally:
+        doc.close()
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(full_doc_text.strip() + "\n")
+
+    return {
+        "pages_written": pages_written,
+        "pages_skipped_first": pages_skipped_first,
+        "pages_skipped_sommaire": pages_skipped_sommaire,
+        "pages_empty": pages_empty,
+    }
+
 
 def main():
-    if not os.path.exists(OUTPUT_TXT_DIR):
-        os.makedirs(OUTPUT_TXT_DIR)
-    ensure_dir(OUTPUT_TABLES_DIR)
-    ensure_dir(OUTPUT_TABLE_CHUNKS_DIR)
+    OUTPUT_TXT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Vérifie si le dossier de base existe
-    if not os.path.exists(BASE_PDF_DIR):
-        print(f"❌ Erreur: Le dossier '{BASE_PDF_DIR}' n'existe pas.")
-        print(f"Veuillez créer un dossier '{BASE_PDF_DIR}' et y placer vos dossiers d'années (ex: 2002, 2003, 2004...).")
+    pdf_files = collect_pdf_files()
+
+    if not pdf_files:
+        print("⚠️ Aucun PDF trouvé.")
+        print(f"Dossier vérifié: {BASE_PDF_DIR}")
         return
 
-    # Récupère tous les sous-dossiers dans BASE_PDF_DIR
-    folders = [f for f in os.listdir(BASE_PDF_DIR) if os.path.isdir(os.path.join(BASE_PDF_DIR, f))]
-    
-    if not folders:
-        print(f"⚠️ Aucun sous-dossier trouvé dans '{BASE_PDF_DIR}'.")
-        return
+    print("=" * 100)
+    print("🚀 OLD PDF PAGE-MARKED TEXT EXTRACTION")
+    print("=" * 100)
+    print(f"Base dir: {BASE_DIR}")
+    print(f"Input old PDF dir: {BASE_PDF_DIR}")
+    print(f"Output TXT dir: {OUTPUT_TXT_DIR}")
+    print(f"Total PDFs found: {len(pdf_files)}")
+    print("=" * 100)
 
-    print(f"📦 Démarrage : Traitement par lots sur {len(folders)} dossiers d'années...\n")
+    seen_output_names = set()
+    total_pages_written = 0
+    total_errors = 0
 
-    for folder_name in sorted(folders):
-        folder_path = os.path.join(BASE_PDF_DIR, folder_name)
-        files = [f for f in os.listdir(folder_path) if f.lower().endswith(".pdf")]
-        
-        print(f"📂 Ouverture du dossier: {folder_name} | Fichiers: {len(files)}")
+    for index, pdf_path in enumerate(pdf_files, start=1):
+        output_name = f"{pdf_path.stem}.txt"
 
-        for filename in files:
-            pdf_path = os.path.join(folder_path, filename)
-            txt_filename = filename.replace(".pdf", ".txt").replace(".PDF", ".txt")
-            txt_path = os.path.join(OUTPUT_TXT_DIR, txt_filename)
-            
-            full_doc_text = ""
-            pdf_table_records = []
-            pdf_table_chunks = []
-            
-            try:
-                doc = fitz.open(pdf_path)
-                
-                for page_num, page in enumerate(doc):
-                    
-                    # 🚨 CAS SPÉCIAL : F2004004.pdf
-                    if filename == "F2004004.pdf":
-                        # On saute manuellement les 2 premières pages (Page de garde + Sommaire)
-                        if page_num < 2:
-                            continue
-                        # On ne passe PAS par is_sommaire_page pour ce fichier,
-                        # ce qui protège le sommaire interne du cahier des charges.
-                        
-                    # 🛡️ RÈGLE GÉNÉRALE : Pour tous les autres fichiers
-                    else:
-                        # 1. Ignorer la première page
-                        if page_num == 0:
-                            continue
+        # Avoid accidental overwrite if duplicate stems exist in different year folders.
+        if output_name.lower() in seen_output_names:
+            parent_hint = pdf_path.parent.name
+            output_name = f"{pdf_path.stem}_{parent_hint}.txt"
 
-                        # 2. Ignorer les pages de sommaire
-                        blocks = page.get_text("blocks")
-                        if is_sommaire_page(blocks):
-                            print(f"   🚫 {filename} - Page {page_num+1} ignorée (Sommaire)")
-                            continue
+        seen_output_names.add(output_name.lower())
 
-                    # ✅ 3. Extraction Spéciale 2003-2004
-                    page_text = get_text_2003_2004(
-                        page,
-                        source_file=filename,
-                        page_num=page_num + 1,
-                        table_records=pdf_table_records,
-                        table_chunks=pdf_table_chunks,
-                    )
-                    
-                    # ✅ 4. Nettoyage Arabe
-                    page_text = remove_arabic(page_text)
-                    
-                    full_doc_text += f"\n\n<<<PAGE_{page_num+1}>>>\n{page_text}\n\n"
+        output_path = OUTPUT_TXT_DIR / output_name
 
-                # Sauvegarde
-                with open(txt_path, "w", encoding="utf-8") as f:
-                    f.write(full_doc_text)
+        print(f"[{index}/{len(pdf_files)}] Processing {pdf_path.name}...", end=" ")
 
-                # Sauvegarde side-car des tableaux détectés
-                save_table_outputs(filename, pdf_table_records, pdf_table_chunks)
-                    
-                print(f"  ✅ Extrait : {filename} | Tables: {len(pdf_table_records)} | Table chunks: {len(pdf_table_chunks)}")
+        try:
+            stats = process_pdf_to_txt(pdf_path, output_path)
+            total_pages_written += stats["pages_written"]
 
-            except Exception as e:
-                print(f"  ❌ Erreur sur {filename} : {e}")
+            print(
+                f"✅ pages={stats['pages_written']} "
+                f"| sommaire_skipped={stats['pages_skipped_sommaire']} "
+                f"| empty={stats['pages_empty']}"
+            )
 
-    print("\n🚀 Extraction de tous les dossiers terminée !")
+        except Exception as e:
+            total_errors += 1
+            print(f"❌ ERROR: {e}")
+
+    print("=" * 100)
+    print("🎉 Old PDF extraction complete.")
+    print(f"TXT output folder: {OUTPUT_TXT_DIR}")
+    print(f"Total pages written: {total_pages_written}")
+    print(f"Errors: {total_errors}")
+    print("=" * 100)
+
 
 if __name__ == "__main__":
     main()

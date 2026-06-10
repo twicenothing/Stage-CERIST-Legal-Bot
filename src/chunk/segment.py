@@ -1,275 +1,524 @@
 import os
 import re
 import json
+from pathlib import Path
 
-# --- CONFIGURATION ---
-INPUT_FOLDER = "../../data/txt"
-OUTPUT_FOLDER = "../../data/json"
 
-def clean_text(text):
-    # 1. Normalize newlines (Crucial for regex anchors)
-    text = re.sub(r'\r\n', '\n', text) 
-    text = re.sub(r'\n+', '\n', text)
-    # 2. Clean strange characters
-    text = re.sub(r'[^\x00-\x7F\u0080-\uFFFF\n]+', ' ', text)
+# ==============================================================================
+# CONFIGURATION
+# ==============================================================================
+
+def find_project_root() -> Path:
+    current = Path(__file__).resolve()
+
+    for parent in current.parents:
+        if (parent / "data").exists() or (parent / ".env").exists():
+            return parent
+
+    return Path(__file__).resolve().parents[2]
+
+
+BASE_DIR = find_project_root()
+
+INPUT_FOLDER = Path(
+    os.getenv("PAGE_TXT_DIR", str(BASE_DIR / "data" / "txt_pages"))
+)
+
+OUTPUT_FOLDER = Path(
+    os.getenv("PAGE_JSON_DIR", str(BASE_DIR / "data" / "json_pages"))
+)
+
+# Recursive windows inside each page.
+PAGE_WINDOW_SIZE = int(os.getenv("PAGE_WINDOW_SIZE", "1500"))
+PAGE_WINDOW_OVERLAP = int(os.getenv("PAGE_WINDOW_OVERLAP", "250"))
+
+# If page is shorter than this, only page_full is created.
+# This avoids duplicate full_page + identical window chunks.
+MIN_PAGE_LENGTH_FOR_WINDOWS = int(os.getenv("MIN_PAGE_LENGTH_FOR_WINDOWS", "1800"))
+
+
+# ==============================================================================
+# CLEANING / NORMALIZATION
+# ==============================================================================
+
+def clean_text(text: str) -> str:
+    """
+    Light cleaning while preserving useful line structure.
+    Page markers survive this.
+    """
+    text = str(text or "")
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = re.sub(r"[^\x00-\x7F\u0080-\uFFFF\n]+", " ", text)
     return text.strip()
 
-def extract_page_mapping(text):
-    """Construit la carte des pages et nettoie les balises injectées par le script PDF."""
-    page_map = []
-    clean_text_no_markers = ""
-    last_idx = 0
-    
-    for match in re.finditer(r'<<<PAGE_(\d+)>>>\s*', text):
-        chunk = text[last_idx:match.start()]
-        clean_text_no_markers += chunk
-        page_map.append((len(clean_text_no_markers), int(match.group(1))))
-        last_idx = match.end()
-        
-    clean_text_no_markers += text[last_idx:]
-    return clean_text_no_markers, page_map
 
-def get_page_for_index(char_index, page_map):
-    """Trouve la page correspondante à un index de caractère."""
-    current_page = "Inconnu"
-    for marker_idx, page_num in page_map:
-        if char_index >= marker_idx:
-            current_page = page_num
-        else:
-            break
-    return current_page
-
-def extract_articles_simple(decree_body: str, doc_type: str = "type1"):
+def normalize_source_file_to_pdf(txt_filename: str) -> str:
     """
-    Splits the decree body into a list of full article strings.
-    doc_type détermine la souplesse de l'extraction.
-    (TA LOGIQUE ORIGINALE INTACTE)
+    F202009.txt -> F202009.pdf
+    F202009_2005.txt -> F202009_2005.pdf
     """
-    if doc_type == "type2":
-        article_header_pattern = re.compile(
-            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
-            re.IGNORECASE
-        )
-    else:
-        article_header_pattern = re.compile(
-            r'(?:^|\n)\s*Art(?:icle)?\.?\s*(\d+(?:er|ER)?|unique|ler|Ier)\.?\s*[-—–]+', 
-            re.IGNORECASE
-        )
+    name = os.path.basename(str(txt_filename or "").strip())
+    stem = os.path.splitext(name)[0]
+    return f"{stem}.pdf"
 
-    matches = list(article_header_pattern.finditer(decree_body))
-    
-    if not matches and doc_type == "type2":
-        chap_pattern = re.compile(
-            r'(?:^|\n)\s*Chapitre\s+(\d+|premier|unique)(?:\.?\s*[-—–]+|\s*(?=\n|$))', 
-            re.IGNORECASE
-        )
-        matches = list(chap_pattern.finditer(decree_body))
+
+def safe_id_part(value: str) -> str:
+    """
+    Stable ID-friendly file stem.
+    """
+    value = str(value or "")
+    value = os.path.splitext(os.path.basename(value))[0]
+    value = re.sub(r"[^A-Za-z0-9_\-]+", "_", value)
+    return value.strip("_")
+
+
+# ==============================================================================
+# PAGE PARSING
+# ==============================================================================
+
+def extract_pages_from_marked_txt(text: str):
+    """
+    Parses TXT files containing markers like:
+
+    <<<PAGE_2>>>
+    page text...
+
+    <<<PAGE_3>>>
+    page text...
+
+    Returns:
+        [{"page": 2, "text": "..."}, ...]
+    """
+    pattern = re.compile(r"<<<PAGE_(\d+)>>>\s*")
+    matches = list(pattern.finditer(text))
+
+    pages = []
 
     if not matches:
+        cleaned = clean_text(text)
+        if cleaned:
+            pages.append({
+                "page": "Inconnu",
+                "text": cleaned,
+            })
+        return pages
+
+    for i, match in enumerate(matches):
+        page_num = int(match.group(1))
+        start = match.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+
+        page_text = clean_text(text[start:end])
+
+        if page_text:
+            pages.append({
+                "page": page_num,
+                "text": page_text,
+            })
+
+    return pages
+
+
+# ==============================================================================
+# RECURSIVE SPLITTER
+# ==============================================================================
+
+def recursive_split(
+    text: str,
+    chunk_size: int,
+    chunk_overlap: int,
+    separators=None,
+) -> list[str]:
+    """
+    Pure Python recursive character chunker.
+
+    Important:
+    This is applied per page, so chunks never cross page boundaries.
+    """
+    if separators is None:
+        separators = [
+            "\nArt. ",
+            "\nArticle ",
+            "\n\n",
+            "\n",
+            ". ",
+            "; ",
+            ", ",
+            " ",
+            "",
+        ]
+
+    text = clean_text(text)
+
+    if not text:
         return []
 
-    articles_list = []
+    if len(text) <= chunk_size:
+        return [text]
 
-    for i in range(len(matches)):
-        current_match = matches[i]
-        start_pos = current_match.start()
-        
-        if i + 1 < len(matches):
-            end_pos = matches[i+1].start()
+    active_separator = separators[-1]
+
+    for sep in separators:
+        if sep == "":
+            active_separator = sep
+            break
+
+        if sep in text:
+            active_separator = sep
+            break
+
+    if active_separator == "":
+        splits = list(text)
+    else:
+        splits = text.split(active_separator)
+
+    chunks = []
+    current_chunk_splits = []
+    current_len = 0
+
+    for split in splits:
+        if split == "":
+            continue
+
+        if len(split) > chunk_size:
+            if current_chunk_splits:
+                chunks.append(active_separator.join(current_chunk_splits).strip())
+                current_chunk_splits = []
+                current_len = 0
+
+            try:
+                next_separators = separators[separators.index(active_separator) + 1:]
+            except ValueError:
+                next_separators = [""]
+
+            recursed_chunks = recursive_split(
+                split,
+                chunk_size,
+                chunk_overlap,
+                next_separators,
+            )
+            chunks.extend(recursed_chunks)
+            continue
+
+        sep_len = len(active_separator) if current_chunk_splits else 0
+
+        if current_len + sep_len + len(split) > chunk_size:
+            chunk = active_separator.join(current_chunk_splits).strip()
+
+            if chunk:
+                chunks.append(chunk)
+
+            overlap_splits = []
+            overlap_len = 0
+
+            for s in reversed(current_chunk_splits):
+                s_len = len(s) + (len(active_separator) if overlap_splits else 0)
+
+                if overlap_len + s_len <= chunk_overlap:
+                    overlap_splits.insert(0, s)
+                    overlap_len += s_len
+                else:
+                    break
+
+            current_chunk_splits = overlap_splits
+            current_len = overlap_len
+
+        current_chunk_splits.append(split)
+
+        if len(current_chunk_splits) > 1:
+            current_len += len(active_separator) + len(split)
         else:
-            remaining_text = decree_body[start_pos:]
-            stop_markers = ["Fait à Alger", "Fait à ", "Le Premier ministre", "Le Président"]
-            cutoff = len(remaining_text)
-            for marker in stop_markers:
-                idx = remaining_text.find(marker)
-                if idx != -1 and idx < cutoff:
-                    cutoff = idx
-            end_pos = start_pos + cutoff
+            current_len += len(split)
 
-        full_article_text = decree_body[start_pos:end_pos].strip()
-        clean_article_text = re.sub(r'\s+', ' ', full_article_text)
+    if current_chunk_splits:
+        chunk = active_separator.join(current_chunk_splits).strip()
 
-        if clean_article_text:
-            articles_list.append(clean_article_text)
+        if chunk:
+            chunks.append(chunk)
 
-    return articles_list
+    return chunks
 
-def extract_documents_and_articles(text: str, page_map: list):
-    # --- DOUBLE DOCUMENT TITLE REGEX (TA REGEX ORIGINALE INTACTE) ---
-    title_pattern = re.compile(
-        r"""
-        (?:^|\n)                                
-        (?:
-            # TYPE 1 : Décrets, Arrêtés, Décisions, Avis, Règlements, Lois, Proclamations, Délibérations, Instructions, Ordonnances
-            (?P<type1>                                       
-              (?:                                  
-                (?:
-                  (?:Décret|DÉCRET|Decret|DECRET)\s+(?:présidentiel|exécutif|PRÉSIDENTIEL|EXÉCUTIF)|       
-                  (?:Arrêté|ARRÊTÉ|Arrete|ARRETE)(?:\s+interministériel|\s+INTERMINISTÉRIEL)?|           
-                  (?:Décision|DÉCISION|Decision|DECISION)|
-                  (?:Avis|AVIS)|
-                  (?:Loi|LOI)|
-                  (?:Proclamation|PROCLAMATION)|
-                  (?:Délibération|DÉLIBÉRATION|Deliberation|DELIBERATION)|
-                  (?:Instruction|INSTRUCTION)(?:\s+(?:interministérielle|INTERMINISTÉRIELLE|présidentielle|PRÉSIDENTIELLE|presidentielle|PRESIDENTIELLE))?|
-                  (?:Ordonnance|ORDONNANCE)  
-                )\s+(?:n[°o\.]?|du|N[°O\.]?|DU|\d+)
-                |
-                (?:Règlement|RÈGLEMENT|Reglement|REGLEMENT)\b  
-              )                    
-              (?:(?!\n\s*Art(?:icle)?\.?\s*(?:\d|[Uu]nique|[Uu]NIQUE)).)*?  
-              \.?                                    
-              \s* [-—–_H]{3,}
-            )
-            |
-            # TYPE 2 : Accords, Conventions, Mémorandums (et Conventions Internationales)
-            (?P<type2>
-              (?:
-                (?:Accord|ACCORD|Convention|CONVENTION|Mémorandum|MÉMORANDUM|Memorandum)\b
-                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
-                \b(?:entre|Entre)\b
-                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
-                \b(?:et|Et)\b
-                (?:(?!\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d))).)*?
-                (?=\n\s*(?:Le Gouvernement|Les Gouvernements|Les Parties|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|Chapitre\s+(?:premier|\d)))
-              )
-              |
-              # Conventions internationales sans "Entre/Et"
-              (?:
-                (?:Convention|CONVENTION)(?:\s+\d+)?\s+(?:concernant|sur|CONCERNANT|SUR)\b
-                (?:(?!\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d))).)*?
-                (?=\n\s*(?:La conférence|La Conférence|LA CONFERENCE|L'assemblée|L'Assemblée|L'ASSEMBLEE|Le Conseil|Les Etats|Désireux|Considérant|Préambule|PREAMBULE|Article\s+\d|Art\.|PARTIE|Chapitre\s+(?:premier|\d)))
-              )
-            )
-        )                          
-        """, 
-        re.VERBOSE | re.DOTALL 
+
+def find_chunk_start(page_text: str, chunk_text: str, search_offset: int) -> int:
+    """
+    Finds chunk start inside the page text.
+    Handles overlap by using a moving cursor.
+    """
+    idx = page_text.find(chunk_text, search_offset)
+
+    if idx == -1:
+        idx = page_text.find(chunk_text)
+
+    if idx == -1:
+        idx = search_offset
+
+    return idx
+
+
+# ==============================================================================
+# CHUNK CREATION
+# ==============================================================================
+
+def build_page_full_chunk(
+    source_txt: str,
+    source_pdf: str,
+    file_stem: str,
+    page_num,
+    page_text: str,
+    chunk_index: int,
+):
+    page_id = f"{file_stem}_p{page_num}"
+
+    chunk_text = (
+        f"Source: {source_pdf}\n"
+        f"Page: {page_num}\n"
+        f"Type: page complète\n\n"
+        f"{page_text}"
     )
 
-    matches = list(title_pattern.finditer(text))
+    return {
+        "id": f"{page_id}_full",
+        "chunk_index": chunk_index,
+        "text": chunk_text,
+        "metadata": {
+            "source_file": source_pdf,
+            "source_txt": source_txt,
+            "page": page_num,
+            "page_id": page_id,
+            "chunking_method": "page_full",
+            "chunk_format": "full_page_text",
+            "char_start": 0,
+            "char_end": len(page_text),
+            "text_chars": len(page_text),
+        },
+    }
 
-    if not matches:
-        return []
 
-    documents = []
+def build_page_window_chunks(
+    source_txt: str,
+    source_pdf: str,
+    file_stem: str,
+    page_num,
+    page_text: str,
+    starting_chunk_index: int,
+):
+    page_id = f"{file_stem}_p{page_num}"
 
-    for i in range(len(matches)):
-        match = matches[i]
-        
-        # 🎯 CALCUL DE LA PAGE (L'AJOUT EST ICI)
-        doc_page = get_page_for_index(match.start(), page_map)
-        
-        if match.group('type1'):
-            doc_type = "type1"
-            raw_title = re.sub(r'\s*[-—–_H]{3,}$', '', match.group('type1')).strip()
-        else:
-            doc_type = "type2"
-            raw_title = match.group('type2').strip()
-        
-        if "Article" in raw_title or "Art." in raw_title or "Chapitre" in raw_title:
+    windows = recursive_split(
+        page_text,
+        PAGE_WINDOW_SIZE,
+        PAGE_WINDOW_OVERLAP,
+    )
+
+    chunks = []
+    search_offset = 0
+    chunk_index = starting_chunk_index
+
+    for window_index, window_text in enumerate(windows, start=1):
+        if not window_text.strip():
             continue
-        
-        clean_title_str = re.sub(r'\s+', ' ', raw_title)
 
-        start_body = match.end()
-        if i + 1 < len(matches):
-            end_body = matches[i+1].start()
-        else:
-            end_body = len(text)
-            
-        body_text = text[start_body:end_body].strip()
-        
-        simple_articles = extract_articles_simple(body_text, doc_type)
-        
-        if doc_type == "type1":
-            preamble_end_pattern = re.compile(
-                r'(?:^|\n)\s*(Décrète|Décrètent|Décide|Décident|Arrête|Arrêtent|.*?adopte.*?suit|.*?promulgue.*?suit|.*?adopte les dispositions suivantes.*?)\s*[:;]\s*(?:\n|$)', 
-                re.IGNORECASE
-            )
-            preamble_match = preamble_end_pattern.search(body_text)
-            
-            if preamble_match:
-                preamble = body_text[:preamble_match.end()].strip()
-            else:
-                first_art_match = re.search(r'(?:^|\n)\s*(?:Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique|ler|Ier)|Chapitre\s+(?:premier|1|unique))\.?\s*[-—–]+', body_text, re.IGNORECASE)
-                if first_art_match:
-                    preamble = body_text[:first_art_match.start()].strip()
-                else:
-                    preamble = body_text.strip()
-        else:
-            preamble_end_pattern = re.compile(
-                r'(?:^|\n)\s*(?:sont convenus|ont convenu|sont convenues|ont convenues)(?:\s+de)?\s+ce\s+qui\s+suit\s*:\s*(?:\n|$)', 
-                re.IGNORECASE
-            )
-            preamble_match = preamble_end_pattern.search(body_text)
-            
-            if preamble_match:
-                preamble = body_text[:preamble_match.end()].strip()
-            else:
-                first_art_match = re.search(r'(?:^|\n)\s*(?:Art(?:icle)?\.?\s*(?:1?(?:er|ER)?|unique|ler|Ier)|Chapitre\s+(?:premier|1|unique))(?:\.?\s*[-—–]+|\s*(?=\n|$))', body_text, re.IGNORECASE)
-                if first_art_match:
-                    preamble = body_text[:first_art_match.start()].strip()
-                else:
-                    preamble = body_text.strip()
-                    
-        context_text = f"{clean_title_str}\n\n{preamble}"
-        
-        # 🎯 INJECTION DE LA PAGE DANS LA STRUCTURE DE DONNÉES
-        documents.append({
-            "page": doc_page,
-            "title": clean_title_str,
-            "articles": simple_articles,
-            "context": context_text
+        start_idx = find_chunk_start(page_text, window_text, search_offset)
+        end_idx = start_idx + len(window_text)
+
+        search_offset = max(start_idx + 1, search_offset + 1)
+
+        chunk_text = (
+            f"Source: {source_pdf}\n"
+            f"Page: {page_num}\n"
+            f"Type: fenêtre de page\n"
+            f"Fenêtre: {window_index}\n\n"
+            f"{window_text}"
+        )
+
+        chunks.append({
+            "id": f"{page_id}_w{window_index}",
+            "chunk_index": chunk_index,
+            "text": chunk_text,
+            "metadata": {
+                "source_file": source_pdf,
+                "source_txt": source_txt,
+                "page": page_num,
+                "page_id": page_id,
+                "window_index": window_index,
+                "chunking_method": "page_window",
+                "chunk_format": "page_window_text",
+                "char_start": start_idx,
+                "char_end": end_idx,
+                "text_chars": len(window_text),
+                "window_size": PAGE_WINDOW_SIZE,
+                "window_overlap": PAGE_WINDOW_OVERLAP,
+            },
         })
 
-    return documents
-    
-def process_all_files():
-    if not os.path.exists(OUTPUT_FOLDER):
-        os.makedirs(OUTPUT_FOLDER)
-        print(f"📁 Created output folder: {OUTPUT_FOLDER}")
+        chunk_index += 1
 
-    files = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith('.txt')]
-    
+    return chunks
+
+
+def process_one_txt_file(input_path: Path, output_path: Path):
+    source_txt = input_path.name
+    source_pdf = normalize_source_file_to_pdf(source_txt)
+    file_stem = safe_id_part(source_pdf)
+
+    with open(input_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = clean_text(content)
+    pages = extract_pages_from_marked_txt(content)
+
+    chunks = []
+    page_stats = []
+
+    chunk_index = 1
+
+    for page_item in pages:
+        page_num = page_item["page"]
+        page_text = page_item["text"]
+
+        if not page_text.strip():
+            continue
+
+        # 1. Always create full page chunk.
+        full_chunk = build_page_full_chunk(
+            source_txt=source_txt,
+            source_pdf=source_pdf,
+            file_stem=file_stem,
+            page_num=page_num,
+            page_text=page_text,
+            chunk_index=chunk_index,
+        )
+
+        chunks.append(full_chunk)
+        chunk_index += 1
+
+        windows_count = 0
+
+        # 2. Only create page windows for longer pages.
+        if len(page_text) >= MIN_PAGE_LENGTH_FOR_WINDOWS:
+            window_chunks = build_page_window_chunks(
+                source_txt=source_txt,
+                source_pdf=source_pdf,
+                file_stem=file_stem,
+                page_num=page_num,
+                page_text=page_text,
+                starting_chunk_index=chunk_index,
+            )
+
+            chunks.extend(window_chunks)
+            chunk_index += len(window_chunks)
+            windows_count = len(window_chunks)
+
+        page_stats.append({
+            "page": page_num,
+            "page_chars": len(page_text),
+            "created_page_full": True,
+            "created_windows": windows_count,
+        })
+
+    final_output = {
+        "source_txt": source_txt,
+        "source_file": source_pdf,
+        "chunking_strategy": "page_full_plus_page_window",
+        "total_pages": len(pages),
+        "total_chunks": len(chunks),
+        "config": {
+            "page_window_size": PAGE_WINDOW_SIZE,
+            "page_window_overlap": PAGE_WINDOW_OVERLAP,
+            "min_page_length_for_windows": MIN_PAGE_LENGTH_FOR_WINDOWS,
+        },
+        "page_stats": page_stats,
+        "chunks": chunks,
+    }
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(final_output, f, ensure_ascii=False, indent=2)
+
+    return {
+        "pages": len(pages),
+        "chunks": len(chunks),
+        "page_full": sum(
+            1 for c in chunks
+            if c["metadata"].get("chunking_method") == "page_full"
+        ),
+        "page_window": sum(
+            1 for c in chunks
+            if c["metadata"].get("chunking_method") == "page_window"
+        ),
+    }
+
+
+# ==============================================================================
+# BATCH PROCESSING
+# ==============================================================================
+
+def process_all_txt_to_page_json():
+    OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
+
+    files = sorted([
+        f for f in INPUT_FOLDER.iterdir()
+        if f.is_file() and f.suffix.lower() == ".txt"
+    ])
+
     if not files:
         print(f"⚠️ No .txt files found in {INPUT_FOLDER}")
         return
 
-    print(f"🚀 Starting batch processing for {len(files)} files...\n")
+    print("=" * 100)
+    print("🚀 PAGE-BASED CHUNKING FOR FULL VISION RAG")
+    print("=" * 100)
+    print(f"Input folder:  {INPUT_FOLDER}")
+    print(f"Output folder: {OUTPUT_FOLDER}")
+    print(f"Files found:   {len(files)}")
+    print(f"Window size:   {PAGE_WINDOW_SIZE}")
+    print(f"Overlap:       {PAGE_WINDOW_OVERLAP}")
+    print("=" * 100)
 
-    for index, filename in enumerate(files):
-        input_path = os.path.join(INPUT_FOLDER, filename)
-        output_filename = os.path.splitext(filename)[0] + ".json"
-        output_path = os.path.join(OUTPUT_FOLDER, output_filename)
+    total_pages = 0
+    total_chunks = 0
+    total_page_full = 0
+    total_page_window = 0
+    errors = 0
 
-        print(f"   [{index+1}/{len(files)}] Processing {filename}...", end=" ")
+    for index, input_path in enumerate(files, start=1):
+        output_filename = input_path.stem + "_pages.json"
+        output_path = OUTPUT_FOLDER / output_filename
+
+        print(f"[{index}/{len(files)}] Processing {input_path.name}...", end=" ")
 
         try:
-            with open(input_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            
-            cleaned_content = clean_text(content)
-            
-            # 🎯 APPEL DES NOUVELLES FONCTIONS DE MAPPING
-            final_text, page_map = extract_page_mapping(cleaned_content)
-            data = extract_documents_and_articles(final_text, page_map)
-            
-            final_output = {
-                "source_file": filename,
-                "chunking_method": "regex",
-                "total_documents": len(data),
-                "documents": data
-            }
+            stats = process_one_txt_file(input_path, output_path)
 
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(final_output, f, ensure_ascii=False, indent=4)
-            
-            print(f"✅ Done. ({len(data)} docs found)")
-            
+            total_pages += stats["pages"]
+            total_chunks += stats["chunks"]
+            total_page_full += stats["page_full"]
+            total_page_window += stats["page_window"]
+
+            print(
+                f"✅ pages={stats['pages']} "
+                f"| chunks={stats['chunks']} "
+                f"| full={stats['page_full']} "
+                f"| windows={stats['page_window']}"
+            )
+
         except Exception as e:
+            errors += 1
             print(f"❌ ERROR: {e}")
 
-    print(f"\n🎉 Batch processing complete! Check the '{OUTPUT_FOLDER}' folder.")
+    print("=" * 100)
+    print("🎉 Page chunking complete.")
+    print(f"Total pages:       {total_pages}")
+    print(f"Total chunks:      {total_chunks}")
+    print(f"Page full chunks:  {total_page_full}")
+    print(f"Page window chunks:{total_page_window}")
+    print(f"Errors:            {errors}")
+    print(f"Output folder:     {OUTPUT_FOLDER}")
+    print("=" * 100)
+
 
 if __name__ == "__main__":
-    process_all_files()
+    process_all_txt_to_page_json()

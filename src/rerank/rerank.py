@@ -6,117 +6,67 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 
 # 2. Add the parent directory to Python's module search path
-sys.path.append(parent_dir) 
+sys.path.append(parent_dir)
 
-# Import the retrieval function we built previously
+# Import the retrieval function
 from retrieve.retrieve import get_retrieved_documents
 
-def looks_like_tabular_text(text: str) -> bool:
-    lower = (text or "").lower()
 
-    signals = [
-        "tableau annexe",
-        "crédits ouverts",
-        "credits ouverts",
-        "crédits ouverts en da",
-        "credits ouverts en da",
-        "nos des chapitres",
-        "libelles",
-        "libellés",
-        "répartition par chapitre",
-        "repartition par chapitre",
-        "effectifs selon la nature",
-        "contrat à durée",
-        "contrat a duree",
-        "total général",
-        "total general",
-        "|---",
-    ]
-
-    return any(s in lower for s in signals)
-
-
-
-HUGE_TABULAR_REGEX_CHAR_LIMIT = 18000
-HUGE_TABULAR_REGEX_PENALTY = 0.25
-MAX_HUGE_TABULAR_REGEX_KEEP_RANK = 2
-
+# ==============================================================================
+# RERANKING
+# ==============================================================================
 
 def rerank_documents(query, retrieved_docs, reranker_model, top_k=4):
     """
-    Takes loosely retrieved documents from ChromaDB and scores them using a CrossEncoder.
+    Reranks retrieved page chunks using a CrossEncoder.
 
-    Logic:
-    - Keep raw rerank_score for debugging.
-    - Penalize huge regex chunks that look like swallowed table annexes.
-    - Sort by adjusted_rerank_score.
-    - After sorting, skip penalized huge tabular regex chunks if they appear after rank 2.
+    New full-vision logic:
+    - Input docs come from page_window/page_full retrieval.
+    - Reranking uses the user's original query.
+    - No regex/table penalties.
+    - No old fallback logic.
+    - Output docs will later be converted to PDF pages for vision.
     """
+
     if not retrieved_docs:
         return []
 
-    cross_inp = [[query, doc["text"]] for doc in retrieved_docs]
-    scores = reranker_model.predict(cross_inp, batch_size=2)
+    query = str(query or "").strip()
 
-    for i in range(len(retrieved_docs)):
-        raw_score = float(scores[i])
-        retrieved_docs[i]["rerank_score"] = raw_score
+    if not query:
+        return retrieved_docs[:top_k]
 
-        meta = retrieved_docs[i].get("meta", {}) or {}
-        method = meta.get("chunking_method", "")
-        text = retrieved_docs[i].get("text", "") or ""
+    cross_inp = [
+        [query, doc.get("text", "")]
+        for doc in retrieved_docs
+    ]
 
-        text_chars = len(text)
-        is_huge_tabular_regex = (
-            method == "regex"
-            and text_chars > HUGE_TABULAR_REGEX_CHAR_LIMIT
-            and looks_like_tabular_text(text)
-        )
+    scores = reranker_model.predict(
+        cross_inp,
+        batch_size=2,
+    )
 
-        adjusted_score = raw_score
-        penalty_reason = ""
+    for i, doc in enumerate(retrieved_docs):
+        score = float(scores[i])
 
-        if is_huge_tabular_regex:
-            adjusted_score = raw_score * HUGE_TABULAR_REGEX_PENALTY
-            penalty_reason = "huge_tabular_regex_penalty"
-
-        retrieved_docs[i]["adjusted_rerank_score"] = adjusted_score
-        retrieved_docs[i]["rerank_penalty_reason"] = penalty_reason
-        retrieved_docs[i]["is_huge_tabular_regex"] = is_huge_tabular_regex
-        retrieved_docs[i]["text_chars"] = text_chars
+        doc["rerank_score"] = score
+        doc["text_chars"] = len(doc.get("text", "") or "")
 
     reranked_docs = sorted(
         retrieved_docs,
-        key=lambda x: x.get("adjusted_rerank_score", x.get("rerank_score", 0)),
+        key=lambda x: x.get("rerank_score", 0.0),
         reverse=True,
     )
 
-    final_docs = []
+    for rank, doc in enumerate(reranked_docs, start=1):
+        doc["rerank_rank"] = rank
 
-    for adjusted_rank, doc in enumerate(reranked_docs, start=1):
-        is_huge_tabular_regex = doc.get("is_huge_tabular_regex", False)
+    return reranked_docs[:top_k]
 
-        if (
-            is_huge_tabular_regex
-            and adjusted_rank > MAX_HUGE_TABULAR_REGEX_KEEP_RANK
-        ):
-            meta = doc.get("meta", {}) or {}
-            print(
-                "⚠️ Skipping penalized huge tabular regex after adjusted rank "
-                f"{adjusted_rank} | source={meta.get('source_file')} "
-                f"| page={meta.get('page')} "
-                f"| chars={doc.get('text_chars')} "
-                f"| raw={doc.get('rerank_score')} "
-                f"| adjusted={doc.get('adjusted_rerank_score')}"
-            )
-            continue
 
-        final_docs.append(doc)
-
-        if len(final_docs) >= top_k:
-            break
-
-    return final_docs
+# ==============================================================================
+# FULL RETRIEVAL + RERANK PIPELINE
+# ==============================================================================
 
 def get_best_documents_for_llm(
     retrieval_query,
@@ -128,33 +78,40 @@ def get_best_documents_for_llm(
     rerank_query=None,
 ):
     """
-    Exécute le pipeline complet:
-    - retrieval_query : utilisé pour la recherche vectorielle Chroma
-    - rerank_query    : utilisé pour le CrossEncoder reranker
+    Executes the retrieval + rerank pipeline.
 
-    Usage recommandé:
-    - retrieval_query = requête optimisée
-    - rerank_query    = question originale utilisateur
+    Parameters:
+    - retrieval_query:
+        Query used for Chroma vector search.
+        This can be the optimized/enhanced query.
 
-    Backward compatible:
-    - si rerank_query=None, on utilise retrieval_query pour le reranking aussi.
+    - rerank_query:
+        Query used by the CrossEncoder reranker.
+        This should be the user's original query.
+        If None, retrieval_query is used.
+
+    New full-vision flow:
+    1. Retrieve top_k_retrieve page chunks from Chroma.
+    2. Rerank those chunks using the user's query.
+    3. Return top_k_rerank best chunks.
+    4. Later, another module will take source_file + page and render the PDF pages.
     """
 
     if rerank_query is None:
         rerank_query = retrieval_query
 
     print("=" * 90)
-    print("🔎 RAG RETRIEVAL / RERANK DEBUG")
+    print("🔎 PAGE RAG RETRIEVAL / RERANK DEBUG")
     print(f"📥 Retrieval query used for Chroma/vector search:\n   {retrieval_query}")
     print(f"🎯 Rerank query used for CrossEncoder:\n   {rerank_query}")
     print(f"📌 top_k_retrieve={top_k_retrieve} | top_k_rerank={top_k_rerank}")
     print("=" * 90)
 
     initial_docs, strategy_used = get_retrieved_documents(
-        retrieval_query,
-        bi_encoder,
-        collection,
-        top_k=top_k_retrieve
+        query=retrieval_query,
+        model=bi_encoder,
+        collection=collection,
+        top_k=top_k_retrieve,
     )
 
     print(f"🔎 Retrieval strategy used: {strategy_used}")
@@ -165,22 +122,25 @@ def get_best_documents_for_llm(
         return []
 
     final_docs = rerank_documents(
-        rerank_query,
-        initial_docs,
-        reranker,
-        top_k=top_k_rerank
+        query=rerank_query,
+        retrieved_docs=initial_docs,
+        reranker_model=reranker,
+        top_k=top_k_rerank,
     )
 
     print(f"✅ Final docs after rerank: {len(final_docs)}")
 
     for i, doc in enumerate(final_docs, start=1):
         meta = doc.get("meta", {}) or {}
+
         print(
-            f"   #{i} | score={doc.get('rerank_score')} "
+            f"   #{i} "
+            f"| rerank_score={doc.get('rerank_score')} "
             f"| distance={doc.get('distance')} "
             f"| method={meta.get('chunking_method')} "
             f"| source={meta.get('source_file')} "
-            f"| page={meta.get('page')}"
+            f"| page={meta.get('page')} "
+            f"| page_id={meta.get('page_id')}"
         )
 
     print("=" * 90)
