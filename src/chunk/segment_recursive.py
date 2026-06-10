@@ -5,8 +5,8 @@ import json
 # --- CONFIGURATION ---
 INPUT_FOLDER = "../../data/txt"
 OUTPUT_FOLDER = "../../data/json_recursive" # Separate folder for parallel pipeline
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+CHUNK_SIZE = 3000
+CHUNK_OVERLAP = 500
 
 def clean_text(text):
     """Reusing your cleaning logic to ensure text quality before chunking."""

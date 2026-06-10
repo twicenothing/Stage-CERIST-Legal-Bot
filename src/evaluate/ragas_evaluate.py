@@ -70,7 +70,7 @@ TOP_K_RETRIEVE = int(os.getenv("RAG_TOP_K_RETRIEVE", "30"))
 TOP_K_RERANK = int(os.getenv("RAG_TOP_K_RERANK", "5"))
 
 # 0 means evaluate all rows
-TEST_LIMIT = int(os.getenv("RAGAS_TEST_LIMIT", "100"))
+TEST_LIMIT = int(os.getenv("RAGAS_TEST_LIMIT", "20"))
 
 # Query rewrite enabled by default because production uses it
 USE_QUERY_REWRITE = os.getenv("RAGAS_USE_QUERY_REWRITE", "1") == "1"

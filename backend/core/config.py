@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     RAG_THINK: bool
     RAG_TOP_K_RETRIEVE: int
     RAG_TOP_K_RERANK: int
+    VISION_TABLE_MODEL: str = "mistral-small3.1:latest"
+    USE_PDF_VISION_FOR_TABLES: bool = True
+    VISION_MAX_PAGES: int = 3
+    VISION_PAGE_ZOOM: float = 3.0
+    VISION_NUM_CTX: int = 32768
+    VISION_NUM_PREDICT: int = 800
+
 
     class Config:
         env_file = "../.env"
