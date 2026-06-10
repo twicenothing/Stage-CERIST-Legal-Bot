@@ -195,12 +195,14 @@ La ville choisie pour accueillir le festival culturel international annuel du th
 Réponse directe :"""
 
     try:
+        print(f"⏳ Envoi de la requête au LLM ({model_name}) pour génération de la réponse...")
         response = ollama_client.chat(
             model=model_name,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            think = False,
             options={
                 "temperature": 0.0,
                 "num_ctx": 8192,

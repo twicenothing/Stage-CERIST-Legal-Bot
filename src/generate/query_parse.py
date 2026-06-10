@@ -46,8 +46,11 @@ Sortie : Législation et réglementation applicables aux sociétés commerciales
                 {'role': 'system', 'content': system_prompt},
                 {'role': 'user', 'content': user_prompt}
             ],
+            think=False,
             options={
-                "temperature": 0.0 # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
+                "temperature": 0.0, # 0.0 empêche le modèle d'être "créatif" et le force à respecter les règles
+                "num_ctx": 8192,
+                "num_predict": 80
             }
         )
         print(f"✅ Requête reformulée par le LLM : {response['message']['content']}")

@@ -218,43 +218,98 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
 
     optimized_query = rewrite_query(query)
 
+    print("\n" + "=" * 80)
+    print("🟦 ORIGINAL QUERY:")
+    print(query)
+    print("\n🟨 OPTIMIZED QUERY:")
+    print(optimized_query)
+    print("=" * 80)
+
     yield {"type": "optimized_query", "text": optimized_query}
+
     # 1. Modular Retrieval & Reranking using workstation src
     best_docs = get_best_documents_for_llm(
-        optimized_query, 
-        collection, 
-        bi_encoder, 
+        optimized_query,
+        collection,
+        bi_encoder,
         reranker,
-        top_k_retrieve=30, 
-        top_k_rerank=4
+        top_k_retrieve=30,
+        top_k_rerank=2
     )
 
     if not best_docs:
+        print("\n❌ NO DOCUMENTS RETRIEVED\n")
+
         yield {"type": "sources", "sources": []}
-        yield {"type": "chunk", "text": "Les documents fournis ne contiennent pas cette information."}
+        yield {
+            "type": "chunk",
+            "text": "Les documents fournis ne contiennent pas cette information."
+        }
         return
+
+    # ============================================================
+    # DEBUG: Print documents that will be fed to the LLM
+    # ============================================================
+    print("\n" + "=" * 80)
+    print(f"📚 DOCUMENTS FED TO LLM: {len(best_docs)}")
+    print("=" * 80)
+
+    for i, doc in enumerate(best_docs, start=1):
+        meta = doc.get("meta", {})
+        text = doc.get("text", "")
+        rerank_score = doc.get("rerank_score", None)
+
+        print(f"\n--- DOC {i} ---")
+        print(f"ID: {doc.get('id', 'N/A')}")
+        print(f"RERANK SCORE: {rerank_score}")
+
+        print("METADATA:")
+        print(f"  source_file: {meta.get('source_file', 'N/A')}")
+        print(f"  page: {meta.get('page', 'N/A')}")
+        print(f"  chunking_method: {meta.get('chunking_method', 'N/A')}")
+        print(f"  chunk_format: {meta.get('chunk_format', 'N/A')}")
+        print(f"  parent_title: {meta.get('parent_title', 'N/A')}")
+        print(f"  document_type: {meta.get('document_type', 'N/A')}")
+        print(f"  table_id: {meta.get('table_id', 'N/A')}")
+        print(f"  table_kind: {meta.get('table_kind', 'N/A')}")
+
+        print("\nTEXT SENT TO LLM:")
+        print(text)
+
+        print("-" * 80)
 
     # 2. Build the exact prompts
     system_prompt, user_prompt, sources = _format_llm_prompt(query, best_docs)
+
+    print("\n" + "=" * 80)
+    print("🧾 PROMPT SIZE DEBUG")
+    print(f"System prompt chars: {len(system_prompt)}")
+    print(f"User prompt chars: {len(user_prompt)}")
+    print(f"Total prompt chars: {len(system_prompt) + len(user_prompt)}")
+    print("=" * 80 + "\n")
 
     # 3. Emit sources first (Frontend requirement)
     yield {"type": "sources", "sources": sources}
 
     # 4. Stream tokens from Ollama
     client = AsyncClient(host=settings.OLLAMA_HOST)
-    print(settings.LLM_MODEL)
+
+    print(f"🤖 LLM MODEL: {settings.LLM_MODEL}")
+
     async for part in await client.chat(
         model=settings.LLM_MODEL,
         messages=[
-            {'role': 'system', 'content': system_prompt},
-            {'role': 'user', 'content': user_prompt}
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
         ],
         stream=True,
+        think=False,
         options={
             "temperature": 0.0,
-            "num_ctx": 8192
+            "num_ctx": 8192,
         }
     ):
         token = part["message"]["content"]
+
         if token:
             yield {"type": "chunk", "text": token}
