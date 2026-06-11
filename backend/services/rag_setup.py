@@ -642,6 +642,7 @@ async def stream_legal_answer(query: str) -> AsyncGenerator[dict, None]:
         rerank_query=query,
     )
 
+    print(optimized_query)
     if not best_docs:
         yield {"type": "sources", "sources": []}
         yield {"type": "chunk", "text": refusal_message}
