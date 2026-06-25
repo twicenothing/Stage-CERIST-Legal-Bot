@@ -75,6 +75,129 @@ def safe_id_part(value: str) -> str:
 
 
 # ==============================================================================
+# DOCUMENT METADATA PARSING
+# ==============================================================================
+
+def parse_metadata_value(value: str):
+    """
+    Converts simple metadata values to useful Python types.
+
+    journal_year: 2002 -> int
+    empty values stay as ""
+    """
+    value = str(value or "").strip()
+
+    if value == "":
+        return ""
+
+    if re.fullmatch(r"\d+", value):
+        try:
+            return int(value)
+        except Exception:
+            return value
+
+    return value
+
+
+def extract_document_metadata_from_txt(text: str) -> dict:
+    """
+    Parses the metadata header added by the extraction scripts.
+
+    Expected format:
+
+    <<<DOCUMENT_METADATA>>>
+    source_file: F2002001.pdf
+    journal_number: 01
+    journal_date_text: 6 janvier 2002
+    journal_date_iso: 2002-01-06
+    journal_year: 2002
+    <<<END_DOCUMENT_METADATA>>>
+    """
+    metadata = {
+        "source_file": "",
+        "journal_number": "",
+        "journal_date_text": "",
+        "journal_date_iso": "",
+        "journal_year": 0,
+    }
+
+    pattern = re.compile(
+        r"<<<DOCUMENT_METADATA>>>\s*(.*?)\s*<<<END_DOCUMENT_METADATA>>>",
+        flags=re.DOTALL,
+    )
+
+    match = pattern.search(text or "")
+
+    if not match:
+        return metadata
+
+    block = match.group(1)
+
+    for line in block.splitlines():
+        line = line.strip()
+
+        if not line or ":" not in line:
+            continue
+
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = parse_metadata_value(value)
+
+        if key:
+            metadata[key] = value
+
+    # Safety normalization
+    try:
+        metadata["journal_year"] = int(metadata.get("journal_year") or 0)
+    except Exception:
+        metadata["journal_year"] = 0
+
+    return metadata
+
+
+def remove_document_metadata_block(text: str) -> str:
+    """
+    Removes the metadata header before page parsing.
+
+    This prevents the metadata block from accidentally becoming part of a page
+    if a TXT file has no page markers.
+    """
+    return re.sub(
+        r"<<<DOCUMENT_METADATA>>>\s*.*?\s*<<<END_DOCUMENT_METADATA>>>\s*",
+        "",
+        text or "",
+        flags=re.DOTALL,
+    ).strip()
+
+
+def build_common_metadata(
+    source_txt: str,
+    source_pdf: str,
+    document_metadata: dict,
+) -> dict:
+    """
+    Metadata copied into every chunk.
+    Chroma metadata must stay simple: str, int, float, bool.
+    """
+    common = {
+        "source_file": source_pdf,
+        "source_txt": source_txt,
+        "journal_number": document_metadata.get("journal_number", ""),
+        "journal_date_text": document_metadata.get("journal_date_text", ""),
+        "journal_date_iso": document_metadata.get("journal_date_iso", ""),
+        "journal_year": document_metadata.get("journal_year", 0),
+    }
+
+    # If extractor provided source_file, keep it as an additional trace field.
+    extracted_source_file = document_metadata.get("source_file", "")
+
+    if extracted_source_file:
+        common["metadata_source_file"] = extracted_source_file
+
+    return common
+
+
+# ==============================================================================
 # PAGE PARSING
 # ==============================================================================
 
@@ -268,31 +391,39 @@ def build_page_full_chunk(
     page_num,
     page_text: str,
     chunk_index: int,
+    document_metadata: dict,
 ):
     page_id = f"{file_stem}_p{page_num}"
 
     chunk_text = (
         f"Source: {source_pdf}\n"
         f"Page: {page_num}\n"
+        f"Date du Journal Officiel: {document_metadata.get('journal_date_iso', '')}\n"
         f"Type: page complète\n\n"
         f"{page_text}"
     )
+
+    metadata = build_common_metadata(
+        source_txt=source_txt,
+        source_pdf=source_pdf,
+        document_metadata=document_metadata,
+    )
+
+    metadata.update({
+        "page": page_num,
+        "page_id": page_id,
+        "chunking_method": "page_full",
+        "chunk_format": "full_page_text",
+        "char_start": 0,
+        "char_end": len(page_text),
+        "text_chars": len(page_text),
+    })
 
     return {
         "id": f"{page_id}_full",
         "chunk_index": chunk_index,
         "text": chunk_text,
-        "metadata": {
-            "source_file": source_pdf,
-            "source_txt": source_txt,
-            "page": page_num,
-            "page_id": page_id,
-            "chunking_method": "page_full",
-            "chunk_format": "full_page_text",
-            "char_start": 0,
-            "char_end": len(page_text),
-            "text_chars": len(page_text),
-        },
+        "metadata": metadata,
     }
 
 
@@ -303,6 +434,7 @@ def build_page_window_chunks(
     page_num,
     page_text: str,
     starting_chunk_index: int,
+    document_metadata: dict,
 ):
     page_id = f"{file_stem}_p{page_num}"
 
@@ -328,29 +460,36 @@ def build_page_window_chunks(
         chunk_text = (
             f"Source: {source_pdf}\n"
             f"Page: {page_num}\n"
+            f"Date du Journal Officiel: {document_metadata.get('journal_date_iso', '')}\n"
             f"Type: fenêtre de page\n"
             f"Fenêtre: {window_index}\n\n"
             f"{window_text}"
         )
 
+        metadata = build_common_metadata(
+            source_txt=source_txt,
+            source_pdf=source_pdf,
+            document_metadata=document_metadata,
+        )
+
+        metadata.update({
+            "page": page_num,
+            "page_id": page_id,
+            "window_index": window_index,
+            "chunking_method": "page_window",
+            "chunk_format": "page_window_text",
+            "char_start": start_idx,
+            "char_end": end_idx,
+            "text_chars": len(window_text),
+            "window_size": PAGE_WINDOW_SIZE,
+            "window_overlap": PAGE_WINDOW_OVERLAP,
+        })
+
         chunks.append({
             "id": f"{page_id}_w{window_index}",
             "chunk_index": chunk_index,
             "text": chunk_text,
-            "metadata": {
-                "source_file": source_pdf,
-                "source_txt": source_txt,
-                "page": page_num,
-                "page_id": page_id,
-                "window_index": window_index,
-                "chunking_method": "page_window",
-                "chunk_format": "page_window_text",
-                "char_start": start_idx,
-                "char_end": end_idx,
-                "text_chars": len(window_text),
-                "window_size": PAGE_WINDOW_SIZE,
-                "window_overlap": PAGE_WINDOW_OVERLAP,
-            },
+            "metadata": metadata,
         })
 
         chunk_index += 1
@@ -364,9 +503,13 @@ def process_one_txt_file(input_path: Path, output_path: Path):
     file_stem = safe_id_part(source_pdf)
 
     with open(input_path, "r", encoding="utf-8") as f:
-        content = f.read()
+        raw_content = f.read()
 
+    document_metadata = extract_document_metadata_from_txt(raw_content)
+
+    content = remove_document_metadata_block(raw_content)
     content = clean_text(content)
+
     pages = extract_pages_from_marked_txt(content)
 
     chunks = []
@@ -389,6 +532,7 @@ def process_one_txt_file(input_path: Path, output_path: Path):
             page_num=page_num,
             page_text=page_text,
             chunk_index=chunk_index,
+            document_metadata=document_metadata,
         )
 
         chunks.append(full_chunk)
@@ -405,6 +549,7 @@ def process_one_txt_file(input_path: Path, output_path: Path):
                 page_num=page_num,
                 page_text=page_text,
                 starting_chunk_index=chunk_index,
+                document_metadata=document_metadata,
             )
 
             chunks.extend(window_chunks)
@@ -421,6 +566,11 @@ def process_one_txt_file(input_path: Path, output_path: Path):
     final_output = {
         "source_txt": source_txt,
         "source_file": source_pdf,
+        "document_metadata": document_metadata,
+        "journal_number": document_metadata.get("journal_number", ""),
+        "journal_date_text": document_metadata.get("journal_date_text", ""),
+        "journal_date_iso": document_metadata.get("journal_date_iso", ""),
+        "journal_year": document_metadata.get("journal_year", 0),
         "chunking_strategy": "page_full_plus_page_window",
         "total_pages": len(pages),
         "total_chunks": len(chunks),
@@ -449,6 +599,8 @@ def process_one_txt_file(input_path: Path, output_path: Path):
             1 for c in chunks
             if c["metadata"].get("chunking_method") == "page_window"
         ),
+        "journal_date_iso": document_metadata.get("journal_date_iso", ""),
+        "journal_year": document_metadata.get("journal_year", 0),
     }
 
 
@@ -482,6 +634,7 @@ def process_all_txt_to_page_json():
     total_chunks = 0
     total_page_full = 0
     total_page_window = 0
+    total_missing_dates = 0
     errors = 0
 
     for index, input_path in enumerate(files, start=1):
@@ -498,11 +651,15 @@ def process_all_txt_to_page_json():
             total_page_full += stats["page_full"]
             total_page_window += stats["page_window"]
 
+            if not stats.get("journal_date_iso"):
+                total_missing_dates += 1
+
             print(
                 f"✅ pages={stats['pages']} "
                 f"| chunks={stats['chunks']} "
                 f"| full={stats['page_full']} "
-                f"| windows={stats['page_window']}"
+                f"| windows={stats['page_window']} "
+                f"| date={stats.get('journal_date_iso') or 'NOT_FOUND'}"
             )
 
         except Exception as e:
@@ -511,12 +668,13 @@ def process_all_txt_to_page_json():
 
     print("=" * 100)
     print("🎉 Page chunking complete.")
-    print(f"Total pages:       {total_pages}")
-    print(f"Total chunks:      {total_chunks}")
-    print(f"Page full chunks:  {total_page_full}")
-    print(f"Page window chunks:{total_page_window}")
-    print(f"Errors:            {errors}")
-    print(f"Output folder:     {OUTPUT_FOLDER}")
+    print(f"Total pages:        {total_pages}")
+    print(f"Total chunks:       {total_chunks}")
+    print(f"Page full chunks:   {total_page_full}")
+    print(f"Page window chunks: {total_page_window}")
+    print(f"Missing dates:      {total_missing_dates}")
+    print(f"Errors:             {errors}")
+    print(f"Output folder:      {OUTPUT_FOLDER}")
     print("=" * 100)
 
 

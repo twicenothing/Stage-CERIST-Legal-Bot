@@ -33,6 +33,12 @@ Sortie : Durée légale et conditions du congé de maternité pour les employée
 Entrée : "test"
 Sortie : SKIP_OPTIMIZATION
 
+Entrée : Quel est le montant des CP pour le ministère de la culture ?
+Sortie : Montant des CP crédits de paiement alloués au ministère de la culture
+
+Entrée : Quel est l'effectif total de l'INTTIC ?
+Sortie : Effectif total de l'INTTIC institut national des télécommunications
+
 Entrée : "loi sur le commerce"
 Sortie : Législation et réglementation applicables aux sociétés commerciales et au droit des affaires en Algérie
 """

@@ -104,6 +104,7 @@ def safe_metadata_value(value):
     """
     Chroma metadata values must be:
     str, int, float, bool.
+
     No None, lists, or dicts.
     """
     if value is None:
@@ -116,6 +117,9 @@ def safe_metadata_value(value):
 
 
 def clean_metadata(metadata):
+    """
+    Ensures all metadata values are Chroma-compatible.
+    """
     return {
         str(k): safe_metadata_value(v)
         for k, v in (metadata or {}).items()
@@ -136,6 +140,15 @@ def normalize_source_file(source_file: str) -> str:
     if base.lower().endswith(".txt"):
         base = os.path.splitext(base)[0] + ".pdf"
 
+    if base.lower().endswith(".json"):
+        base = os.path.splitext(base)[0] + ".pdf"
+
+    if base.lower().endswith("_pages.pdf"):
+        base = base.replace("_pages.pdf", ".pdf")
+
+    if base.lower().endswith("_recursive.pdf"):
+        base = base.replace("_recursive.pdf", ".pdf")
+
     if not base.lower().endswith(".pdf"):
         base += ".pdf"
 
@@ -148,6 +161,139 @@ def make_safe_chroma_id(raw_id: str) -> str:
     raw_id = raw_id.replace("/", "_")
     raw_id = raw_id.replace("\\", "_")
     return raw_id
+
+
+def safe_int(value, default=0):
+    try:
+        if value is None or value == "":
+            return default
+
+        return int(value)
+    except Exception:
+        return default
+
+
+def normalize_document_metadata(data: dict) -> dict:
+    """
+    Reads document-level metadata from the page JSON.
+
+    Your updated chunking JSON contains:
+      document_metadata
+      journal_number
+      journal_date_text
+      journal_date_iso
+      journal_year
+
+    This function normalizes them and gives safe defaults.
+    """
+    data = data or {}
+
+    document_metadata = data.get("document_metadata", {}) or {}
+
+    journal_number = (
+        document_metadata.get("journal_number")
+        or data.get("journal_number")
+        or ""
+    )
+
+    journal_date_text = (
+        document_metadata.get("journal_date_text")
+        or data.get("journal_date_text")
+        or ""
+    )
+
+    journal_date_iso = (
+        document_metadata.get("journal_date_iso")
+        or data.get("journal_date_iso")
+        or ""
+    )
+
+    journal_year = safe_int(
+        document_metadata.get("journal_year")
+        or data.get("journal_year")
+        or 0
+    )
+
+    metadata_source_file = (
+        document_metadata.get("source_file")
+        or data.get("source_file")
+        or ""
+    )
+
+    return {
+        "journal_number": str(journal_number or ""),
+        "journal_date_text": str(journal_date_text or ""),
+        "journal_date_iso": str(journal_date_iso or ""),
+        "journal_year": journal_year,
+
+        # Aliases useful for temporal reranking.
+        "publication_date": str(journal_date_iso or ""),
+        "publication_year": journal_year,
+        "source_year": journal_year,
+
+        # Trace of what the extractor found in <<<DOCUMENT_METADATA>>>.
+        "metadata_source_file": normalize_source_file(metadata_source_file),
+    }
+
+
+def apply_date_metadata_to_chunk(metadata: dict, document_metadata: dict) -> dict:
+    """
+    Ensures each chunk metadata contains the publication date fields.
+
+    Priority:
+    1. chunk metadata if already present
+    2. top-level document metadata
+    3. safe defaults
+    """
+    metadata = dict(metadata or {})
+
+    metadata["journal_number"] = str(
+        metadata.get("journal_number")
+        or document_metadata.get("journal_number")
+        or ""
+    )
+
+    metadata["journal_date_text"] = str(
+        metadata.get("journal_date_text")
+        or document_metadata.get("journal_date_text")
+        or ""
+    )
+
+    metadata["journal_date_iso"] = str(
+        metadata.get("journal_date_iso")
+        or document_metadata.get("journal_date_iso")
+        or ""
+    )
+
+    journal_year = safe_int(
+        metadata.get("journal_year")
+        or document_metadata.get("journal_year")
+        or 0
+    )
+
+    metadata["journal_year"] = journal_year
+
+    # Useful aliases for temporal reranking.
+    metadata["publication_date"] = str(
+        metadata.get("publication_date")
+        or metadata.get("journal_date_iso")
+        or ""
+    )
+
+    metadata["publication_year"] = safe_int(
+        metadata.get("publication_year")
+        or journal_year
+    )
+
+    metadata["source_year"] = safe_int(
+        metadata.get("source_year")
+        or journal_year
+    )
+
+    if not metadata.get("metadata_source_file"):
+        metadata["metadata_source_file"] = document_metadata.get("metadata_source_file", "")
+
+    return metadata
 
 
 # ==============================================================================
@@ -198,6 +344,12 @@ def load_page_chunks_from_file(file_path: Path):
     Expected structure:
     {
       "source_file": "F202009.pdf",
+      "document_metadata": {
+        "journal_number": "09",
+        "journal_date_text": "6 janvier 2025",
+        "journal_date_iso": "2025-01-06",
+        "journal_year": 2025
+      },
       "chunks": [
         {
           "id": "...",
@@ -206,7 +358,9 @@ def load_page_chunks_from_file(file_path: Path):
             "source_file": "F202009.pdf",
             "page": 9,
             "page_id": "F202009_p9",
-            "chunking_method": "page_full" or "page_window"
+            "chunking_method": "page_full" or "page_window",
+            "journal_date_iso": "2025-01-06",
+            "journal_year": 2025
           }
         }
       ]
@@ -221,9 +375,13 @@ def load_page_chunks_from_file(file_path: Path):
 
     source_file = normalize_source_file(data.get("source_file", file_path.name))
 
+    document_metadata = normalize_document_metadata(data)
+
     ids = []
     documents = []
     metadatas = []
+
+    missing_date_count = 0
 
     for idx, chunk in enumerate(data.get("chunks", []), start=1):
         text = str(chunk.get("text", "")).strip()
@@ -237,6 +395,11 @@ def load_page_chunks_from_file(file_path: Path):
             metadata.get("source_file", source_file)
         )
 
+        metadata = apply_date_metadata_to_chunk(
+            metadata=metadata,
+            document_metadata=document_metadata,
+        )
+
         metadata.setdefault("source_json", file_path.name)
         metadata.setdefault("page", "Inconnu")
         metadata.setdefault("page_id", "")
@@ -244,6 +407,9 @@ def load_page_chunks_from_file(file_path: Path):
         metadata.setdefault("chunk_format", "page_text")
         metadata.setdefault("chunk_index", chunk.get("chunk_index", idx))
         metadata.setdefault("embedding_strategy", "page_full_plus_page_window")
+
+        if not metadata.get("journal_date_iso"):
+            missing_date_count += 1
 
         chunk_id = chunk.get("id")
 
@@ -257,6 +423,11 @@ def load_page_chunks_from_file(file_path: Path):
         ids.append(chunk_id)
         documents.append(text)
         metadatas.append(clean_metadata(metadata))
+
+    if missing_date_count:
+        print(
+            f"   ⚠️ {file_path.name}: {missing_date_count} chunks without journal_date_iso"
+        )
 
     return ids, documents, metadatas
 
@@ -379,6 +550,7 @@ def main():
     global_total_added = 0
     global_page_full = 0
     global_page_window = 0
+    global_missing_dates = 0
     errors = 0
 
     try:
@@ -410,10 +582,29 @@ def main():
                     if m.get("chunking_method") == "page_window"
                 )
 
+                missing_date_count = sum(
+                    1 for m in metadatas
+                    if not m.get("journal_date_iso")
+                )
+
+                global_missing_dates += missing_date_count
+
+                sample_date = ""
+                sample_year = 0
+
+                for m in metadatas:
+                    if m.get("journal_date_iso"):
+                        sample_date = m.get("journal_date_iso")
+                        sample_year = m.get("journal_year", 0)
+                        break
+
                 print(
                     f"   ✅ loaded={len(documents)} "
                     f"| full={page_full_count} "
-                    f"| windows={page_window_count}"
+                    f"| windows={page_window_count} "
+                    f"| date={sample_date or 'NOT_FOUND'} "
+                    f"| year={sample_year or 'N/A'} "
+                    f"| missing_dates={missing_date_count}"
                 )
 
                 added = add_encoded_batches(
@@ -444,6 +635,7 @@ def main():
     print(f"Total vectors added: {global_total_added}")
     print(f"Page full chunks:    {global_page_full}")
     print(f"Page window chunks:  {global_page_window}")
+    print(f"Missing dates:       {global_missing_dates}")
     print(f"Errors:              {errors}")
     print(f"Collection name:     {COLLECTION_NAME}")
     print(f"Chroma path:         {CHROMA_PATH}")

@@ -89,7 +89,7 @@ VISION_MODEL = str(
     )
 )
 
-VISION_MAX_PAGES = _get_int_setting("VISION_MAX_PAGES", 3)
+VISION_MAX_PAGES = _get_int_setting("VISION_MAX_PAGES", 5)
 VISION_PAGE_ZOOM = _get_float_setting("VISION_PAGE_ZOOM", 3.0)
 VISION_NUM_CTX = _get_int_setting("VISION_NUM_CTX", getattr(settings, "RAG_NUM_CTX", 32768))
 VISION_NUM_PREDICT = _get_int_setting("VISION_NUM_PREDICT", getattr(settings, "RAG_NUM_PREDICT", 800))
@@ -349,7 +349,20 @@ RÈGLES DE FORMATAGE STRICTES :
 5. Si la réponse implique une liste, sois exhaustif et n'omets aucun élément visible dans la source.
 6. Si la source est un tableau, respecte exactement les valeurs, codes, montants, taux, unités et libellés.
 7. Si les documents ne répondent qu'à une partie de la question, réponds à cette partie et précise clairement que le reste n'est pas indiqué.
+8. Si plusieurs actes juridiques fournissent exactement la même réponse factuelle à la question posée, ne répète pas la même réponse plusieurs fois.
 
+Dans ce cas, cite tous les actes juridiques pertinents dans une seule formule au début de la réponse, puis donne la réponse une seule fois.
+Exemple :
+Mauvais :
+D'après le décret exécutif n° X, les wilayas concernées sont A, B et C.
+D'après le décret exécutif n° Y, les wilayas concernées sont A, B et C.
+
+Correct :
+D'après les décrets exécutifs n° X du ... et n° Y du ..., les wilayas concernées sont A, B et C.
+
+Attention :
+Tu peux regrouper plusieurs sources seulement si elles donnent exactement la même réponse à la même question.
+Si les sources concernent des catégories différentes, des durées différentes, des montants différents ou des conditions différentes, ne les regroupe pas.
 RÈGLE CRITIQUE DE REJET :
 Si l'information exacte ne se trouve pas dans les documents fournis, tu NE DOIS RIEN ÉCRIRE D'AUTRE que cette phrase exacte :
 "Je suis désolé, je n'ai pas la réponse à cette question car la base de données ne contient pas cette information."
