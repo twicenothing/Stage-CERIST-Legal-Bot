@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, distinct
 from core.database import get_db
 from core.models import User, ChatSession, Message
@@ -141,6 +141,29 @@ def get_message_preview(message: Message) -> str:
         return str(value)[:250]
 
     return ""
+
+
+def serialize_session_with_messages(session: ChatSession) -> dict:
+    """
+    Serializes a ChatSession along with all of its messages, ordered by
+    creation time. Mirrors the shape returned by /rag/session/{session_id}.
+    """
+    return {
+        "id": session.id,
+        "title": session.title,
+        "createdAt": serialize_datetime(getattr(session, "created_at", None)),
+        "archived": getattr(session, "archived", None),
+        "messages": [
+            {
+                "id": m.id,
+                "role": m.role,
+                "parts": m.parts,
+                "createdAt": serialize_datetime(getattr(m, "created_at", None)),
+                "feedback": getattr(m, "feedback", None),
+            }
+            for m in sorted(session.messages, key=lambda x: x.created_at)
+        ],
+    }
 
 
 # ==============================================================================
@@ -601,7 +624,7 @@ def get_dashboard_stats(
         }
 
         # ============================================================
-        # Most disliked messages
+        # Most disliked messages (with full session + messages attached)
         # ============================================================
         most_disliked_messages = []
 
@@ -612,12 +635,35 @@ def get_dashboard_stats(
 
         disliked_rows = disliked_query.limit(5).all()
 
+        # message_session_fk was already resolved above (used for active_users_period)
+        session_fk_name = message_session_fk.key if message_session_fk is not None else None
+
         for message in disliked_rows:
+            session_data = None
+
+            session_id_value = (
+                getattr(message, session_fk_name, None)
+                if session_fk_name
+                else None
+            )
+
+            if session_id_value:
+                session = (
+                    db.query(ChatSession)
+                    .options(joinedload(ChatSession.messages))
+                    .filter(ChatSession.id == session_id_value)
+                    .first()
+                )
+
+                if session:
+                    session_data = serialize_session_with_messages(session)
+
             most_disliked_messages.append({
                 "id": getattr(message, "id", None),
                 "preview": get_message_preview(message),
                 "created_at": serialize_datetime(getattr(message, "created_at", None)),
                 "feedback": getattr(message, "feedback", None),
+                "session": session_data,
             })
 
         # ============================================================
